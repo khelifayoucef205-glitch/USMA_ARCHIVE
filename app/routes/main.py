@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, render_template
 
 
 main = Blueprint("main", __name__)
@@ -6,4 +6,4 @@ main = Blueprint("main", __name__)
 
 @main.route("/")
 def home():
-    return "USMA V0.1 is running!"
+    return render_template("home.html", Title = "Home")
