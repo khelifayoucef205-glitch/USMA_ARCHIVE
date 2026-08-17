@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
+    <nav>
+        <div>
+            <a href="{{ url_for('main.home') }}">USMA</a>
+        </div>
+
+        <div>
+            <a href="{{ url_for('main.home') }}">Home</a>
+            <a href="#">Squad</a>
+            <a href="#">Records</a>
+            <a href="#">About</a>
+        </div>
+    </nav>
     {% block body %} {% endblock %}
 </body>
 </html>
