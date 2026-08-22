@@ -1,0 +1,136 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>🔗 Player Club Management</h1>
+    <p>Manage player-club relationships and history</p>
+</div>
+
+<!-- Add Player Club Form -->
+<div class="admin-section">
+    <h2>Add New Player Club</h2>
+
+    <form method="POST" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="player_id">Player</label>
+                <select id="player_id" name="player_id" required>
+                    <option value="">-- Select Player --</option>
+                    {% for player in players %}
+                    <option value="{{ player.Player_id }}">
+                        {{ player.Person_Display_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="club_id">Club</label>
+                <select id="club_id" name="club_id" required>
+                    <option value="">-- Select Club --</option>
+                    {% for club in clubs %}
+                    <option value="{{ club.Club_id }}">
+                        {{ club.Club_Current_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="join_date">Join Date</label>
+                <input type="date" id="join_date" name="join_date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="leave_date" class="optional">Leave Date</label>
+                <input type="date" id="leave_date" name="leave_date">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="is_actual">
+                    <input type="checkbox" id="is_actual" name="is_actual">
+                    Is Current Club
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-secondary" onclick="location.reload();">Cancel</button>
+            <button type="submit" class="btn-primary">✓ Add Player Club</button>
+        </div>
+    </form>
+</div>
+
+<!-- Player Club History Table -->
+<div class="admin-section">
+    <h2>Player Club History</h2>
+
+    {% if player_clubs %}
+    <div class="admin-table-container">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Club</th>
+                        <th>Join Date</th>
+                        <th>Leave Date</th>
+                        <th>Current</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pc in player_clubs %}
+                    <tr>
+                        <td class="table-name">{{ pc.Person_Display_Name }}</td>
+                        <td class="table-name">{{ pc.Club_Current_Name }}</td>
+                        <td>{{ pc.Join_Date }}</td>
+                        <td>
+                            {% if pc.Leave_Date %}
+                            {{ pc.Leave_Date }}
+                            {% else %}
+                            <span style="color: #999;">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if pc.Is_Actual %}
+                            <span style="color: var(--primary-red); font-weight: 600;">✓ Yes</span>
+                            {% else %}
+                            <span style="color: #999;">✗ No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{{ url_for('edit_player_club.edit_player_club_page', player_id=pc.Player_id, club_id=pc.Club_id, join_date=pc.Join_Date) }}"
+                                    class="btn-action btn-edit" title="Edit">✏️</a>
+
+                                <form method="POST"
+                                    action="{{ url_for('player_club.delete_player_club', player_id=pc.Player_id, club_id=pc.Club_id, join_date=pc.Join_Date) }}"
+                                    style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-action btn-delete" title="Delete"
+                                        style="border: none; background: none; cursor: pointer;">🗑️</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🔗</div>
+        <h3>No player-club relationships found</h3>
+        <p>Start by adding a player-club relationship using the form above.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,361 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>✏️ Edit Player</h1>
+    <p>Update player information and manage relationships</p>
+</div>
+
+<!-- Personal Information Section -->
+<div class="admin-section">
+    <h2>👤 Personal Information</h2>
+
+    <form method="POST" class="admin-form">
+        <input type="hidden" name="action" value="update_player">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="first_name" class="optional">First Name</label>
+                <input type="text" id="first_name" name="first_name" value="{{ player.Person_First_Name or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="last_name" class="optional">Last Name</label>
+                <input type="text" id="last_name" name="last_name" value="{{ player.Person_Last_Name or '' }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="display_name">Display Name</label>
+                <input type="text" id="display_name" name="display_name" value="{{ player.Person_Display_Name or '' }}"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="country_id">Nationality</label>
+                <select id="country_id" name="country_id" required>
+                    {% for country in countries %}
+                    <option value="{{ country.Country_id }}" {% if country.Country_id==player.Country_id %}selected{%
+                        endif %}>
+                        {{ country.Country_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="birth_date" class="optional">Date of Birth</label>
+                <input type="date" id="birth_date" name="birth_date" value="{{ player.Person_birth_date or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="sex" class="optional">Sex</label>
+                <select id="sex" name="sex">
+                    <option value="Male" {% if player.Sex=='Male' %}selected{% endif %}>👨 Male</option>
+                    <option value="Female" {% if player.Sex=='Female' %}selected{% endif %}>👩 Female</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Arabic Names -->
+        <div style="border-top: 2px solid #f0f0f0; padding-top: 20px; margin-top: 20px;">
+            <h3 style="font-size: 16px; color: var(--primary-red); margin-bottom: 15px;">Arabic Names (اسم عربي)</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name_ar" class="optional">First Name (Arabic)</label>
+                    <input type="text" id="first_name_ar" name="first_name_ar"
+                        value="{{ player.Person_First_Name_ar or '' }}" dir="rtl">
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name_ar" class="optional">Last Name (Arabic)</label>
+                    <input type="text" id="last_name_ar" name="last_name_ar"
+                        value="{{ player.Person_Last_Name_ar or '' }}" dir="rtl">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="display_name_ar" class="optional">Display Name (Arabic)</label>
+                    <input type="text" id="display_name_ar" name="display_name_ar"
+                        value="{{ player.Person_Display_Name_ar or '' }}" dir="rtl">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('players.players_page') }}" class="btn-secondary">← Back</a>
+            <button type="submit" class="btn-primary">✓ Save Personal Info</button>
+        </div>
+    </form>
+</div>
+
+<!-- Player Information Section -->
+<div class="admin-section">
+    <h2>⚽ Player Information</h2>
+
+    <form method="POST" class="admin-form">
+        <input type="hidden" name="action" value="update_player">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="position_id">Main Position</label>
+                <select id="position_id" name="position_id" required>
+                    {% for position in positions %}
+                    <option value="{{ position.Position_id }}" {% if position.Position_id==current_position_id
+                        %}selected{% endif %}>
+                        {{ position.Position_Code }} - {{ position.Position_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="jersey_number" class="optional">Main Jersey Number</label>
+                <input type="number" id="jersey_number" name="jersey_number" min="0" max="99"
+                    value="{{ player.Main_Jersey_Number or '' }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="nickname" class="optional">Nickname</label>
+                <input type="text" id="nickname" name="nickname" value="{{ player.Player_Nickname or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="nickname_ar" class="optional">Nickname (Arabic)</label>
+                <input type="text" id="nickname_ar" name="nickname_ar" value="{{ player.Player_Nickname_ar or '' }}"
+                    dir="rtl">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="is_active">
+                    <input type="checkbox" id="is_active" name="is_active" {% if player.Is_Active %}checked{% endif %}>
+                    <span>Active Player</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('players.players_page') }}" class="btn-secondary">← Back</a>
+            <button type="submit" class="btn-primary">✓ Save Player Info</button>
+        </div>
+    </form>
+</div>
+
+<!-- Player Positions Section -->
+<div class="admin-section">
+    <h2>📍 Player Positions</h2>
+
+    {% if player_positions %}
+    <div class="admin-table-container">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Main</th>
+                        <th style="width: 150px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for position in player_positions %}
+                    <tr>
+                        <td>
+                            <span
+                                style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                                {{ position.Position_Code }}
+                            </span>
+                            <span style="color: #666;">{{ position.Position_Name }}</span>
+                        </td>
+                        <td>
+                            {% if position.Is_Main %}
+                            <span style="color: var(--primary-red); font-weight: 600;">✓ Yes</span>
+                            {% else %}
+                            <span style="color: #999;">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                {% if not position.Is_Main %}
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="action" value="make_main_position">
+                                    <input type="hidden" name="position_id" value="{{ position.Position_id }}">
+                                    <button type="submit" class="btn-action btn-edit" title="Make Main"
+                                        style="border: none; background: none; cursor: pointer;">📌</button>
+                                </form>
+                                {% endif %}
+
+                                {% if player_positions|length > 1 %}
+                                <form method="POST" style="display: inline;"
+                                    onsubmit="return confirm('Remove this position?');">
+                                    <input type="hidden" name="action" value="delete_position">
+                                    <input type="hidden" name="position_id" value="{{ position.Position_id }}">
+                                    <button type="submit" class="btn-action btn-delete" title="Remove"
+                                        style="border: none; background: none; cursor: pointer;">🗑️</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📍</div>
+        <h3>No positions assigned</h3>
+    </div>
+    {% endif %}
+
+    <!-- Add Position Form -->
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+        <h3 style="font-size: 16px; margin-bottom: 15px;">Add Position</h3>
+
+        <form method="POST" class="admin-form">
+            <input type="hidden" name="action" value="add_position">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="new_position_id">Select Position</label>
+                    <select id="new_position_id" name="new_position_id" required>
+                        <option value="">-- Select Position --</option>
+                        {% for position in positions %}
+                        <option value="{{ position.Position_id }}">
+                            {{ position.Position_Code }} - {{ position.Position_Name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">✓ Add Position</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Club History Section -->
+<div class="admin-section">
+    <h2>🏛️ Club History</h2>
+
+    {% if player_clubs %}
+    <div class="admin-table-container">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Club</th>
+                        <th>Join Date</th>
+                        <th>Leave Date</th>
+                        <th>Current</th>
+                        <th style="width: 120px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for relation in player_clubs %}
+                    <tr>
+                        <td class="table-name">{{ relation.Club_Current_Name }}</td>
+                        <td>{{ relation.Join_Date }}</td>
+                        <td>
+                            {% if relation.Leave_Date %}
+                            {{ relation.Leave_Date }}
+                            {% else %}
+                            <span style="color: #999;">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if relation.Is_Actual %}
+                            <span style="color: var(--primary-red); font-weight: 600;">✓ Yes</span>
+                            {% else %}
+                            <span style="color: #999;">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{{ url_for('edit_player_club.edit_player_club_page', player_id=relation.Player_id, club_id=relation.Club_id, join_date=relation.Join_Date) }}"
+                                    class="btn-action btn-edit" title="Edit">✏️</a>
+
+                                <form method="POST" style="display: inline;"
+                                    onsubmit="return confirm('Delete this relationship?');">
+                                    <input type="hidden" name="action" value="delete_club">
+                                    <input type="hidden" name="club_id" value="{{ relation.Club_id }}">
+                                    <input type="hidden" name="join_date" value="{{ relation.Join_Date }}">
+                                    <button type="submit" class="btn-action btn-delete" title="Delete"
+                                        style="border: none; background: none; cursor: pointer;">🗑️</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🏛️</div>
+        <h3>No club history found</h3>
+    </div>
+    {% endif %}
+
+    <!-- Add Club Form -->
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+        <h3 style="font-size: 16px; margin-bottom: 15px;">Add Club History</h3>
+
+        <form method="POST" class="admin-form">
+            <input type="hidden" name="action" value="add_club">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="club_id">Club</label>
+                    <select id="club_id" name="club_id" required>
+                        <option value="">-- Select Club --</option>
+                        {% for club in clubs %}
+                        <option value="{{ club.Club_id }}">
+                            {{ club.Club_Current_Name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="join_date">Join Date</label>
+                    <input type="date" id="join_date" name="join_date" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="leave_date" class="optional">Leave Date</label>
+                    <input type="date" id="leave_date" name="leave_date">
+                </div>
+
+                <div class="form-group">
+                    <label for="is_actual">
+                        <input type="checkbox" id="is_actual" name="is_actual">
+                        <span>Current Club</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">✓ Add Club</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

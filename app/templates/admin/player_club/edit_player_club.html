@@ -1,0 +1,83 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>✏️ Edit Player Club</h1>
+    <p>Update player-club relationship</p>
+</div>
+
+<!-- Edit Player Club Form -->
+<div class="admin-section">
+    <h2>Relationship Details</h2>
+
+    <form method="POST" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="player_id">Player (Read-Only)</label>
+                <input type="text" id="player_id" value="{{ relationship.Person_Display_Name }}" disabled
+                    style="background-color: #f0f0f0; cursor: not-allowed;">
+                <small style="color: #999; display: block; margin-top: 5px;">Cannot be changed</small>
+            </div>
+
+            <div class="form-group">
+                <label for="club_id">Club</label>
+                <select id="club_id" name="club_id" required>
+                    <option value="">-- Select Club --</option>
+                    {% for club in clubs %}
+                    <option value="{{ club.Club_id }}" {% if club.Club_id==relationship.Club_id %}selected{% endif %}>
+                        {{ club.Club_Current_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="join_date">Join Date</label>
+                <input type="date" id="join_date" name="join_date" value="{{ relationship.Join_Date }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="leave_date" class="optional">Leave Date</label>
+                <input type="date" id="leave_date" name="leave_date" value="{{ relationship.Leave_Date or '' }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="is_actual">
+                    <input type="checkbox" id="is_actual" name="is_actual" {% if relationship.Is_Actual %}checked{%
+                        endif %}>
+                    <span>Is Current Club</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('player_club.player_club_page') }}" class="btn-secondary">← Back</a>
+            <button type="submit" class="btn-primary">✓ Save Changes</button>
+        </div>
+    </form>
+</div>
+
+<!-- Delete Relationship -->
+<div class="admin-section" style="border-left: 4px solid var(--primary-red);">
+    <h2 style="color: var(--primary-red);">⚠️ Delete Relationship</h2>
+
+    <div style="background: rgba(220, 20, 60, 0.1); padding: 15px; border-radius: 8px;">
+        <p style="margin: 0 0 10px 0; color: var(--primary-black);">
+            Remove this player from {{ relationship.Club_Current_Name }}?
+        </p>
+
+        <form method="POST"
+            action="{{ url_for('player_club.delete_player_club', player_id=relationship.Player_id, club_id=relationship.Club_id, join_date=relationship.Join_Date) }}"
+            onsubmit="return confirm('Are you sure?');" style="display: inline;">
+            <button type="submit" class="btn-danger">🗑️ Delete Relationship</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

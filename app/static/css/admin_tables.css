@@ -1,0 +1,573 @@
+css
+/* ====================================
+   ADMIN TABLES & DATA DISPLAY - USMA Theme
+   ==================================== */
+
+
+/* ====================================
+   TABLE CONTAINER
+   ==================================== */
+
+.admin-table-container {
+    width: 100%;
+    background: var(--neutral-white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e8eaed;
+}
+
+.admin-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+
+/* ====================================
+   TABLE
+   ==================================== */
+
+.admin-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+    font-size: 14px;
+    table-layout: auto;
+}
+
+
+/* ====================================
+   TABLE HEADER
+   ==================================== */
+
+.admin-table thead {
+    background: linear-gradient(135deg,
+            var(--primary-black) 0%,
+            #2a2a2a 100%);
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.admin-table th {
+    padding: 16px 20px;
+
+    color: var(--neutral-white);
+
+    text-align: left;
+
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    font-size: 12px;
+
+    border-bottom: 2px solid var(--primary-red);
+
+    white-space: nowrap;
+    vertical-align: middle;
+
+    min-width: 50px;
+}
+
+
+/* ====================================
+   TABLE BODY
+   ==================================== */
+
+.admin-table td {
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #f0f0f0;
+
+    color: var(--primary-black);
+
+    vertical-align: middle;
+
+    line-height: 1.6;
+
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.admin-table tbody tr {
+    transition: var(--admin-transition);
+}
+
+.admin-table tbody tr:hover {
+    background-color: rgba(220, 20, 60, 0.08);
+
+    box-shadow:
+        inset 4px 0 0 var(--primary-red);
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* ====================================
+   TABLE CELL VARIANTS
+   ==================================== */
+
+.table-id {
+    font-weight: 700;
+    color: var(--primary-red);
+
+    min-width: 90px;
+
+    white-space: nowrap;
+}
+
+.table-name {
+    font-weight: 600;
+    color: var(--primary-black);
+
+    min-width: 180px;
+}
+
+.table-status {
+    display: inline-block;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+
+    white-space: nowrap;
+}
+
+
+/* ====================================
+   STATUS VARIANTS
+   ==================================== */
+
+.status-active {
+    background: linear-gradient(135deg,
+            var(--primary-black),
+            #2a2a2a);
+
+    color: var(--primary-red);
+
+    border: 1px solid var(--primary-red);
+}
+
+.status-inactive {
+    background: rgba(220, 20, 60, 0.15);
+
+    color: var(--primary-red);
+
+    border: 1px solid var(--primary-red);
+}
+
+.status-dissolved {
+    background: var(--primary-black);
+
+    color: var(--primary-red);
+
+    border: 1px solid var(--primary-red);
+}
+
+.status-suspended {
+    background: rgba(26, 26, 26, 0.8);
+
+    color: var(--primary-red);
+
+    border: 1px dashed var(--primary-red);
+}
+
+
+/* ====================================
+   TABLE ACTIONS
+   ==================================== */
+
+.admin-table th:last-child,
+.admin-table td:last-child {
+    width: 120px;
+    min-width: 120px;
+
+    text-align: center;
+}
+
+.table-actions {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    padding: 4px;
+
+    flex-wrap: nowrap;
+}
+
+.btn-action {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    border: none;
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    flex-shrink: 0;
+
+    transition: var(--admin-transition);
+}
+
+
+/* ====================================
+   EDIT BUTTON
+   ==================================== */
+
+.btn-edit {
+    background: rgba(220, 20, 60, 0.15);
+
+    color: var(--primary-red);
+
+    border: 1px solid var(--primary-red);
+}
+
+.btn-edit:hover {
+    background: var(--primary-red);
+
+    color: var(--neutral-white);
+
+    transform: scale(1.05);
+}
+
+
+/* ====================================
+   DELETE BUTTON
+   ==================================== */
+
+.btn-delete {
+    background: var(--primary-black);
+
+    color: var(--primary-red);
+
+    border: 1px solid var(--primary-red);
+}
+
+.btn-delete:hover {
+    background: var(--primary-red);
+
+    color: var(--neutral-white);
+
+    transform: scale(1.05);
+}
+
+
+/* ====================================
+   VIEW BUTTON
+   ==================================== */
+
+.btn-view {
+    background: rgba(220, 20, 60, 0.10);
+
+    color: var(--primary-black);
+
+    border: 1px solid var(--primary-black);
+}
+
+.btn-view:hover {
+    background: var(--primary-black);
+
+    color: var(--primary-red);
+
+    transform: scale(1.05);
+}
+
+
+/* ====================================
+   EMPTY TABLE STATE
+   ==================================== */
+
+.empty-state {
+    text-align: center;
+
+    padding: 60px 20px;
+
+    color: var(--dark-gray);
+}
+
+.empty-state-icon {
+    font-size: 48px;
+
+    margin-bottom: 16px;
+
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 18px;
+
+    color: var(--primary-black);
+
+    margin: 10px 0;
+}
+
+.empty-state p {
+    font-size: 14px;
+
+    margin: 5px 0;
+
+    color: var(--dark-gray);
+}
+
+
+/* ====================================
+   TABLE PAGINATION
+   ==================================== */
+
+.table-pagination {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 20px;
+
+    background: #f9f9fc;
+
+    border-top: 2px solid var(--primary-red);
+
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    width: 38px;
+    height: 38px;
+
+    border: 2px solid var(--primary-red);
+
+    background: var(--neutral-white);
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    transition: var(--admin-transition);
+
+    font-weight: 600;
+
+    color: var(--primary-red);
+
+    font-size: 14px;
+}
+
+.pagination-btn:hover {
+    background: var(--primary-red);
+
+    color: var(--neutral-white);
+}
+
+.pagination-btn.active {
+    background: var(--primary-red);
+
+    color: var(--neutral-white);
+
+    border-color: var(--primary-red);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+
+/* ====================================
+   RESPONSIVE - 1200px
+   ==================================== */
+
+@media (max-width: 1200px) {
+
+    .admin-table th,
+    .admin-table td {
+        padding: 14px 16px;
+
+        font-size: 13px;
+    }
+
+    .table-actions {
+        gap: 8px;
+    }
+
+    .btn-action {
+        width: 36px;
+        height: 36px;
+
+        font-size: 14px;
+    }
+}
+
+
+/* ====================================
+   RESPONSIVE - 1024px
+   ==================================== */
+
+@media (max-width: 1024px) {
+
+    .admin-table {
+        min-width: 750px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 13px 14px;
+
+        font-size: 12px;
+    }
+
+    .table-id {
+        min-width: 60px;
+    }
+
+    .table-name {
+        min-width: 140px;
+    }
+
+    .admin-table th:last-child,
+    .admin-table td:last-child {
+        min-width: 110px;
+        width: 110px;
+    }
+
+    .table-actions {
+        gap: 6px;
+    }
+
+    .btn-action {
+        width: 34px;
+        height: 34px;
+
+        font-size: 13px;
+    }
+}
+
+
+/* ====================================
+   RESPONSIVE - 768px
+   ==================================== */
+
+@media (max-width: 768px) {
+
+    .admin-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        min-width: 700px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 12px 12px;
+
+        font-size: 11px;
+
+        line-height: 1.5;
+    }
+
+    .table-id {
+        min-width: 55px;
+
+        font-size: 11px;
+    }
+
+    .table-name {
+        min-width: 120px;
+
+        font-size: 11px;
+    }
+
+    .table-actions {
+        gap: 5px;
+
+        padding: 2px;
+    }
+
+    .btn-action {
+        width: 32px;
+        height: 32px;
+
+        font-size: 12px;
+    }
+
+    .table-status {
+        padding: 4px 8px;
+
+        font-size: 10px;
+    }
+}
+
+
+/* ====================================
+   RESPONSIVE - 480px
+   ==================================== */
+
+@media (max-width: 480px) {
+
+    .admin-table {
+        min-width: 650px;
+
+        font-size: 10px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 10px 10px;
+
+        font-size: 10px;
+    }
+
+    .table-id {
+        min-width: 50px;
+    }
+
+    .table-name {
+        min-width: 110px;
+    }
+
+    .admin-table th:last-child,
+    .admin-table td:last-child {
+        min-width: 100px;
+        width: 100px;
+    }
+
+    .btn-action {
+        width: 30px;
+        height: 30px;
+
+        font-size: 11px;
+    }
+
+    .table-actions {
+        gap: 4px;
+    }
+
+    .pagination-btn {
+        width: 34px;
+        height: 34px;
+
+        font-size: 12px;
+    }
+}

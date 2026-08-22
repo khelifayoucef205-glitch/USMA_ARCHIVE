@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<!-- Player Header -->
+<div class="player-header">
+    <div class="player-avatar">⚽</div>
+    <div class="player-header-content">
+        <h1>{{ player.Person_Display_Name }}</h1>
+        <p>{{ player.Country_Name }} • {% if player.Is_Active %}Active{% else %}Inactive{% endif %}</p>
+    </div>
+</div>
+
+<!-- Personal Information -->
+<div class="player-section">
+    <h2>👤 Personal Information</h2>
+
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label">First Name</div>
+            <div class="info-value">{{ player.Person_First_Name or '—' }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Last Name</div>
+            <div class="info-value">{{ player.Person_Last_Name or '—' }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Display Name</div>
+            <div class="info-value">{{ player.Person_Display_Name }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Arabic Name</div>
+            <div class="info-value">{{ player.Person_Display_Name_ar or '—' }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Date of Birth</div>
+            <div class="info-value">{{ player.Person_birth_date or '—' }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Nationality</div>
+            <div class="info-value">{{ player.Country_Name }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Sex</div>
+            <div class="info-value">{{ player.Sex or '—' }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Status</div>
+            <div class="info-value {% if player.Is_Active %}status-active{% else %}status-inactive{% endif %}">
+                {% if player.Is_Active %}Active{% else %}Inactive{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Player Details -->
+<div class="player-section">
+    <h2>⚽ Player Details</h2>
+
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label">Nickname</div>
+            <div class="info-value">{{ player.Player_Nickname or '—' }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Arabic Nickname</div>
+            <div class="info-value">{{ player.Player_Nickname_ar or '—' }}</div>
+        </div>
+    </div>
+
+    {% if player.Main_Jersey_Number %}
+    <div class="jersey-display">
+        <div class="jersey-big">{{ player.Main_Jersey_Number }}</div>
+        <div class="jersey-info">
+            <h3>Main Jersey Number</h3>
+            <p>#{{ player.Main_Jersey_Number }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Positions -->
+<div class="player-section">
+    <h2>📍 Positions</h2>
+
+    {% if positions %}
+    <div class="positions-list">
+        {% for position in positions %}
+        <div class="position-badge {% if position.Is_Main %}main{% endif %}">
+            <div class="position-code">{{ position.Position_Code }}</div>
+            <span>{{ position.Position_Name }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-message">
+        No positions assigned.
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,271 @@
+/* ====================================
+   PLAYER DETAIL PAGE - USMA Theme
+   ==================================== */
+
+/* ====== Player Header ====== */
+.player-header {
+    background: linear-gradient(135deg, var(--primary-black), #2a2a2a);
+    color: var(--neutral-white);
+    padding: 50px 40px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+.player-header-content h1 {
+    color: var(--neutral-white);
+    margin: 0 0 10px 0;
+    font-size: 44px;
+}
+
+.player-header-content p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.player-avatar {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, var(--primary-red), #ff1744);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+    flex-shrink: 0;
+}
+
+/* ====== Player Information Sections ====== */
+.player-section {
+    background: var(--neutral-white);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    border: 2px solid #f0f0f0;
+    border-left: 4px solid var(--primary-red);
+    transition: var(--transition);
+}
+
+.player-section:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.player-section h2 {
+    margin-top: 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--primary-red);
+    font-size: 24px;
+}
+
+/* ====== Info Grid ====== */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.info-item {
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary-red);
+}
+
+.info-label {
+    font-size: 12px;
+    color: var(--dark-gray);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-size: 18px;
+    color: var(--primary-black);
+    font-weight: 600;
+}
+
+.info-value.status-active {
+    color: var(--primary-red);
+}
+
+.info-value.status-inactive {
+    color: #999;
+}
+
+/* ====== Positions List ====== */
+.positions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.position-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1), rgba(26, 26, 26, 0.05));
+    border: 2px solid var(--primary-red);
+    border-radius: 20px;
+    font-weight: 600;
+    color: var(--primary-black);
+    transition: var(--transition);
+}
+
+.position-code {
+    background: var(--primary-red);
+    color: var(--neutral-white);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.position-badge:hover {
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.2), rgba(26, 26, 26, 0.1));
+    transform: translateY(-2px);
+}
+
+.position-badge.main {
+    border: 2px solid var(--primary-black);
+    background: rgba(26, 26, 26, 0.05);
+}
+
+.position-badge.main::after {
+    content: '★ Main';
+    margin-left: 8px;
+    color: var(--primary-red);
+    font-weight: 700;
+}
+
+/* ====== Jersey Number Display ====== */
+.jersey-display {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1), rgba(26, 26, 26, 0.05));
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.jersey-big {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-red), #ff1744);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neutral-white);
+    font-size: 36px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+}
+
+.jersey-info h3 {
+    margin: 0 0 5px 0;
+    color: var(--dark-gray);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.jersey-info p {
+    margin: 0;
+    font-size: 18px;
+    color: var(--primary-black);
+    font-weight: 600;
+}
+
+/* ====== Empty State ====== */
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: var(--dark-gray);
+    font-style: italic;
+}
+
+/* ====== Responsive Player ====== */
+@media (max-width: 768px) {
+    .player-header {
+        grid-template-columns: 1fr;
+        padding: 30px 20px;
+    }
+
+    .player-header-content h1 {
+        font-size: 32px;
+    }
+
+    .player-avatar {
+        width: 120px;
+        height: 120px;
+        font-size: 48px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .player-section {
+        padding: 20px;
+    }
+
+    .player-section h2 {
+        font-size: 20px;
+    }
+
+    .jersey-display {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .positions-list {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .player-header {
+        padding: 20px 15px;
+    }
+
+    .player-header-content h1 {
+        font-size: 24px;
+    }
+
+    .player-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 40px;
+    }
+
+    .player-section {
+        padding: 15px;
+    }
+
+    .info-value {
+        font-size: 16px;
+    }
+
+    .jersey-big {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+    }
+}

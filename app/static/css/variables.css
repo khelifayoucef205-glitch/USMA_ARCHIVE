@@ -1,0 +1,43 @@
+:root {
+    /* ====== الألوان الأساسية ====== */
+    --primary-red: #DC143C;
+    --primary-black: #1a1a1a;
+    --neutral-white: #ffffff;
+    --light-gray: #f8f8f8;
+    --dark-gray: #333333;
+
+    /* ====== الألوان الإضافية ====== */
+    --border-color: #d5d5d5;
+    --hover-light: #fff7f8;
+    --shadow-light: rgba(0, 0, 0, 0.06);
+    --shadow-medium: rgba(0, 0, 0, 0.08);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+
+    /* ====== الأبعاد ====== */
+    --nav-height: 80px;
+    --container-width: 1200px;
+    --border-radius: 8px;
+
+    /* ====== الـ Transitions ====== */
+    --transition: all 0.3s ease;
+    --transition-fast: all 0.15s ease;
+    --transition-slow: all 0.5s ease;
+
+    /* ====== الخطوط ====== */
+    --font-size-base: 16px;
+    --font-size-small: 14px;
+    --font-size-xs: 13px;
+}
+
+/* ====== Utility Classes ====== */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 20px;
+    }
+}

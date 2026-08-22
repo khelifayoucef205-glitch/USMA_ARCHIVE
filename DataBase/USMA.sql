@@ -178,6 +178,13 @@ CREATE TABLE Player_Club (
     FOREIGN KEY (Player_id) REFERENCES Player (Player_id)
 );
 
+CREATE TABLE Season (
+    Season_Number INT NOT NULL PRIMARY KEY,
+    Season_Name VARCHAR(9) NOT NULL,
+    Start_Year SMALLINT,
+    End_Year SMALLINT
+);
+
 CREATE TABLE Player_Season (
     Player_id INT NOT NULL,
     Club_id INT NOT NULL,
@@ -200,13 +207,6 @@ CREATE TABLE Main_Stadium (
     PRIMARY KEY (Stadium_id, Club_id, Start_Year),
     FOREIGN KEY (Club_id) REFERENCES Club (Club_id),
     FOREIGN KEY (Stadium_id) REFERENCES Stadium (Stadium_id)
-);
-
-CREATE TABLE Season (
-    Season_Number INT NOT NULL PRIMARY KEY,
-    Season_Name VARCHAR(9) NOT NULL,
-    Start_Year SMALLINT,
-    End_Year SMALLINT
 );
 
 CREATE TABLE Competition (

@@ -1,0 +1,106 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>📊 USMA ARCHIVE — Admin Dashboard</h1>
+    <p>Welcome to the administration panel. Manage all data here.</p>
+</div>
+
+<!-- Dashboard Cards Grid -->
+<div class="dashboard-grid">
+
+    <!-- Players Card -->
+    <div class="dashboard-card card-players">
+        <div class="dashboard-card-icon">⚽</div>
+        <div class="dashboard-card-title">Players</div>
+        <div class="dashboard-card-value">{{ players_count }}</div>
+        <div class="dashboard-card-footer">
+            <a href="{{ url_for('players.players_page') }}">Manage Players →</a>
+        </div>
+    </div>
+
+    <!-- Clubs Card -->
+    <div class="dashboard-card card-clubs">
+        <div class="dashboard-card-icon">🏛️</div>
+        <div class="dashboard-card-title">Clubs</div>
+        <div class="dashboard-card-value">{{ clubs_count }}</div>
+        <div class="dashboard-card-footer">
+            <a href="{{ url_for('clubs.clubs_page') }}">Manage Clubs →</a>
+        </div>
+    </div>
+
+    <!-- Player Clubs Card -->
+    <div class="dashboard-card card-primary">
+        <div class="dashboard-card-icon">🔗</div>
+        <div class="dashboard-card-title">Player Clubs</div>
+        <div class="dashboard-card-value">{{ player_clubs_count }}</div>
+        <div class="dashboard-card-footer">
+            <a href="{{ url_for('player_club.player_club_page') }}">Manage →</a>
+        </div>
+    </div>
+
+    <!-- Player Seasons Card -->
+    <div class="dashboard-card card-primary">
+        <div class="dashboard-card-icon">📅</div>
+        <div class="dashboard-card-title">Player Seasons</div>
+        <div class="dashboard-card-value">{{ player_seasons_count }}</div>
+        <div class="dashboard-card-footer">
+            <a href="{{ url_for('player_season.player_season_page') }}">Manage →</a>
+        </div>
+    </div>
+
+    <!-- Cities Card -->
+    <div class="dashboard-card card-cities">
+        <div class="dashboard-card-icon">🏙️</div>
+        <div class="dashboard-card-title">Cities</div>
+        <div class="dashboard-card-value">{{ cities_count }}</div>
+        <div class="dashboard-card-footer">
+            <a href="{{ url_for('cities.cities_page') }}">Manage Cities →</a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Quick Actions Section -->
+<div class="admin-section">
+    <h2>🚀 Quick Actions</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <a href="{{ url_for('players.players_page') }}" style="padding: 15px; background: rgba(220, 20, 60, 0.1); border-left: 4px solid var(--primary-red); text-decoration: none; color: var(--primary-black); font-weight: 600; border-radius: 6px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(220, 20, 60, 0.2)'" onmouseout="this.style.background='rgba(220, 20, 60, 0.1)'">
+            ➕ Add New Player
+        </a>
+        
+        <a href="{{ url_for('clubs.clubs_page') }}" style="padding: 15px; background: rgba(220, 20, 60, 0.1); border-left: 4px solid var(--primary-red); text-decoration: none; color: var(--primary-black); font-weight: 600; border-radius: 6px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(220, 20, 60, 0.2)'" onmouseout="this.style.background='rgba(220, 20, 60, 0.1)'">
+            ➕ Add New Club
+        </a>
+
+        <a href="{{ url_for('cities.cities_page') }}" style="padding: 15px; background: rgba(220, 20, 60, 0.1); border-left: 4px solid var(--primary-red); text-decoration: none; color: var(--primary-black); font-weight: 600; border-radius: 6px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(220, 20, 60, 0.2)'" onmouseout="this.style.background='rgba(220, 20, 60, 0.1)'">
+            ➕ Add New City
+        </a>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="admin-section">
+    <h2>ℹ️ System Information</h2>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div>
+            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Total Records</h3>
+            <p style="font-size: 24px; color: var(--primary-black); font-weight: 700; margin: 0;">
+                {{ players_count + clubs_count + cities_count }}
+            </p>
+        </div>
+        
+        <div>
+            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Database Status</h3>
+            <p style="font-size: 16px; color: var(--primary-black); font-weight: 600; margin: 0;">
+                🟢 Connected & Healthy
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

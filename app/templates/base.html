@@ -1,24 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USMA V0.1 - {{Title}}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <title>USMA Archive - {{ Title }}</title>
+
+    <!-- CSS Reset & Variables -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reset.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/player.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/squad.css') }}">
 </head>
+
 <body>
+
     <nav>
-        <div>
-            <a href="{{ url_for('main.home') }}">USMA</a>
+        <div class="logo">
+            <a href="{{ url_for('main.home') }}">
+                <img src="{{ url_for('static', filename='images/usma-logo-icon.png') }}" alt="USMA Archive">
+            </a>
         </div>
 
-        <div>
+        <div class="links">
             <a href="{{ url_for('main.home') }}">Home</a>
-            <a href="#">Squad</a>
+            <a href="{{ url_for('squad.squad_page') }}">Squad</a>
             <a href="#">Records</a>
             <a href="#">About</a>
+            <a href="{{ url_for('dashboard.dashboard_page') }}" class="admin-btn">👤 I am an Admin</a>
         </div>
     </nav>
-    {% block body %} {% endblock %}
+
+    {% block body %}
+    {% endblock %}
+
 </body>
+
 </html>

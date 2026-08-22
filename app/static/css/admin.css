@@ -1,0 +1,147 @@
+/* ====================================
+   ADMIN PANEL - USMA Theme
+   ==================================== */
+
+:root {
+    --admin-bg: #fafafa;
+    --admin-sidebar-bg: var(--primary-black);
+    --admin-sidebar-width: 250px;
+    --admin-transition: all 0.3s ease;
+}
+
+/* ====== Admin Body Layout ====== */
+body.admin-page {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--admin-bg);
+}
+
+/* ====== Admin Navigation (Top Tabs) ====== */
+.admin-nav-tabs {
+    background: linear-gradient(135deg, var(--primary-black) 0%, #2a2a2a 100%);
+    padding: 0;
+    margin: 0;
+    border-bottom: 3px solid var(--primary-red);
+    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+}
+
+.admin-nav-tabs a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 20px;
+    color: #b0b0b0;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    transition: var(--admin-transition);
+    white-space: nowrap;
+    position: relative;
+}
+
+.admin-nav-tabs a:hover {
+    background: rgba(220, 20, 60, 0.15);
+    color: var(--primary-red);
+    border-bottom-color: var(--primary-red);
+}
+
+.admin-nav-tabs a.active {
+    background: rgba(220, 20, 60, 0.2);
+    color: var(--primary-red);
+    border-bottom-color: var(--primary-red);
+}
+
+/* Divider */
+.admin-nav-tabs a+a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 20px;
+    background: rgba(220, 20, 60, 0.3);
+}
+
+/* ====== Admin Container ====== */
+.admin-container {
+    flex: 1;
+    padding: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ====== Admin Header ====== */
+.admin-header {
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    font-size: 32px;
+    color: var(--primary-black);
+    margin: 0 0 10px 0;
+    font-weight: 700;
+}
+
+.admin-header h1::before {
+    margin-right: 10px;
+}
+
+.admin-header p {
+    color: var(--dark-gray);
+    font-size: 14px;
+    margin: 0;
+}
+
+/* ====== Admin Sections ====== */
+.admin-section {
+    background: var(--neutral-white);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    border: 2px solid var(--primary-black);
+}
+
+.admin-section h2 {
+    font-size: 20px;
+    color: var(--primary-black);
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--primary-red);
+    font-weight: 600;
+}
+
+.admin-section:first-child {
+    margin-top: 0;
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 20px;
+    }
+
+    .admin-section {
+        padding: 20px;
+    }
+
+    .admin-header h1 {
+        font-size: 24px;
+    }
+
+    .admin-nav-tabs {
+        flex-wrap: wrap;
+    }
+
+    .admin-nav-tabs a {
+        padding: 12px 15px;
+        font-size: 12px;
+    }
+}

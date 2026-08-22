@@ -1,0 +1,140 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>⚽ Add New Player</h1>
+    <p>Register a new player in the system</p>
+</div>
+
+<!-- Personal Information Section -->
+<div class="admin-section">
+    <h2>👤 Personal Information</h2>
+
+    <form method="POST" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="first_name" class="optional">First Name</label>
+                <input type="text" id="first_name" name="first_name" placeholder="e.g., Mohamed">
+            </div>
+
+            <div class="form-group">
+                <label for="last_name" class="optional">Last Name</label>
+                <input type="text" id="last_name" name="last_name" placeholder="e.g., Ali">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="display_name">Display Name</label>
+                <input type="text" id="display_name" name="display_name" placeholder="e.g., Mohamed Ali" required>
+            </div>
+
+            <div class="form-group">
+                <label for="country_id">Nationality</label>
+                <select id="country_id" name="country_id" required>
+                    <option value="">-- Select Country --</option>
+                    {% for country in countries %}
+                    <option value="{{ country.Country_id }}">
+                        {{ country.Country_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="birth_date" class="optional">Date of Birth</label>
+                <input type="date" id="birth_date" name="birth_date">
+            </div>
+
+            <div class="form-group">
+                <label for="sex" class="optional">Sex</label>
+                <select id="sex" name="sex">
+                    <option value="Male">👨 Male</option>
+                    <option value="Female">👩 Female</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Arabic Names -->
+        <div style="border-top: 2px solid #f0f0f0; padding-top: 20px; margin-top: 20px;">
+            <h3 style="font-size: 16px; color: var(--primary-red); margin-bottom: 15px;">Arabic Names (اسم عربي)</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name_ar" class="optional">First Name (Arabic)</label>
+                    <input type="text" id="first_name_ar" name="first_name_ar" placeholder="الاسم الأول" dir="rtl">
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name_ar" class="optional">Last Name (Arabic)</label>
+                    <input type="text" id="last_name_ar" name="last_name_ar" placeholder="الكنية" dir="rtl">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="display_name_ar" class="optional">Display Name (Arabic)</label>
+                    <input type="text" id="display_name_ar" name="display_name_ar" placeholder="الاسم الكامل" dir="rtl">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Player Information Section -->
+<div class="admin-section">
+    <h2>⚽ Player Information</h2>
+
+    <form method="POST" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="position_id">Main Position</label>
+                <select id="position_id" name="position_id" required>
+                    <option value="">-- Select Position --</option>
+                    {% for position in positions %}
+                    <option value="{{ position.Position_id }}">
+                        {{ position.Position_Code }} - {{ position.Position_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="jersey_number" class="optional">Main Jersey Number</label>
+                <input type="number" id="jersey_number" name="jersey_number" min="0" max="99" placeholder="e.g., 7">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="nickname" class="optional">Nickname</label>
+                <input type="text" id="nickname" name="nickname" placeholder="e.g., The Legend">
+            </div>
+
+            <div class="form-group">
+                <label for="nickname_ar" class="optional">Nickname (Arabic)</label>
+                <input type="text" id="nickname_ar" name="nickname_ar" placeholder="اللقب" dir="rtl">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="is_active">
+                    <input type="checkbox" id="is_active" name="is_active" checked>
+                    <span>Active Player</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('players.players_page') }}" class="btn-secondary">← Back to Players</a>
+            <button type="submit" class="btn-primary">✓ Add Player</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

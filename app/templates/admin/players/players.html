@@ -1,0 +1,98 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>⚽ Players Management</h1>
+    <p>Manage all players in the system</p>
+</div>
+
+<!-- Add Player Button -->
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('add_player.add_player_page') }}" class="btn-primary"
+        style="display: inline-block; padding: 12px 28px; text-decoration: none; border-radius: 8px;">
+        ➕ Add New Player
+    </a>
+</div>
+
+<!-- Players Table -->
+<div class="admin-section">
+    <h2>All Players</h2>
+
+    {% if players %}
+    <div class="admin-table-container">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Player Name</th>
+                        <th>Nationality</th>
+                        <th>Main Position</th>
+                        <th>Jersey</th>
+                        <th>Status</th>
+                        <th style="width: 130px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in players %}
+                    <tr>
+                        <td class="table-id">#{{ player.Player_id }}</td>
+                        <td class="table-name">
+                            <a href="{{ url_for('player.player_page', player_id=player.Player_id) }}"
+                                style="color: var(--primary-red); font-weight: 600; text-decoration: none;">
+                                {{ player.Person_Display_Name }}
+                            </a>
+                        </td>
+                        <td>{{ player.Country_Name }}</td>
+                        <td>
+                            <span
+                                style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                                {{ player.Position_Code }}
+                            </span>
+                        </td>
+                        <td style="text-align: center; font-weight: 600;">
+                            {% if player.Main_Jersey_Number %}
+                            #{{ player.Main_Jersey_Number }}
+                            {% else %}
+                            <span style="color: #999;">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if player.Is_Active %}
+                            <span class="table-status status-active">🟢 Active</span>
+                            {% else %}
+                            <span class="table-status status-inactive">🟡 Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{{ url_for('edit_player.edit_player_page', player_id=player.Player_id) }}"
+                                    class="btn-action btn-edit" title="Edit">✏️</a>
+
+                                <form method="POST"
+                                    action="{{ url_for('players.delete_player', player_id=player.Player_id) }}"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('Are you sure you want to delete this player?');">
+                                    <button type="submit" class="btn-action btn-delete" title="Delete"
+                                        style="border: none; background: none; cursor: pointer;">🗑️</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">⚽</div>
+        <h3>No players found</h3>
+        <p>Start by adding your first player using the button above.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

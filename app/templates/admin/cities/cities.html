@@ -1,0 +1,94 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>🏙️ Cities Management</h1>
+    <p>Manage all cities in the system</p>
+</div>
+
+<!-- Add City Form -->
+<div class="admin-section">
+    <h2>Add New City</h2>
+
+    <form method="POST" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="city_name">City Name (English)</label>
+                <input type="text" id="city_name" name="city_name" placeholder="e.g., Algiers" required>
+            </div>
+
+            <div class="form-group">
+                <label for="city_name_ar">City Name (Arabic)</label>
+                <input type="text" id="city_name_ar" name="city_name_ar" placeholder="مثلاً: الجزائر" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="country_id">Country</label>
+                <select id="country_id" name="country_id" required>
+                    <option value="">-- Select Country --</option>
+                    {% for country in countries %}
+                    <option value="{{ country.Country_id }}">
+                        {{ country.Country_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-secondary" onclick="location.reload();">Cancel</button>
+            <button type="submit" class="btn-primary">✓ Add City</button>
+        </div>
+    </form>
+</div>
+
+<!-- Cities Table -->
+<div class="admin-section">
+    <h2>Current Cities</h2>
+
+    {% if cities %}
+    <div class="admin-table-container">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>City Name</th>
+                        <th>City Name (Arabic)</th>
+                        <th>Country</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for city in cities %}
+                    <tr>
+                        <td class="table-id">{{ city.City_id }}</td>
+                        <td class="table-name">{{ city.City_Name }}</td>
+                        <td>{{ city.City_Name_ar }}</td>
+                        <td>{{ city.Country_Name }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-action btn-edit" title="Edit">✏️</button>
+                                <button class="btn-action btn-delete" title="Delete">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h3>No cities found</h3>
+        <p>Start by adding your first city using the form above.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

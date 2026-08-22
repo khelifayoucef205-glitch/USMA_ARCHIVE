@@ -1,17 +1,66 @@
 {% extends 'base.html' %}
 
-{% block body %}    
-<section>
+{% block body %}
+
+<div class="home-header">
     <h1>USM Alger Archive</h1>
-
     <p>
-        USM Alger Archive is a digital project dedicated to documenting
-        the history and statistics of Union Sportive de la Médina d'Alger.
+        A comprehensive digital repository documenting the history, statistics, and legacy of
+        <strong>Union Sportive de la Médina d'Alger</strong> — one of Algeria's most prominent football clubs.
     </p>
+</div>
 
-    <p>
-        Explore the club's players, seasons, records and historical data
-        through a structured football archive.
-    </p>
+<!-- Hero Section -->
+<section class="hero">
+    <img src="{{ url_for('static', filename='images/usma-logo-hero.png') }}" alt="USMA Archive - Historical Repository"
+        class="hero-logo">
 </section>
+
+<!-- Content Cards -->
+<div class="home-content">
+    <div class="content-card">
+        <div class="content-card-icon">⚽</div>
+        <h3>Players Database</h3>
+        <p>Explore profiles of past and current players, their career statistics, and achievements.</p>
+        <a href="{{ url_for('squad.squad_page') }}" class="cta-button">View Squad</a>
+    </div>
+
+    <div class="content-card">
+        <div class="content-card-icon">📊</div>
+        <h3>Season Records</h3>
+        <p>Browse comprehensive records of every season, from 1937/1938 to present day.</p>
+        <a href="#" class="cta-button">Browse Records</a>
+    </div>
+
+    <div class="content-card">
+        <div class="content-card-icon">🏆</div>
+        <h3>Historical Data</h3>
+        <p>Access detailed historical information about the club's legacy and achievements.</p>
+        <a href="#" class="cta-button">Explore History</a>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div class="stats-container">
+    <div class="stat-item">
+        <p class="stat-number">{{ players_count }}</p>
+        <p class="stat-label">Players</p>
+    </div>
+
+    <div class="stat-item">
+        <p class="stat-number">{{ country_count }}</p>
+        <p class="stat-label">Countries</p>
+    </div>
+
+    <div class="stat-item">
+        <p class="stat-number">85+</p>
+        <p class="stat-label">Seasons</p>
+    </div>
+
+    <div class="stat-item">
+        <p class="stat-number">1937</p>
+        <p class="stat-label">Founded</p>
+    </div>
+</div>
+
 {% endblock %}

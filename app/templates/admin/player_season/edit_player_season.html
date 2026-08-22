@@ -1,0 +1,91 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>✏️ Edit Player Season</h1>
+    <p>Update player season information</p>
+</div>
+
+<!-- Edit Player Season Form -->
+<div class="admin-section">
+    <h2>Season Details</h2>
+
+    <form method="POST" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="player_id">Player (Read-Only)</label>
+                <input type="text" id="player_id" value="{{ player_season.Person_Display_Name }}" disabled
+                    style="background-color: #f0f0f0; cursor: not-allowed;">
+                <small style="color: #999; display: block; margin-top: 5px;">Cannot be changed</small>
+            </div>
+
+            <div class="form-group">
+                <label for="club_id">Club</label>
+                <select id="club_id" name="club_id" required>
+                    <option value="">-- Select Club --</option>
+                    {% for club in clubs %}
+                    <option value="{{ club.Club_id }}" {% if club.Club_id==player_season.Club_id %}selected{% endif %}>
+                        {{ club.Club_Current_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="season_number">Season (Read-Only)</label>
+                <input type="text" id="season_number" value="{{ player_season.Season_Name }}" disabled
+                    style="background-color: #f0f0f0; cursor: not-allowed;">
+                <small style="color: #999; display: block; margin-top: 5px;">Cannot be changed</small>
+            </div>
+
+            <div class="form-group">
+                <label for="position_id">Position</label>
+                <select id="position_id" name="position_id" required>
+                    <option value="">-- Select Position --</option>
+                    {% for position in positions %}
+                    <option value="{{ position.Position_id }}" {% if position.Position_id==player_season.Position_id
+                        %}selected{% endif %}>
+                        {{ position.Position_Code }} - {{ position.Position_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="jersey_number" class="optional">Jersey Number</label>
+                <input type="number" id="jersey_number" name="jersey_number" min="0" max="99"
+                    value="{{ player_season.Jersey_Number or '' }}" placeholder="e.g., 7">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('player_season.player_season_page') }}" class="btn-secondary">← Back</a>
+            <button type="submit" class="btn-primary">✓ Save Changes</button>
+        </div>
+    </form>
+</div>
+
+<!-- Delete Season Record -->
+<div class="admin-section" style="border-left: 4px solid var(--primary-red);">
+    <h2 style="color: var(--primary-red);">⚠️ Delete Record</h2>
+
+    <div style="background: rgba(220, 20, 60, 0.1); padding: 15px; border-radius: 8px;">
+        <p style="margin: 0 0 10px 0; color: var(--primary-black);">
+            Delete {{ player_season.Person_Display_Name }}'s season record from {{ player_season.Season_Name }}?
+        </p>
+
+        <form method="POST"
+            action="{{ url_for('player_season.delete_player_season', player_id=player_season.Player_id, club_id=player_season.Club_id, season_number=player_season.Season_Number) }}"
+            onsubmit="return confirm('Are you sure?');" style="display: inline;">
+            <button type="submit" class="btn-danger">🗑️ Delete Record</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

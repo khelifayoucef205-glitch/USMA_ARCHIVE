@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="page-header">
+
+    <div class="squad-header">
+
+        <div>
+            <h1>USM Alger Squad</h1>
+
+            <p>
+                Squad of the selected season
+            </p>
+        </div>
+
+        <form
+            method="GET"
+            action="{{ url_for('squad.squad_page') }}"
+            class="season-selector"
+        >
+
+            <label for="season">
+                Season
+            </label>
+
+            <select
+                id="season"
+                name="season"
+                onchange="this.form.submit()"
+            >
+
+                {% for season in seasons %}
+
+                <option
+                    value="{{ season.Season_Number }}"
+                    {% if season.Season_Number == selected_season %}
+                        selected
+                    {% endif %}
+                >
+                    {{ season.Season_Name }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+{% if players %}
+
+<div class="table-container">
+
+    <table class="data-table">
+
+        <thead>
+
+            <tr>
+
+                <th>Number</th>
+
+                <th>Position</th>
+
+                <th>Player</th>
+
+                <th>Date of Birth</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for player in players %}
+
+            <tr>
+
+                <td>
+                    <span class="jersey-number">
+                        {{ player.Jersey_Number
+                           if player.Jersey_Number is not none
+                           else '-' }}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="position-code">
+                        {{ player.Position_Code }}
+                    </span>
+                </td>
+
+                <td>
+                    {{ player.Person_Display_Name }}
+                </td>
+
+                <td>
+                    {{ player.Person_birth_date
+                       if player.Person_birth_date
+                       else '-' }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% else %}
+
+<div class="card">
+
+    <p>
+        No players found for this season.
+    </p>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

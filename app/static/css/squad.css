@@ -1,0 +1,300 @@
+/* ====================================
+   Squad Page - USMA Theme
+   ==================================== */
+
+/* ====== Squad Container ====== */
+.squad-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 40px;
+}
+
+/* ====== Squad Header ====== */
+.squad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.squad-title {
+    flex: 1;
+    min-width: 300px;
+}
+
+.squad-title h1 {
+    margin: 0 0 10px 0;
+    font-size: 42px;
+    color: var(--primary-black);
+}
+
+.squad-title p {
+    margin: 0;
+    color: var(--dark-gray);
+    font-size: 16px;
+}
+
+/* ====== Season Selector ====== */
+.season-selector {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.season-selector label {
+    font-weight: 600;
+    color: var(--primary-black);
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.season-selector select {
+    padding: 12px 16px;
+    min-width: 200px;
+    border: 2px solid #d5d5d5;
+    border-radius: 8px;
+    background-color: var(--neutral-white);
+    font-size: 14px;
+    color: var(--primary-black);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.season-selector select:hover {
+    border-color: var(--primary-red);
+    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+}
+
+.season-selector select:focus {
+    outline: none;
+    border-color: var(--primary-red);
+    box-shadow: 0 0 0 4px rgba(220, 20, 60, 0.15);
+}
+
+/* ====== Table Container ====== */
+.squad-table-container {
+    background-color: var(--neutral-white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 2px solid #f0f0f0;
+}
+
+.squad-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+/* ====== Table Header ====== */
+.squad-table thead {
+    background: linear-gradient(135deg, var(--primary-black), #2a2a2a);
+}
+
+.squad-table th {
+    padding: 18px 20px;
+    color: var(--neutral-white);
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--primary-red);
+}
+
+/* ====== Table Body ====== */
+.squad-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    vertical-align: middle;
+    line-height: 1.6;
+}
+
+.squad-table tbody tr {
+    transition: var(--transition);
+}
+
+.squad-table tbody tr:hover {
+    background-color: rgba(220, 20, 60, 0.08);
+    box-shadow: inset 4px 0 0 var(--primary-red);
+}
+
+.squad-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ====== Jersey Number Badge ====== */
+.jersey-number {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary-red), #ff1744);
+    color: var(--neutral-white);
+    font-weight: 700;
+    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.2);
+}
+
+.jersey-number.empty {
+    background: #e8e8e8;
+    color: #999;
+    font-weight: 400;
+}
+
+/* ====== Position Code ====== */
+.position-code {
+    display: inline-block;
+    font-weight: 700;
+    color: var(--primary-red);
+    padding: 4px 8px;
+    background: rgba(220, 20, 60, 0.1);
+    border-radius: 4px;
+    min-width: 50px;
+    text-align: center;
+}
+
+/* ====== Player Name ====== */
+.player-name {
+    font-weight: 600;
+    color: var(--primary-black);
+}
+
+.player-name a {
+    color: var(--primary-red);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.player-name a:hover {
+    color: var(--primary-black);
+    border-bottom: 2px solid var(--primary-red);
+}
+
+/* ====== Empty Squad State ====== */
+.empty-squad {
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.08), rgba(26, 26, 26, 0.04));
+    padding: 60px 40px;
+    border-radius: 12px;
+    text-align: center;
+    color: var(--dark-gray);
+    border: 2px solid #f0f0f0;
+    border-left: 4px solid var(--primary-red);
+}
+
+.empty-squad h3 {
+    color: var(--primary-black);
+    font-size: 24px;
+    margin: 0 0 10px 0;
+}
+
+.empty-squad p {
+    margin: 0;
+    font-size: 15px;
+    color: var(--dark-gray);
+}
+
+/* ====== Responsive Squad ====== */
+@media (max-width: 768px) {
+    .squad-container {
+        padding: 30px 20px;
+    }
+
+    .squad-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .squad-title h1 {
+        font-size: 32px;
+    }
+
+    .season-selector {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .season-selector select {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .squad-table-container {
+        overflow-x: auto;
+    }
+
+    .squad-table {
+        min-width: 700px;
+    }
+
+    .squad-table th,
+    .squad-table td {
+        padding: 14px 16px;
+        font-size: 13px;
+    }
+
+    .empty-squad {
+        padding: 40px 20px;
+    }
+
+    .empty-squad h3 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .squad-container {
+        padding: 20px 15px;
+    }
+
+    .squad-title h1 {
+        font-size: 26px;
+    }
+
+    .squad-title p {
+        font-size: 14px;
+    }
+
+    .season-selector {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .season-selector label {
+        font-size: 14px;
+    }
+
+    .season-selector select {
+        width: 100%;
+    }
+
+    .squad-table {
+        min-width: 600px;
+        font-size: 12px;
+    }
+
+    .squad-table th,
+    .squad-table td {
+        padding: 12px 10px;
+        font-size: 11px;
+    }
+
+    .jersey-number {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .empty-squad {
+        padding: 30px 15px;
+    }
+}

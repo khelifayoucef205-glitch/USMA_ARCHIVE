@@ -1,0 +1,124 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>🏛️ Clubs Management</h1>
+    <p>Manage all football clubs in the system</p>
+</div>
+
+<!-- Add Club Form -->
+<div class="admin-section">
+    <h2>Add New Club</h2>
+
+    <form method="POST" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="club_current_name">Club Current Name</label>
+                <input type="text" id="club_current_name" name="club_current_name" placeholder="e.g., USM Alger"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="club_short_name">Short Name</label>
+                <input type="text" id="club_short_name" name="club_short_name" maxlength="10" placeholder="e.g., USMA"
+                    required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="city_id">City</label>
+                <select id="city_id" name="city_id" required>
+                    <option value="">-- Select City --</option>
+                    {% for city in cities %}
+                    <option value="{{ city.City_id }}">{{ city.City_Name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="club_status">Club Status</label>
+                <select id="club_status" name="club_status" required>
+                    <option value="Active">🟢 Active</option>
+                    <option value="Inactive">🟡 Inactive</option>
+                    <option value="Dissolved">🔴 Dissolved</option>
+                    <option value="Suspended">⚫ Suspended</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="founding_date" class="optional">Founding Date</label>
+                <input type="date" id="founding_date" name="founding_date">
+            </div>
+
+            <div class="form-group">
+                <label for="dissolution_date" class="optional">Dissolution Date</label>
+                <input type="date" id="dissolution_date" name="dissolution_date">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-secondary" onclick="location.reload();">Cancel</button>
+            <button type="submit" class="btn-primary">✓ Add Club</button>
+        </div>
+    </form>
+</div>
+
+<!-- Clubs Table -->
+<div class="admin-section">
+    <h2>Current Clubs</h2>
+
+    {% if clubs %}
+    <div class="admin-table-container">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Club Name</th>
+                        <th>Short Name</th>
+                        <th>City</th>
+                        <th>Founded</th>
+                        <th>Status</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for club in clubs %}
+                    <tr>
+                        <td class="table-id">#{{ club.Club_id }}</td>
+                        <td class="table-name">{{ club.Club_Current_Name }}</td>
+                        <td>{{ club.Club_Short_Name }}</td>
+                        <td>{{ club.City_Name }}</td>
+                        <td>{{ club.Club_Founding_Date or '—' }}</td>
+                        <td>
+                            <span class="table-status status-{{ club.Club_Status.lower() }}">
+                                {{ club.Club_Status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-action btn-edit" title="Edit">✏️</button>
+                                <button class="btn-action btn-delete" title="Delete">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">⚽</div>
+        <h3>No clubs found</h3>
+        <p>Start by adding your first club using the form above.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
