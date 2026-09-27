@@ -1,6 +1,6 @@
 :root {
     /* ====== الألوان الأساسية ====== */
-    --primary-red: #DC143C;
+    --primary-red: #B71C1C;
     --primary-black: #1a1a1a;
     --neutral-white: #ffffff;
     --light-gray: #f8f8f8;
@@ -9,35 +9,54 @@
     /* ====== الألوان الإضافية ====== */
     --border-color: #d5d5d5;
     --hover-light: #fff7f8;
+    --color-text-secondary: #888888;
+    --color-dark-gray: #555555;
+
     --shadow-light: rgba(0, 0, 0, 0.06);
     --shadow-medium: rgba(0, 0, 0, 0.08);
     --shadow-dark: rgba(0, 0, 0, 0.3);
 
-    /* ====== الأبعاد ====== */
+    /* Status Colors */
+    --color-active: #22C55E;
+    --color-former: #F59E0B;
+    --color-retired: #6B7280;
+    --color-deceased: #1F2937;
+
+    /* ====== Spacing ====== */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 40px;
+
+    /* ====== Border Radius ====== */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* ====== Shadows ====== */
+    --shadow-sm: 0 2px 6px var(--shadow-light);
+    --shadow-md: 0 4px 12px var(--shadow-medium);
+
+    /* ====== Dimensions ====== */
     --nav-height: 80px;
     --container-width: 1200px;
     --border-radius: 8px;
 
-    /* ====== الـ Transitions ====== */
+    /* ====== Transitions ====== */
     --transition: all 0.3s ease;
     --transition-fast: all 0.15s ease;
     --transition-slow: all 0.5s ease;
 
-    /* ====== الخطوط ====== */
-    --font-size-base: 16px;
-    --font-size-small: 14px;
+    /* ====== Font Sizes ====== */
     --font-size-xs: 13px;
-}
+    --font-size-sm: 14px;
+    --font-size-base: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 32px;
+    --font-size-3xl: 40px;
 
-/* ====== Utility Classes ====== */
-.container {
-    max-width: var(--container-width);
-    margin: 0 auto;
-    padding: 0 40px;
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 0 20px;
-    }
+    --line-height-tight: 1.2;
 }

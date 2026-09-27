@@ -25,6 +25,7 @@ def edit_player_page(player_id):
             p.Person_Last_Name_ar,
             p.Person_Display_Name_ar,
             p.Person_birth_date,
+            p.Person_death_date,
             p.Sex,
             p.Country_id,
 
@@ -49,7 +50,6 @@ def edit_player_page(player_id):
         connection.close()
         return "Player not found", 404
 
-
     # =========================================================
     # POST
     # =========================================================
@@ -58,14 +58,16 @@ def edit_player_page(player_id):
 
         action = request.form.get("action")
 
-
         # =====================================================
-        # UPDATE PLAYER INFORMATION
+        # UPDATE PERSON INFORMATION
         # =====================================================
 
-        if action == "update_player":
+        if action == "update_person":
 
+            # -------------------------------------------------
             # Person information
+            # -------------------------------------------------
+
             first_name = request.form.get("first_name")
             last_name = request.form.get("last_name")
             display_name = request.form.get("display_name")
@@ -74,18 +76,14 @@ def edit_player_page(player_id):
             last_name_ar = request.form.get("last_name_ar")
             display_name_ar = request.form.get("display_name_ar")
 
+            # Flatpickr displays DD/MM/YYYY.
+            # The JavaScript in base.html converts it to
+            # YYYY-MM-DD before the form is submitted.
             birth_date = request.form.get("birth_date") or None
+            death_date = request.form.get("death_date") or None
+
             sex = request.form.get("sex")
-            country_id = request.form.get("country_id")
-
-            # Player information
-            nickname = request.form.get("nickname")
-            nickname_ar = request.form.get("nickname_ar")
-            jersey_number = request.form.get("jersey_number") or None
-            is_active = 1 if request.form.get("is_active") else 0
-
-            position_id = request.form.get("position_id")
-
+            country_id = request.form.get("country_id") or None
 
             # -------------------------------------------------
             # Update Person
@@ -101,9 +99,9 @@ def edit_player_page(player_id):
                     Person_Last_Name_ar = %s,
                     Person_Display_Name_ar = %s,
                     Person_birth_date = %s,
+                    Person_death_date = %s,
                     Sex = %s,
                     Country_id = %s
-
                 WHERE Person_id = %s
             """, (
                 first_name,
@@ -113,11 +111,37 @@ def edit_player_page(player_id):
                 last_name_ar,
                 display_name_ar,
                 birth_date,
+                death_date,
                 sex,
                 country_id,
                 player_data["Person_id"]
             ))
 
+            # IMPORTANT:
+            # Save changes to database
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+            return redirect(
+                url_for(
+                    "edit_player.edit_player_page",
+                    player_id=player_id
+                )
+            )
+
+        # =====================================================
+        # UPDATE PLAYER INFORMATION
+        # =====================================================
+
+        elif action == "update_player":
+
+            nickname = request.form.get("nickname")
+            nickname_ar = request.form.get("nickname_ar")
+            jersey_number = request.form.get("jersey_number") or None
+            is_active = 1 if request.form.get("is_active") else 0
+            position_id = request.form.get("position_id")
 
             # -------------------------------------------------
             # Update Player
@@ -130,7 +154,6 @@ def edit_player_page(player_id):
                     Player_Nickname_ar = %s,
                     Main_Jersey_Number = %s,
                     Is_Active = %s
-
                 WHERE Player_id = %s
             """, (
                 nickname,
@@ -139,7 +162,6 @@ def edit_player_page(player_id):
                 is_active,
                 player_id
             ))
-
 
             # -------------------------------------------------
             # Update Main Position
@@ -152,7 +174,6 @@ def edit_player_page(player_id):
                     SET Is_Main = 0
                     WHERE Player_id = %s
                 """, (player_id,))
-
 
                 cursor.execute("""
                     INSERT INTO Player_Position (
@@ -169,7 +190,6 @@ def edit_player_page(player_id):
                     position_id
                 ))
 
-
             connection.commit()
 
             cursor.close()
@@ -181,7 +201,6 @@ def edit_player_page(player_id):
                     player_id=player_id
                 )
             )
-
 
         # =====================================================
         # ADD PLAYER POSITION
@@ -221,7 +240,6 @@ def edit_player_page(player_id):
 
                     connection.commit()
 
-
             cursor.close()
             connection.close()
 
@@ -231,7 +249,6 @@ def edit_player_page(player_id):
                     player_id=player_id
                 )
             )
-
 
         # =====================================================
         # MAKE POSITION MAIN
@@ -249,7 +266,6 @@ def edit_player_page(player_id):
                     WHERE Player_id = %s
                 """, (player_id,))
 
-
                 cursor.execute("""
                     UPDATE Player_Position
                     SET Is_Main = 1
@@ -262,7 +278,6 @@ def edit_player_page(player_id):
 
                 connection.commit()
 
-
             cursor.close()
             connection.close()
 
@@ -272,7 +287,6 @@ def edit_player_page(player_id):
                     player_id=player_id
                 )
             )
-
 
         # =====================================================
         # DELETE PLAYER POSITION
@@ -296,7 +310,6 @@ def edit_player_page(player_id):
 
                 position = cursor.fetchone()
 
-
                 if position:
 
                     cursor.execute("""
@@ -306,7 +319,6 @@ def edit_player_page(player_id):
                     """, (player_id,))
 
                     total_positions = cursor.fetchone()["total"]
-
 
                     # Do not allow deleting the only position
                     if total_positions > 1:
@@ -319,7 +331,6 @@ def edit_player_page(player_id):
                             player_id,
                             position_id
                         ))
-
 
                         # If deleted position was Main,
                         # make another position Main.
@@ -347,9 +358,7 @@ def edit_player_page(player_id):
                                     new_main["Position_id"]
                                 ))
 
-
                         connection.commit()
-
 
             cursor.close()
             connection.close()
@@ -360,7 +369,6 @@ def edit_player_page(player_id):
                     player_id=player_id
                 )
             )
-
 
         # =====================================================
         # ADD PLAYER CLUB
@@ -374,7 +382,6 @@ def edit_player_page(player_id):
 
             is_actual = 1 if request.form.get("is_actual") else 0
 
-
             # -------------------------------------------------
             # Validate dates
             # -------------------------------------------------
@@ -386,7 +393,6 @@ def edit_player_page(player_id):
 
                 return "Join date is required", 400
 
-
             if leave_date and leave_date < join_date:
 
                 cursor.close()
@@ -394,20 +400,19 @@ def edit_player_page(player_id):
 
                 return "Leave date cannot be before Join date", 400
 
-
+            # -------------------------------------------------
             # Current club must not have Leave_Date
+            # -------------------------------------------------
+
             if is_actual:
 
                 leave_date = None
 
-
-                # Remove current status from other clubs
                 cursor.execute("""
                     UPDATE Player_Club
                     SET Is_Actual = 0
                     WHERE Player_id = %s
                 """, (player_id,))
-
 
             # -------------------------------------------------
             # Insert relation
@@ -443,7 +448,6 @@ def edit_player_page(player_id):
 
                 return f"Could not add player club relationship: {error}", 400
 
-
             cursor.close()
             connection.close()
 
@@ -453,7 +457,6 @@ def edit_player_page(player_id):
                     player_id=player_id
                 )
             )
-
 
         # =====================================================
         # EDIT PLAYER CLUB
@@ -470,14 +473,12 @@ def edit_player_page(player_id):
 
             is_actual = 1 if request.form.get("is_actual") else 0
 
-
             if not join_date:
 
                 cursor.close()
                 connection.close()
 
                 return "Join date is required", 400
-
 
             if leave_date and leave_date < join_date:
 
@@ -486,8 +487,10 @@ def edit_player_page(player_id):
 
                 return "Leave date cannot be before Join date", 400
 
-
+            # -------------------------------------------------
             # Current club
+            # -------------------------------------------------
+
             if is_actual:
 
                 leave_date = None
@@ -498,7 +501,6 @@ def edit_player_page(player_id):
                     WHERE Player_id = %s
                 """, (player_id,))
 
-
             try:
 
                 cursor.execute("""
@@ -508,7 +510,6 @@ def edit_player_page(player_id):
                         Join_Date = %s,
                         Leave_Date = %s,
                         Is_Actual = %s
-
                     WHERE Player_id = %s
                     AND Club_id = %s
                     AND Join_Date = %s
@@ -533,7 +534,6 @@ def edit_player_page(player_id):
 
                 return f"Could not update player club relationship: {error}", 400
 
-
             cursor.close()
             connection.close()
 
@@ -544,7 +544,6 @@ def edit_player_page(player_id):
                 )
             )
 
-
         # =====================================================
         # MAKE CLUB CURRENT
         # =====================================================
@@ -554,7 +553,6 @@ def edit_player_page(player_id):
             club_id = request.form.get("club_id")
             join_date = request.form.get("join_date")
 
-
             # Remove current status from all clubs
             cursor.execute("""
                 UPDATE Player_Club
@@ -562,14 +560,12 @@ def edit_player_page(player_id):
                 WHERE Player_id = %s
             """, (player_id,))
 
-
             # Make selected club current
             cursor.execute("""
                 UPDATE Player_Club
                 SET
                     Is_Actual = 1,
                     Leave_Date = NULL
-
                 WHERE Player_id = %s
                 AND Club_id = %s
                 AND Join_Date = %s
@@ -591,7 +587,6 @@ def edit_player_page(player_id):
                 )
             )
 
-
         # =====================================================
         # DELETE PLAYER CLUB
         # =====================================================
@@ -600,7 +595,6 @@ def edit_player_page(player_id):
 
             club_id = request.form.get("club_id")
             join_date = request.form.get("join_date")
-
 
             cursor.execute("""
                 SELECT Is_Actual
@@ -616,7 +610,6 @@ def edit_player_page(player_id):
 
             club_relation = cursor.fetchone()
 
-
             if club_relation:
 
                 cursor.execute("""
@@ -626,7 +619,6 @@ def edit_player_page(player_id):
                 """, (player_id,))
 
                 total_clubs = cursor.fetchone()["total"]
-
 
                 # Delete relation
                 cursor.execute("""
@@ -639,7 +631,6 @@ def edit_player_page(player_id):
                     club_id,
                     join_date
                 ))
-
 
                 # If the deleted club was current,
                 # make the most recent previous club current.
@@ -673,9 +664,7 @@ def edit_player_page(player_id):
                             previous_club["Join_Date"]
                         ))
 
-
                 connection.commit()
-
 
             cursor.close()
             connection.close()
@@ -687,15 +676,16 @@ def edit_player_page(player_id):
                 )
             )
 
+        # =====================================================
+        # UNKNOWN ACTION
+        # =====================================================
 
-        # Unknown action
         else:
 
             cursor.close()
             connection.close()
 
             return "Unknown action", 400
-
 
     # =========================================================
     # COUNTRIES
@@ -711,7 +701,6 @@ def edit_player_page(player_id):
 
     countries = cursor.fetchall()
 
-
     # =========================================================
     # POSITIONS
     # =========================================================
@@ -726,7 +715,6 @@ def edit_player_page(player_id):
     """)
 
     positions = cursor.fetchall()
-
 
     # =========================================================
     # CURRENT MAIN POSITION
@@ -745,7 +733,6 @@ def edit_player_page(player_id):
         current_position_id = current_position["Position_id"]
     else:
         current_position_id = None
-
 
     # =========================================================
     # PLAYER POSITIONS
@@ -769,7 +756,6 @@ def edit_player_page(player_id):
 
     player_positions = cursor.fetchall()
 
-
     # =========================================================
     # CLUBS
     # =========================================================
@@ -783,7 +769,6 @@ def edit_player_page(player_id):
     """)
 
     clubs = cursor.fetchall()
-
 
     # =========================================================
     # PLAYER CLUB HISTORY
@@ -811,10 +796,8 @@ def edit_player_page(player_id):
 
     player_clubs = cursor.fetchall()
 
-
     cursor.close()
     connection.close()
-
 
     # =========================================================
     # RENDER

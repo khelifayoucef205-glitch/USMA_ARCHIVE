@@ -75,6 +75,7 @@ CREATE TABLE Person (
     Person_Last_Name_ar VARCHAR(100),
     Person_Display_Name_ar VARCHAR(200),
     Person_birth_date DATE,
+    Person_death_date DATE,
     Sex ENUM('Male', 'Female') DEFAULT 'Male',
     Country_id INT NOT NULL,
     FOREIGN KEY (Country_id) REFERENCES Country (Country_id)
@@ -237,22 +238,6 @@ CREATE TABLE Competition_Stage (
 ALTER TABLE Competition_Stage
 CONVERT TO CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
-
-/*CREATE TABLE Player_Season (
-    Player_id INT NOT NULL,
-    Season_Number INT NOT NULL,
-    PRIMARY KEY (Player_id, Season_Number),
-    FOREIGN KEY (Season_Number) REFERENCES Season (Season_Number),
-    FOREIGN KEY (Player_id) REFERENCES Player (Player_id)
-);*/
-
-/*CREATE TABLE Club_Season (
-    Club_id INT NOT NULL,
-    Season_Number INT NOT NULL,
-    PRIMARY KEY (Club_id, Season_Number)
-    FOREIGN KEY (Season_Number) REFERENCES Season (Season_Number),
-    FOREIGN KEY (Club_id) REFERENCES Club (Club_id)
-);*/
 
 CREATE TABLE Competition_Season (
     Competition_id INT NOT NULL,

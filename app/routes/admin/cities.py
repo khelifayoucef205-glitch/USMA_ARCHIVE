@@ -37,6 +37,8 @@ def cities_page():
 
         return redirect(url_for("cities.cities_page"))
 
+    # Get search parameter
+    search = request.args.get("search", "").strip()
 
     # Load countries
     cursor.execute("""
@@ -47,31 +49,44 @@ def cities_page():
 
     countries = cursor.fetchall()
 
-
-    # Load cities
-    cursor.execute("""
-        SELECT
-            c.City_id,
-            c.City_Name,
-            c.City_Name_ar,
-            c.Country_id,
-            co.Country_Name
-        FROM City c
-        JOIN Country co
-            ON c.Country_id = co.Country_id
-        ORDER BY c.City_Name
-    """)
+    # Build query for cities with search
+    if search:
+        cursor.execute("""
+            SELECT
+                c.City_id,
+                c.City_Name,
+                c.City_Name_ar,
+                c.Country_id,
+                co.Country_Name
+            FROM City c
+            JOIN Country co
+                ON c.Country_id = co.Country_id
+            WHERE c.City_Name LIKE %s OR c.City_Name_ar LIKE %s
+            ORDER BY c.City_Name
+        """, (f"%{search}%", f"%{search}%"))
+    else:
+        cursor.execute("""
+            SELECT
+                c.City_id,
+                c.City_Name,
+                c.City_Name_ar,
+                c.Country_id,
+                co.Country_Name
+            FROM City c
+            JOIN Country co
+                ON c.Country_id = co.Country_id
+            ORDER BY c.City_Name
+        """)
 
     city_list = cursor.fetchall()
 
-
     cursor.close()
     connection.close()
-
 
     return render_template(
         "admin/cities/cities.html",
         Title="Cities",
         countries=countries,
-        cities=city_list
+        cities=city_list,
+        search=search
     )

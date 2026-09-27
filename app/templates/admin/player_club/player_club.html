@@ -19,7 +19,7 @@
                 <select id="player_id" name="player_id" required>
                     <option value="">-- Select Player --</option>
                     {% for player in players %}
-                    <option value="{{ player.Player_id }}">
+                    <option value="{{ player.Player_id }}" {% if player.Player_id==last_player_id %}selected{% endif %}>
                         {{ player.Person_Display_Name }}
                     </option>
                     {% endfor %}
@@ -31,7 +31,7 @@
                 <select id="club_id" name="club_id" required>
                     <option value="">-- Select Club --</option>
                     {% for club in clubs %}
-                    <option value="{{ club.Club_id }}">
+                    <option value="{{ club.Club_id }}" {% if club.Club_id==usma_club_id %}selected{% endif %}>
                         {{ club.Club_Current_Name }}
                     </option>
                     {% endfor %}
@@ -42,12 +42,12 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="join_date">Join Date</label>
-                <input type="date" id="join_date" name="join_date" required>
+                <input type="text" id="join_date" name="join_date" placeholder="DD/MM/YYYY" required>
             </div>
 
             <div class="form-group">
                 <label for="leave_date" class="optional">Leave Date</label>
-                <input type="date" id="leave_date" name="leave_date">
+                <input type="text" id="leave_date" name="leave_date" placeholder="DD/MM/YYYY">
             </div>
         </div>
 
@@ -70,6 +70,24 @@
 <!-- Player Club History Table -->
 <div class="admin-section">
     <h2>Player Club History</h2>
+
+    <!-- Player Club Filters -->
+    <form method="GET" action="{{ url_for('player_club.player_club_page') }}" class="admin-filters">
+        <input type="text" name="search_player" id="search_player" placeholder="🔍 Search Player..."
+            value="{{ search_player or '' }}">
+
+        <input type="text" name="search_club" id="search_club" placeholder="🔍 Search Club..."
+            value="{{ search_club or '' }}">
+
+        <select name="status_filter" id="status-filter">
+            <option value="">All Status</option>
+            <option value="active" {% if status_filter=='active' %}selected{% endif %}>✓ Current</option>
+            <option value="inactive" {% if status_filter=='inactive' %}selected{% endif %}>✗ Former</option>
+        </select>
+
+        <button type="submit" class="btn-search">🔍 Search</button>
+        <a href="{{ url_for('player_club.player_club_page') }}" class="btn-clear-filters">🔄 Clear</a>
+    </form>
 
     {% if player_clubs %}
     <div class="admin-table-container">

@@ -2,128 +2,176 @@
 
 {% block body %}
 
-<div class="page-header">
+<div class="squad-container">
 
+    <!-- Squad Header Section -->
     <div class="squad-header">
-
-        <div>
-            <h1>USM Alger Squad</h1>
-
-            <p>
-                Squad of the selected season
-            </p>
+        <div class="squad-title">
+            <h1>⚽ USM Alger Squad</h1>
+            <p>Squad of the selected season</p>
         </div>
 
-        <form
-            method="GET"
-            action="{{ url_for('squad.squad_page') }}"
-            class="season-selector"
-        >
-
-            <label for="season">
-                Season
-            </label>
-
-            <select
-                id="season"
-                name="season"
-                onchange="this.form.submit()"
-            >
-
+        <!-- Season Selector -->
+        <form method="GET" action="{{ url_for('squad.squad_page') }}" class="season-selector">
+            <label for="season">Season</label>
+            <select id="season" name="season" onchange="this.form.submit()">
                 {% for season in seasons %}
-
-                <option
-                    value="{{ season.Season_Number }}"
-                    {% if season.Season_Number == selected_season %}
-                        selected
-                    {% endif %}
-                >
+                <option value="{{ season.Season_Number }}" {% if season.Season_Number==selected_season %}selected{%
+                    endif %}>
                     {{ season.Season_Name }}
                 </option>
-
                 {% endfor %}
-
             </select>
-
         </form>
-
     </div>
 
+    <!-- Players Table -->
+    {% if players %}
+    <div class="squad-table-container">
+        <table class="squad-table">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='jersey', sort_order='asc' if sort_by == 'jersey' and sort_order == 'desc' else 'desc') }}"
+                            class="sortable">
+                            Number
+                            {% if sort_by == 'jersey' %}
+                            <span class="sort-indicator">
+                                {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='position', sort_order='desc' if sort_by == 'position' and sort_order == 'asc' else 'asc') }}"
+                            class="sortable">
+                            Position
+                            {% if sort_by == 'position' %}
+                            <span class="sort-indicator">
+                                {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='name', sort_order='asc' if sort_by == 'name' and sort_order == 'desc' else 'desc') }}"
+                            class="sortable">
+                            Player Name
+                            {% if sort_by == 'name' %}
+                            <span class="sort-indicator">
+                                {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>Nationality</th>
+                    <th>Date of Birth</th>
+                    <th>
+                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='age', sort_order='asc' if sort_by == 'age' and sort_order == 'desc' else 'desc') }}"
+                            class="sortable">
+                            Age
+                            {% if sort_by == 'age' %}
+                            <span class="sort-indicator">
+                                {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for player in players %}
+                <tr data-category="{{ player.Position_Category_id }}"
+                    class="player-row category-{{ player.Position_Category_id }}">
+                    <td>
+                        {% if player.Jersey_Number %}
+                        <span class="jersey-number">
+                            {{ player.Jersey_Number }}
+                        </span>
+                        {% else %}
+                        <span class="jersey-number empty">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <span class="position-code">
+                            {{ player.Position_Code }}
+                        </span>
+                    </td>
+
+                    <td class="player-name">
+                        <a href="{{ url_for('player.player_page', player_id=player.Player_id) }}">
+                            {{ player.Person_Display_Name }}
+                        </a>
+                    </td>
+
+                    <td>
+                        <span class="nationality" title="{{ player.Country_Name }}">
+                            {{ player.Country_Name}}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ player.Person_birth_date if player.Person_birth_date else '—' }}
+                    </td>
+
+                    <td class="age">
+                        {% if player.Age is not none %}
+                        <span class="age-badge">{{ player.Age[0] }}</span>
+                        {% else %}
+                        <span class="age-empty">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Statistics Table -->
+    {% if position_stats %}
+    <div class="squad-stats-container">
+        <h3>📊 Squad Statistics</h3>
+
+        <div class="squad-stats-table-wrapper">
+            <table class="squad-stats-table">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Number of Players</th>
+                        <th>Average Age</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category_id, stats in position_stats.items() %}
+                    <tr class="stats-row category-{{ category_id }}">
+                        <td class="stats-position">{{ stats.category_name }}</td>
+                        <td class="stats-count">{{ stats.count }}</td>
+                        <td class="stats-age">{{ stats.avg_age }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- Total Row -->
+                    <tr class="stats-total">
+                        <td class="stats-position"><strong>Total</strong></td>
+                        <td class="stats-count"><strong>{{ total_players }}</strong></td>
+                        <td class="stats-age"><strong>{{ avg_age_total }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Empty State -->
+    {% else %}
+    <div class="empty-squad">
+        <div style="font-size: 48px; margin-bottom: 15px;">⚽</div>
+        <h3>No players found</h3>
+        <p>No players are assigned for the selected season.</p>
+    </div>
+    {% endif %}
+
 </div>
-
-
-{% if players %}
-
-<div class="table-container">
-
-    <table class="data-table">
-
-        <thead>
-
-            <tr>
-
-                <th>Number</th>
-
-                <th>Position</th>
-
-                <th>Player</th>
-
-                <th>Date of Birth</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            {% for player in players %}
-
-            <tr>
-
-                <td>
-                    <span class="jersey-number">
-                        {{ player.Jersey_Number
-                           if player.Jersey_Number is not none
-                           else '-' }}
-                    </span>
-                </td>
-
-                <td>
-                    <span class="position-code">
-                        {{ player.Position_Code }}
-                    </span>
-                </td>
-
-                <td>
-                    {{ player.Person_Display_Name }}
-                </td>
-
-                <td>
-                    {{ player.Person_birth_date
-                       if player.Person_birth_date
-                       else '-' }}
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-</div>
-
-{% else %}
-
-<div class="card">
-
-    <p>
-        No players found for this season.
-    </p>
-
-</div>
-
-{% endif %}
 
 {% endblock %}

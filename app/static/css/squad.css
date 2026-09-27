@@ -120,13 +120,50 @@
     transition: var(--transition);
 }
 
-.squad-table tbody tr:hover {
-    background-color: rgba(220, 20, 60, 0.08);
-    box-shadow: inset 4px 0 0 var(--primary-red);
-}
-
 .squad-table tbody tr:last-child td {
     border-bottom: none;
+}
+
+/* ====== Category Row Styling ====== */
+
+/* Goalkeepers - GK (Category 1) - Yellow/Gold */
+.player-row.category-1 {
+    background-color: rgba(255, 193, 7, 0.15);
+}
+
+.player-row.category-1:hover {
+    background-color: rgba(255, 193, 7, 0.25);
+    box-shadow: inset 4px 0 0 #FFC107;
+}
+
+/* Defenders - DEF (Category 2) - Blue */
+.player-row.category-2 {
+    background-color: rgba(33, 150, 243, 0.12);
+}
+
+.player-row.category-2:hover {
+    background-color: rgba(33, 150, 243, 0.22);
+    box-shadow: inset 4px 0 0 #2196F3;
+}
+
+/* Midfielders - MID (Category 3) - Green */
+.player-row.category-3 {
+    background-color: rgba(76, 175, 80, 0.12);
+}
+
+.player-row.category-3:hover {
+    background-color: rgba(76, 175, 80, 0.22);
+    box-shadow: inset 4px 0 0 #4CAF50;
+}
+
+/* Forwards - FWD (Category 4) - Red */
+.player-row.category-4 {
+    background-color: rgba(244, 67, 54, 0.12);
+}
+
+.player-row.category-4:hover {
+    background-color: rgba(244, 67, 54, 0.22);
+    box-shadow: inset 4px 0 0 #F44336;
 }
 
 /* ====== Jersey Number Badge ====== */
@@ -177,6 +214,51 @@
 .player-name a:hover {
     color: var(--primary-black);
     border-bottom: 2px solid var(--primary-red);
+}
+
+/* ====== Nationality ====== */
+.nationality {
+    display: inline-block;
+    font-weight: 600;
+    color: var(--neutral-white);
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.2);
+    transition: var(--transition);
+    cursor: help;
+}
+
+.nationality:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+/* ====== Age Badge ====== */
+.age {
+    text-align: center;
+}
+
+.age-badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: var(--neutral-white);
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}
+
+.age-empty {
+    color: #999;
+    font-weight: 400;
 }
 
 /* ====== Empty Squad State ====== */
@@ -294,7 +376,149 @@
         font-size: 14px;
     }
 
+    .age-badge {
+        width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+
+    .nationality {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+
     .empty-squad {
         padding: 30px 15px;
+    }
+}
+
+
+
+/* ====== Sortable Headers ====== */
+.squad-table th a.sortable {
+    color: var(--neutral-white);
+    text-decoration: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.squad-table th a.sortable:hover {
+    color: #FFD700;
+}
+
+.sort-indicator {
+    display: inline-block;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+
+/* ====== Statistics Table ====== */
+.squad-stats-container {
+    margin-top: 40px;
+    padding: 20px;
+    background: var(--neutral-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.squad-stats-container h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    color: var(--primary-black);
+    font-weight: 700;
+}
+
+.squad-stats-table-wrapper {
+    overflow-x: auto;
+}
+
+.squad-stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.squad-stats-table thead {
+    background: linear-gradient(135deg, var(--primary-black), #2a2a2a);
+}
+
+.squad-stats-table th {
+    padding: 16px 20px;
+    color: var(--neutral-white);
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--primary-red);
+}
+
+.squad-stats-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--primary-black);
+}
+
+.stats-row {
+    transition: var(--transition);
+}
+
+.stats-row:hover {
+    background-color: rgba(220, 20, 60, 0.08);
+}
+
+.stats-total {
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1), rgba(0, 0, 0, 0.05));
+    font-weight: 600;
+    border-top: 2px solid var(--primary-red);
+}
+
+.stats-position {
+    font-weight: 600;
+    color: var(--primary-black);
+}
+
+.stats-count {
+    text-align: center;
+    font-weight: 500;
+}
+
+.stats-age {
+    text-align: center;
+    font-weight: 500;
+    color: #2196F3;
+}
+
+/* Color coding by category */
+.stats-row.category-1 {
+    background-color: rgba(255, 193, 7, 0.08);
+}
+
+.stats-row.category-2 {
+    background-color: rgba(33, 150, 243, 0.08);
+}
+
+.stats-row.category-3 {
+    background-color: rgba(76, 175, 80, 0.08);
+}
+
+.stats-row.category-4 {
+    background-color: rgba(244, 67, 54, 0.08);
+}
+
+@media (max-width: 768px) {
+    .squad-stats-container {
+        margin-top: 30px;
+        padding: 15px;
+    }
+
+    .squad-stats-table th,
+    .squad-stats-table td {
+        padding: 12px 10px;
+        font-size: 12px;
     }
 }

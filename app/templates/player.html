@@ -2,109 +2,317 @@
 
 {% block body %}
 
-<!-- Player Header -->
-<div class="player-header">
-    <div class="player-avatar">⚽</div>
-    <div class="player-header-content">
-        <h1>{{ player.Person_Display_Name }}</h1>
-        <p>{{ player.Country_Name }} • {% if player.Is_Active %}Active{% else %}Inactive{% endif %}</p>
+<!-- Status Bar -->
+<div class="player-status-bar" data-status="{{ player_status }}">
+    {% if player_status == 'deceased' %}
+    <div class="status-badge deceased">
+        <span class="status-icon">⚰</span>
+        <span class="status-text">Deceased</span>
+        <span class="status-date">({{ player.Person_death_date }})</span>
     </div>
-</div>
-
-<!-- Personal Information -->
-<div class="player-section">
-    <h2>👤 Personal Information</h2>
-
-    <div class="info-grid">
-        <div class="info-item">
-            <div class="info-label">First Name</div>
-            <div class="info-value">{{ player.Person_First_Name or '—' }}</div>
-        </div>
-
-        <div class="info-item">
-            <div class="info-label">Last Name</div>
-            <div class="info-value">{{ player.Person_Last_Name or '—' }}</div>
-        </div>
-
-        <div class="info-item">
-            <div class="info-label">Display Name</div>
-            <div class="info-value">{{ player.Person_Display_Name }}</div>
-        </div>
-
-        <div class="info-item">
-            <div class="info-label">Arabic Name</div>
-            <div class="info-value">{{ player.Person_Display_Name_ar or '—' }}</div>
-        </div>
-
-        <div class="info-item">
-            <div class="info-label">Date of Birth</div>
-            <div class="info-value">{{ player.Person_birth_date or '—' }}</div>
-        </div>
-
-        <div class="info-item">
-            <div class="info-label">Nationality</div>
-            <div class="info-value">{{ player.Country_Name }}</div>
-        </div>
-
-        <div class="info-item">
-            <div class="info-label">Sex</div>
-            <div class="info-value">{{ player.Sex or '—' }}</div>
-        </div>
-
-        <div class="info-item">
-            <div class="info-label">Status</div>
-            <div class="info-value {% if player.Is_Active %}status-active{% else %}status-inactive{% endif %}">
-                {% if player.Is_Active %}Active{% else %}Inactive{% endif %}
-            </div>
-        </div>
+    {% elif player_status == 'retired' %}
+    <div class="status-badge retired">
+        <span class="status-icon">🚫</span>
+        <span class="status-text">Retired</span>
     </div>
-</div>
-
-<!-- Player Details -->
-<div class="player-section">
-    <h2>⚽ Player Details</h2>
-
-    <div class="info-grid">
-        <div class="info-item">
-            <div class="info-label">Nickname</div>
-            <div class="info-value">{{ player.Player_Nickname or '—' }}</div>
-        </div>
-
-        <div class="info-item">
-            <div class="info-label">Arabic Nickname</div>
-            <div class="info-value">{{ player.Player_Nickname_ar or '—' }}</div>
-        </div>
+    {% elif player_status == 'active_with_usma' %}
+    <div class="status-badge active">
+        <span class="status-icon">⚽</span>
+        <span class="status-text">Active Player - USM Alger</span>
     </div>
-
-    {% if player.Main_Jersey_Number %}
-    <div class="jersey-display">
-        <div class="jersey-big">{{ player.Main_Jersey_Number }}</div>
-        <div class="jersey-info">
-            <h3>Main Jersey Number</h3>
-            <p>#{{ player.Main_Jersey_Number }}</p>
-        </div>
+    {% elif player_status == 'former_usma' %}
+    <div class="status-badge former">
+        <span class="status-icon">📋</span>
+        <span class="status-text">Former USM Alger Player</span>
+    </div>
+    {% elif player_status == 'active_no_club' %}
+    <div class="status-badge active-no-club">
+        <span class="status-icon">✓</span>
+        <span class="status-text">Active - No Club History</span>
     </div>
     {% endif %}
 </div>
 
-<!-- Positions -->
-<div class="player-section">
-    <h2>📍 Positions</h2>
+<!-- Player Header Card -->
+<div class="player-header">
+    <div class="player-avatar">
+        {% if player.Sex == 'Female' %}
+        ⚽
+        {% else %}
+        ⚽
+        {% endif %}
+    </div>
 
-    {% if positions %}
-    <div class="positions-list">
-        {% for position in positions %}
-        <div class="position-badge {% if position.Is_Main %}main{% endif %}">
-            <div class="position-code">{{ position.Position_Code }}</div>
-            <span>{{ position.Position_Name }}</span>
+    <div class="player-info">
+        <div class="player-name-block">
+            <h1 class="player-name">{{ player.Person_Display_Name }}</h1>
+            {% if player.Person_Display_Name_ar %}
+            <h2 class="player-name-ar">{{ player.Person_Display_Name_ar }}</h2>
+            {% endif %}
+        </div>
+
+        <div class="player-meta">
+            <span class="meta-item">
+                <span class="meta-label">Nationality</span>
+                <span class="meta-value">{{ player.Country_Name }}</span>
+            </span>
+
+            {% if player.Person_birth_date %}
+            <span class="meta-item">
+                <span class="meta-label">Age</span>
+                <span class="meta-value">{{ player.age }} years</span>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="player-content">
+
+    <!-- Left Column -->
+    <div class="player-main">
+
+        <!-- USMA Section - Highlighted -->
+        {% if usma_current or usma_history or usma_seasons %}
+        <section class="player-section usma-section">
+            <div class="section-header">
+                <h2>USM Alger</h2>
+                <span class="club-badge">USMA</span>
+            </div>
+
+            <!-- Current Status with USMA -->
+            {% if usma_current %}
+            <div class="usma-status current">
+                <div class="status-indicator active"></div>
+                <div class="status-content">
+                    <h3>Currently Playing</h3>
+                    <p class="joined-date">
+                        Joined: <strong>{{ usma_current.Join_Date }}</strong>
+                    </p>
+                </div>
+            </div>
+            {% elif usma_history %}
+            <div class="usma-status history">
+                <div class="status-indicator"></div>
+                <div class="status-content">
+                    <h3>Former Player</h3>
+                    {% if usma_history[0].Leave_Date %}
+                    <p class="period">
+                        {{ usma_history[0].Join_Date }}
+                        <span class="separator">→</span>
+                        {{ usma_history[0].Leave_Date }}
+                    </p>
+                    {% else %}
+                    <p class="period">From {{ usma_history[0].Join_Date }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- USMA Seasons -->
+            {% if usma_seasons %}
+            <div class="seasons-container">
+                <h4 class="seasons-title">Seasons with USMA</h4>
+                <div class="seasons-grid">
+                    {% for season in usma_seasons %}
+                    <div class="season-card">
+                        <div class="season-year">{{ season.Season_Name }}</div>
+                        <div class="season-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Position</span>
+                                <span class="detail-value">
+                                    {{ season.Position_Code }}
+                                    <span class="position-name">{{ season.Position_Name }}</span>
+                                </span>
+                            </div>
+                            {% if season.Jersey_Number %}
+                            <div class="detail-row">
+                                <span class="detail-label">Jersey</span>
+                                <span class="detail-value">#{{ season.Jersey_Number }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- Positions Section -->
+        {% if positions %}
+        <section class="player-section">
+            <h2>Positions</h2>
+
+            <div class="positions-container">
+                {% set main_positions = positions|selectattr('Is_Main', 'equalto', 1)|list %}
+                {% set secondary_positions = positions|selectattr('Is_Main', 'equalto', 0)|list %}
+
+                {% if main_positions %}
+                <div class="position-group">
+                    <h3 class="group-title">Primary</h3>
+                    <div class="positions-list">
+                        {% for pos in main_positions %}
+                        <div class="position-item main">
+                            <div class="position-code">{{ pos.Position_Code }}</div>
+                            <div class="position-details">
+                                <div class="position-name">{{ pos.Position_Name }}</div>
+                                {% if pos.Position_Name_ar %}
+                                <div class="position-name-ar">{{ pos.Position_Name_ar }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if secondary_positions %}
+                <div class="position-group">
+                    <h3 class="group-title">Secondary</h3>
+                    <div class="positions-list">
+                        {% for pos in secondary_positions %}
+                        <div class="position-item">
+                            <div class="position-code">{{ pos.Position_Code }}</div>
+                            <div class="position-details">
+                                <div class="position-name">{{ pos.Position_Name }}</div>
+                                {% if pos.Position_Name_ar %}
+                                <div class="position-name-ar">{{ pos.Position_Name_ar }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+
+    <!-- Right Column - Personal Information -->
+    <aside class="player-sidebar">
+
+        <!-- Personal Details Card -->
+        <section class="info-card">
+            <h3 class="card-title">Personal Details</h3>
+
+            <div class="info-rows">
+                {% if player.Person_First_Name or player.Person_Last_Name %}
+                <div class="info-row">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">
+                        {{ player.Person_First_Name }} {{ player.Person_Last_Name }}
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if player.Person_First_Name_ar or player.Person_Last_Name_ar %}
+                <div class="info-row">
+                    <span class="info-label">Arabic Name</span>
+                    <span class="info-value">
+                        {{ player.Person_First_Name_ar }} {{ player.Person_Last_Name_ar }}
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if player.Person_birth_date %}
+                <div class="info-row">
+                    <span class="info-label">Date of Birth</span>
+                    <span class="info-value">{{ player.Person_birth_date }}</span>
+                </div>
+                {% endif %}
+
+                {% if player.Player_Nickname %}
+                <div class="info-row">
+                    <span class="info-label">Nickname</span>
+                    <span class="info-value">{{ player.Player_Nickname }}</span>
+                </div>
+                {% endif %}
+
+                {% if player.Player_Nickname_ar %}
+                <div class="info-row">
+                    <span class="info-label">Arabic Nickname</span>
+                    <span class="info-value">{{ player.Player_Nickname_ar }}</span>
+                </div>
+                {% endif %}
+
+                {% if player.Sex %}
+                <div class="info-row">
+                    <span class="info-label">Sex</span>
+                    <span class="info-value">{{ player.Sex }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Status Card -->
+        <section class="info-card">
+            <h3 class="card-title">Status</h3>
+            <div class="status-details">
+                {% if player_status == 'deceased' %}
+                <div class="status-indicator deceased"></div>
+                <div class="status-info">
+                    <strong>Deceased</strong>
+                    <p>{{ player.Person_death_date }}</p>
+                </div>
+                {% elif player_status == 'retired' %}
+                <div class="status-indicator retired"></div>
+                <div class="status-info">
+                    <strong>Retired</strong>
+                </div>
+                {% elif player_status == 'active_with_usma' %}
+                <div class="status-indicator active"></div>
+                <div class="status-info">
+                    <strong>Active Player</strong>
+                    <p>Currently with USM Alger</p>
+                </div>
+                {% elif player_status == 'former_usma' %}
+                <div class="status-indicator former"></div>
+                <div class="status-info">
+                    <strong>Former Player</strong>
+                    <p>Previously with USM Alger</p>
+                </div>
+                {% elif player_status == 'active_no_club' %}
+                <div class="status-indicator active-no-club"></div>
+                <div class="status-info">
+                    <strong>Active Player</strong>
+                    <p>No USM Alger history</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </aside>
+</div>
+
+<!-- Other Clubs Section -->
+{% if other_clubs %}
+<section class="player-section other-clubs-section">
+    <h2>Other Clubs</h2>
+    <div class="clubs-timeline">
+        {% for club in other_clubs %}
+        <div class="club-entry">
+            <div class="club-info">
+                <h4 class="club-name">{{ club.Club_Current_Name }}</h4>
+                {% if club.City_Name %}
+                <p class="club-city">{{ club.City_Name }}</p>
+                {% endif %}
+            </div>
+            <div class="club-period">
+                {% if club.Join_Date and club.Leave_Date %}
+                <span>{{ club.Join_Date }} → {{ club.Leave_Date }}</span>
+                {% elif club.Join_Date %}
+                <span>From {{ club.Join_Date }}</span>
+                {% else %}
+                <span>No date information</span>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>
-    {% else %}
-    <div class="empty-message">
-        No positions assigned.
-    </div>
-    {% endif %}
-</div>
+</section>
+{% endif %}
 
 {% endblock %}

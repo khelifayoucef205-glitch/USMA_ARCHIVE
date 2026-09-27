@@ -8,11 +8,11 @@
     <p>Register a new player in the system</p>
 </div>
 
-<!-- Personal Information Section -->
-<div class="admin-section">
-    <h2>👤 Personal Information</h2>
+<form method="POST" class="admin-form">
+    <!-- Personal Information Section -->
+    <div class="admin-section">
+        <h2>👤 Personal Information</h2>
 
-    <form method="POST" class="admin-form">
         <div class="form-row">
             <div class="form-group">
                 <label for="first_name" class="optional">First Name</label>
@@ -36,9 +36,7 @@
                 <select id="country_id" name="country_id" required>
                     <option value="">-- Select Country --</option>
                     {% for country in countries %}
-                    <option value="{{ country.Country_id }}">
-                        {{ country.Country_Name }}
-                    </option>
+                    <option value="{{ country.Country_id }}">{{ country.Country_Name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -47,7 +45,12 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="birth_date" class="optional">Date of Birth</label>
-                <input type="date" id="birth_date" name="birth_date">
+                <input type="text" id="birth_date" name="birth_date" placeholder="DD/MM/YYYY">
+            </div>
+
+            <div class="form-group">
+                <label for="death_date" class="optional">Date of Death</label>
+                <input type="text" id="death_date" name="death_date" placeholder="DD/MM/YYYY">
             </div>
 
             <div class="form-group">
@@ -82,15 +85,15 @@
                 </div>
             </div>
         </div>
-    </form>
-</div>
 
-<!-- Player Information Section -->
-<div class="admin-section">
-    <h2>⚽ Player Information</h2>
+    </div>
 
-    <form method="POST" class="admin-form">
+    <!-- Player Information Section -->
+    <div class="admin-section">
+        <h2>⚽ Player Information</h2>
+
         <div class="form-row">
+            <!-- Main Position -->
             <div class="form-group">
                 <label for="position_id">Main Position</label>
                 <select id="position_id" name="position_id" required>
@@ -103,12 +106,31 @@
                 </select>
             </div>
 
+            <!-- Jersey Number -->
             <div class="form-group">
                 <label for="jersey_number" class="optional">Main Jersey Number</label>
                 <input type="number" id="jersey_number" name="jersey_number" min="0" max="99" placeholder="e.g., 7">
             </div>
         </div>
 
+        <!-- Other Positions -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="other_positions" class="optional">Other Positions</label>
+                <select id="other_positions" name="other_positions" multiple size="5">
+                    {% for position in positions %}
+                    <option value="{{ position.Position_id }}">
+                        {{ position.Position_Code }} - {{ position.Position_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <small style="color: #777; display: block; margin-top: 6px;">
+                    Hold Ctrl (Windows) or Command (Mac) to select multiple positions.
+                </small>
+            </div>
+        </div>
+
+        <!-- Nicknames -->
         <div class="form-row">
             <div class="form-group">
                 <label for="nickname" class="optional">Nickname</label>
@@ -121,20 +143,22 @@
             </div>
         </div>
 
+        <!-- Active Player -->
         <div class="form-row">
             <div class="form-group">
                 <label for="is_active">
-                    <input type="checkbox" id="is_active" name="is_active" checked>
+                    <input type="checkbox" id="is_active" name="is_active">
                     <span>Active Player</span>
                 </label>
             </div>
         </div>
 
+        <!-- Form Actions -->
         <div class="form-actions">
             <a href="{{ url_for('players.players_page') }}" class="btn-secondary">← Back to Players</a>
             <button type="submit" class="btn-primary">✓ Add Player</button>
         </div>
-    </form>
-</div>
+    </div>
+</form>
 
 {% endblock %}

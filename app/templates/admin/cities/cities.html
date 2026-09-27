@@ -50,6 +50,14 @@
 <div class="admin-section">
     <h2>Current Cities</h2>
 
+    <!-- Cities Filters -->
+    <form method="GET" action="{{ url_for('cities.cities_page') }}" class="admin-filters">
+        <input type="text" name="search" id="search" placeholder="🔍 Search City Name..." value="{{ search or '' }}">
+
+        <button type="submit" class="btn-search">🔍 Search</button>
+        <a href="{{ url_for('cities.cities_page') }}" class="btn-clear-filters">🔄 Clear</a>
+    </form>
+
     {% if cities %}
     <div class="admin-table-container">
         <div class="admin-table-wrapper">

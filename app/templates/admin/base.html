@@ -18,6 +18,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_forms.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_tables.css') }}">
+
+    <!-- Flatpickr CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
 </head>
 
 <body class="admin-page">
@@ -61,6 +65,33 @@
         {% block content %}
         {% endblock %}
     </div>
+    <!-- تهيئة جميع حقول التاريخ -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // تهيئة جميع حقول التاريخ تلقائياً
+            const dateInputs = document.querySelectorAll('input[type="text"][name*="date"], input[type="text"][name*="birth"], input[type="text"][name*="Date"]');
+
+            dateInputs.forEach(input => {
+                flatpickr(input, {
+                    dateFormat: "d/m/Y",
+                    locale: "ar"
+                });
+            });
+
+            // تحويل القيمة قبل الإرسال
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    const inputs = this.querySelectorAll('input[type="text"][name*="date"], input[type="text"][name*="birth"]');
+                    inputs.forEach(input => {
+                        if (input.value && input.value.includes('/')) {
+                            const [day, month, year] = input.value.split('/');
+                            input.value = `${year}-${month}-${day}`;
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 
 </body>
 

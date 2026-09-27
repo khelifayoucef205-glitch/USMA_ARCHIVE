@@ -15,29 +15,45 @@ def add_player_page():
 
         try:
 
+            # --------------------------------
             # Person information
-            first_name = request.form.get("first_name")
-            last_name = request.form.get("last_name")
+            # --------------------------------
+
+            first_name = request.form.get("first_name") or None
+            last_name = request.form.get("last_name") or None
             display_name = request.form.get("display_name")
 
-            first_name_ar = request.form.get("first_name_ar")
-            last_name_ar = request.form.get("last_name_ar")
-            display_name_ar = request.form.get("display_name_ar")
+            first_name_ar = request.form.get("first_name_ar") or None
+            last_name_ar = request.form.get("last_name_ar") or None
+            display_name_ar = request.form.get("display_name_ar") or None
 
             birth_date = request.form.get("birth_date") or None
-            sex = request.form.get("sex")
+            death_date = request.form.get("death_date") or None
+            sex = request.form.get("sex") or None
             country_id = request.form.get("country_id")
 
+
+            # --------------------------------
             # Player information
+            # --------------------------------
+
             position_id = request.form.get("position_id")
-            nickname = request.form.get("nickname")
-            nickname_ar = request.form.get("nickname_ar")
+
+            nickname = request.form.get("nickname") or None
+            nickname_ar = request.form.get("nickname_ar") or None
+
             jersey_number = request.form.get("jersey_number") or None
 
             is_active = 1 if request.form.get("is_active") else 0
 
+            # Get other positions (multiple select)
+            other_positions = request.form.getlist("other_positions")
 
+
+            # --------------------------------
             # Create Person
+            # --------------------------------
+
             cursor.execute("""
                 INSERT INTO Person (
                     Person_First_Name,
@@ -47,10 +63,11 @@ def add_player_page():
                     Person_Last_Name_ar,
                     Person_Display_Name_ar,
                     Person_birth_date,
+                    Person_death_date,
                     Sex,
                     Country_id
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 first_name,
                 last_name,
@@ -59,6 +76,7 @@ def add_player_page():
                 last_name_ar,
                 display_name_ar,
                 birth_date,
+                death_date,
                 sex,
                 country_id
             ))
@@ -66,7 +84,10 @@ def add_player_page():
             person_id = cursor.lastrowid
 
 
+            # --------------------------------
             # Create Player
+            # --------------------------------
+
             cursor.execute("""
                 INSERT INTO Player (
                     Person_id,
@@ -87,7 +108,10 @@ def add_player_page():
             player_id = cursor.lastrowid
 
 
-            # Create Player Position
+            # --------------------------------
+            # Create Main Position
+            # --------------------------------
+
             cursor.execute("""
                 INSERT INTO Player_Position (
                     Player_id,
@@ -102,18 +126,50 @@ def add_player_page():
             ))
 
 
+            # --------------------------------
+            # Create Other Positions
+            # --------------------------------
+
+            if other_positions:
+                for pos_id in other_positions:
+                    # تأكد من عدم إضافة الـ main position مرة أخرى
+                    if pos_id and str(pos_id) != str(position_id):
+                        cursor.execute("""
+                            INSERT INTO Player_Position (
+                                Player_id,
+                                Position_id,
+                                Is_Main
+                            )
+                            VALUES (%s, %s, %s)
+                        """, (
+                            player_id,
+                            pos_id,
+                            0
+                        ))
+
+
+            # --------------------------------
             # Everything succeeded
+            # --------------------------------
+
             connection.commit()
 
-            return redirect(url_for("main.home"))
+            return redirect(
+                url_for("players.players_page")
+            )
 
 
         except Exception as error:
 
-            # Something failed → undo everything
+            # Something failed
+            # Undo everything
+
             connection.rollback()
 
-            print("Error while adding player:", error)
+            print(
+                "Error while adding player:",
+                error
+            )
 
             return "Error while adding player", 500
 
@@ -124,9 +180,18 @@ def add_player_page():
             connection.close()
 
 
-    # GET request → load countries
+    # ========================================
+    # GET REQUEST
+    # ========================================
+
+    # --------------------------------
+    # Load countries
+    # --------------------------------
+
     cursor.execute("""
-        SELECT Country_id, Country_Name
+        SELECT
+            Country_id,
+            Country_Name
         FROM Country
         ORDER BY Country_Name
     """)
@@ -134,16 +199,25 @@ def add_player_page():
     countries = cursor.fetchall()
 
 
+    # --------------------------------
+    # Load positions
+    # --------------------------------
+
     cursor.execute("""
-        SELECT Position_id, Position_Code, Position_Name
+        SELECT
+            Position_id,
+            Position_Code,
+            Position_Name
         FROM Position
         ORDER BY Position_Category_id, Position_id
     """)
 
     positions = cursor.fetchall()
 
+
     cursor.close()
     connection.close()
+
 
     return render_template(
         "admin/players/add_player.html",

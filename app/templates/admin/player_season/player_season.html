@@ -5,144 +5,445 @@
 <!-- Page Header -->
 <div class="admin-header">
     <h1>📅 Player Season Management</h1>
-    <p>Manage player seasons, positions, and jersey numbers</p>
+    <p>Assign players to clubs and seasons with position and jersey number</p>
 </div>
+
 
 <!-- Add Player Season Form -->
 <div class="admin-section">
+
     <h2>Add New Player Season</h2>
 
     <form method="POST" class="admin-form">
+
+        <!-- Player + Club -->
         <div class="form-row">
+
             <div class="form-group">
-                <label for="player_id">Player</label>
-                <select id="player_id" name="player_id" required>
-                    <option value="">-- Select Player --</option>
+
+                <label for="player_id">
+                    Player
+                </label>
+
+                <select id="player_id" name="player_id" required onchange="updatePlayerInformation()">
+
+                    <option value="">
+                        -- Select Player --
+                    </option>
+
                     {% for player in players %}
-                    <option value="{{ player.Player_id }}">
+
+                    <option value="{{ player.Player_id }}" data-jersey="{{ player.Main_Jersey_Number or '' }}"
+                        data-position="{{ player.Main_Position_id or '' }}" {% if player.Player_id==last_player_id
+                        %}selected{% endif %}>
+
                         {{ player.Person_Display_Name }}
+
                     </option>
+
                     {% endfor %}
                 </select>
+
             </div>
 
+
             <div class="form-group">
-                <label for="club_id">Club</label>
+
+                <label for="club_id">
+                    Club
+                </label>
+
                 <select id="club_id" name="club_id" required>
-                    <option value="">-- Select Club --</option>
+
+                    <option value="">
+                        -- Select Club --
+                    </option>
+
                     {% for club in clubs %}
-                    <option value="{{ club.Club_id }}">
+
+                    <option value="{{ club.Club_id }}" {% if club.Club_id==usma_club_id %}selected{% endif %}>
+
                         {{ club.Club_Current_Name }}
+
                     </option>
+
                     {% endfor %}
+
                 </select>
+
             </div>
+
         </div>
 
+
+        <!-- Season + Position -->
         <div class="form-row">
+
             <div class="form-group">
-                <label for="season_number">Season</label>
+
+                <label for="season_number">
+                    Season
+                </label>
+
                 <select id="season_number" name="season_number" required>
-                    <option value="">-- Select Season --</option>
+
+                    <option value="">
+                        -- Select Season --
+                    </option>
+
                     {% for season in seasons %}
+
                     <option value="{{ season.Season_Number }}">
-                        {{ season.Season_Name }} ({{ season.Start_Year }}-{{ season.End_Year }})
+
+                        {{ season.Season_Name }}
+                        ({{ season.Start_Year }}-{{ season.End_Year }})
+
                     </option>
+
                     {% endfor %}
+
                 </select>
+
             </div>
 
+
             <div class="form-group">
-                <label for="position_id">Position</label>
+
+                <label for="position_id">
+                    Position
+                </label>
+
                 <select id="position_id" name="position_id" required>
-                    <option value="">-- Select Position --</option>
-                    {% for position in positions %}
-                    <option value="{{ position.Position_id }}">
-                        {{ position.Position_Code }} - {{ position.Position_Name }}
+
+                    <option value="">
+                        -- Select Position --
                     </option>
+
+                    {% for position in positions %}
+
+                    <option value="{{ position.Position_id }}">
+
+                        {{ position.Position_Code }}
+                        -
+                        {{ position.Position_Name }}
+
+                    </option>
+
                     {% endfor %}
+
                 </select>
+
             </div>
+
         </div>
 
+
+        <!-- Jersey Number -->
         <div class="form-row">
+
             <div class="form-group">
-                <label for="jersey_number" class="optional">Jersey Number</label>
+
+                <label for="jersey_number" class="optional">
+                    Jersey Number
+                </label>
+
                 <input type="number" id="jersey_number" name="jersey_number" min="0" max="99" placeholder="e.g., 7">
+
             </div>
+
         </div>
 
+
+        <!-- Actions -->
         <div class="form-actions">
-            <button type="button" class="btn-secondary" onclick="location.reload();">Cancel</button>
-            <button type="submit" class="btn-primary">✓ Add Player Season</button>
+
+            <button type="button" class="btn-secondary" onclick="location.reload();">
+                Cancel
+            </button>
+
+            <button type="submit" class="btn-primary">
+                ✓ Add Player Season
+            </button>
+
         </div>
+
     </form>
+
 </div>
 
-<!-- Player Seasons Table -->
+
+<!-- Player Season History -->
 <div class="admin-section">
-    <h2>Player Seasons</h2>
+
+    <h2>Player Season History</h2>
+
+    <!-- Player Season Filters -->
+    <form method="GET" action="{{ url_for('player_season.player_season_page') }}" class="admin-filters">
+        <input type="text" name="search_player" id="search_player" placeholder="🔍 Search Player..."
+            value="{{ search_player or '' }}">
+
+        <input type="text" name="search_club" id="search_club" placeholder="🔍 Search Club..."
+            value="{{ search_club or '' }}">
+
+        <select name="season_filter" id="season-filter">
+            <option value="">All Seasons</option>
+            {% for season in seasons %}
+            <option value="{{ season.Season_Number }}" {% if season_filter==season.Season_Number|string %}selected{%
+                endif %}>
+                {{ season.Season_Name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="position_filter" id="position-filter">
+            <option value="">All Positions</option>
+            {% for position in positions %}
+            <option value="{{ position.Position_id }}" {% if position_filter==position.Position_id|string %}selected{%
+                endif %}>
+                {{ position.Position_Code }} - {{ position.Position_Name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-search">🔍 Search</button>
+        <a href="{{ url_for('player_season.player_season_page') }}" class="btn-clear-filters">🔄 Clear</a>
+    </form>
 
     {% if player_seasons %}
+
     <div class="admin-table-container">
+
         <div class="admin-table-wrapper">
+
             <table class="admin-table">
+
                 <thead>
+
                     <tr>
+
                         <th>Player</th>
+
                         <th>Club</th>
+
                         <th>Season</th>
+
                         <th>Position</th>
+
                         <th>Jersey</th>
-                        <th style="width: 100px;">Actions</th>
+
+                        <th style="width: 100px;">
+                            Actions
+                        </th>
+
                     </tr>
+
                 </thead>
+
+
                 <tbody>
+
                     {% for ps in player_seasons %}
+
                     <tr>
-                        <td class="table-name">{{ ps.Person_Display_Name }}</td>
-                        <td class="table-name">{{ ps.Club_Current_Name }}</td>
-                        <td>{{ ps.Season_Name }}</td>
+
+                        <td class="table-name">
+                            {{ ps.Person_Display_Name }}
+                        </td>
+
+                        <td class="table-name">
+                            {{ ps.Club_Current_Name }}
+                        </td>
+
                         <td>
-                            <span
-                                style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                            {{ ps.Season_Name }}
+                        </td>
+
+                        <td>
+
+                            <span style="
+                                    background: rgba(220, 20, 60, 0.1);
+                                    padding: 4px 8px;
+                                    border-radius: 4px;
+                                    font-weight: 600;
+                                ">
                                 {{ ps.Position_Code }}
                             </span>
-                            <span style="color: #666;">{{ ps.Position_Name }}</span>
-                        </td>
-                        <td style="text-align: center; font-weight: 600;">
-                            {% if ps.Jersey_Number is not none %}
-                            #{{ ps.Jersey_Number }}
-                            {% else %}
-                            <span style="color: #999;">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="table-actions">
-                                <a href="{{ url_for('player_season.edit_player_season', player_id=ps.Player_id, club_id=ps.Club_id, season_number=ps.Season_Number) }}"
-                                    class="btn-action btn-edit" title="Edit">✏️</a>
 
-                                <form method="POST"
-                                    action="{{ url_for('player_season.delete_player_season', player_id=ps.Player_id, club_id=ps.Club_id, season_number=ps.Season_Number) }}"
-                                    style="display: inline;" onsubmit="return confirm('Are you sure?');">
-                                    <button type="submit" class="btn-action btn-delete" title="Delete"
-                                        style="border: none; background: none; cursor: pointer;">🗑️</button>
-                                </form>
-                            </div>
+                            <span style="color: #666;">
+                                {{ ps.Position_Name }}
+                            </span>
+
                         </td>
+
+                        <td>
+
+                            {% if ps.Jersey_Number is not none %}
+
+                            {{ ps.Jersey_Number }}
+
+                            {% else %}
+
+                            <span style="color: #999;">
+                                —
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="table-actions">
+
+                                <!-- Edit -->
+
+                                <a href="{{
+                                        url_for(
+                                            'player_season.edit_player_season',
+                                            player_id=ps.Player_id,
+                                            club_id=ps.Club_id,
+                                            season_number=ps.Season_Number
+                                        )
+                                    }}" class="btn-action btn-edit" title="Edit">
+                                    ✏️
+                                </a>
+
+
+                                <!-- Delete -->
+
+                                <form method="POST" action="{{
+                                        url_for(
+                                            'player_season.delete_player_season',
+                                            player_id=ps.Player_id,
+                                            club_id=ps.Club_id,
+                                            season_number=ps.Season_Number
+                                        )
+                                    }}" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+
+                                    <button type="submit" class="btn-action btn-delete" title="Delete" style="
+                                            border: none;
+                                            background: none;
+                                            cursor: pointer;
+                                        ">
+                                        🗑️
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
                     </tr>
+
                     {% endfor %}
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
+
     {% else %}
+
     <div class="empty-state">
-        <div class="empty-state-icon">📅</div>
-        <h3>No player seasons found</h3>
-        <p>Start by adding a player season using the form above.</p>
+
+        <div class="empty-state-icon">
+            📅
+        </div>
+
+        <h3>
+            No player seasons found
+        </h3>
+
+        <p>
+            Start by adding a player season using the form above.
+        </p>
+
     </div>
+
     {% endif %}
+
 </div>
+
+
+<!-- =====================================================
+     AUTO-FILL PLAYER INFORMATION
+     ===================================================== -->
+
+<script>
+
+    function updatePlayerInformation() {
+
+        const playerSelect =
+            document.getElementById("player_id");
+
+        const jerseyInput =
+            document.getElementById("jersey_number");
+
+        const positionSelect =
+            document.getElementById("position_id");
+
+
+        const selectedOption =
+            playerSelect.options[
+            playerSelect.selectedIndex
+            ];
+
+
+        // =========================================
+        // Get Main Jersey Number
+        // =========================================
+
+        const mainJersey =
+            selectedOption.getAttribute("data-jersey");
+
+
+        if (mainJersey) {
+
+            jerseyInput.value = mainJersey;
+
+        } else {
+
+            jerseyInput.value = "";
+
+        }
+
+
+        // =========================================
+        // Get Main Position
+        // =========================================
+
+        const mainPosition =
+            selectedOption.getAttribute("data-position");
+
+
+        if (mainPosition) {
+
+            positionSelect.value = mainPosition;
+
+        } else {
+
+            positionSelect.value = "";
+
+        }
+
+    }
+
+
+    // Run when page loads
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            updatePlayerInformation();
+
+        }
+    );
+
+</script>
 
 {% endblock %}

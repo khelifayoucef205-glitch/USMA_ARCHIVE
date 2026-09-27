@@ -14,11 +14,70 @@
         style="display: inline-block; padding: 12px 28px; text-decoration: none; border-radius: 8px;">
         ➕ Add New Player
     </a>
+
+
 </div>
+
 
 <!-- Players Table -->
 <div class="admin-section">
-    <h2>All Players</h2>
+    <h2>All Players <span class="result-count">({{ players|length }})</span></h2>
+
+    <form method="GET" action="{{ url_for('players.players_page') }}" class="admin-filters">
+        <input type="text" name="search" id="search" placeholder="🔍 Search A Player..." value="{{ search or '' }}">
+
+        <select name="position_filter" id="position-filter">
+            <option value="">All Positions</option>
+            <option value="Goalkeeper" {% if position_filter=='Goalkeeper' %}selected{% endif %}>Goalkeeper</option>
+            <option value="Defender" {% if position_filter=='Defender' %}selected{% endif %}>Defender</option>
+            <option value="Midfielder" {% if position_filter=='Midfielder' %}selected{% endif %}>Midfielder</option>
+            <option value="Forward" {% if position_filter=='Forward' %}selected{% endif %}>Striker</option>
+        </select>
+
+        <select name="nationality_filter" id="nationality-filter">
+            <option value="">All Nationalities</option>
+            {% for nationality in nationalities %}
+            <option value="{{ nationality.Country_id }}" {% if nationality_filter==nationality.Country_id|string
+                %}selected{% endif %}>
+                {{ nationality.Country_Name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="status_filter" id="status-filter">
+            <option value="">All Statuses</option>
+
+            <option value="active_with_usma" {% if status_filter=='active_with_usma' %}selected{% endif %}>
+                Active
+            </option>
+
+            <option value="former_usma" {% if status_filter=='former_usma' %}selected{% endif %}>
+                Former
+            </option>
+
+            <option value="retired" {% if status_filter=='retired' %}selected{% endif %}>
+                Retired
+            </option>
+
+            <option value="deceased" {% if status_filter=='deceased' %}selected{% endif %}>
+                Deceased
+            </option>
+
+            <option value="active_no_club" {% if status_filter=='active_no_club' %}selected{% endif %}>
+                Active - No Club
+            </option>
+        </select>
+
+        <button type="submit" class="btn-search"
+            style="padding: 10px 20px; background: var(--primary-red); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            🔍 Search
+        </button>
+
+        <a href="{{ url_for('players.players_page') }}" class="btn-clear-filters">
+            🔄 Clear
+        </a>
+    </form>
+
 
     {% if players %}
     <div class="admin-table-container">
@@ -26,13 +85,134 @@
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Player Name</th>
-                        <th>Nationality</th>
-                        <th>Main Position</th>
-                        <th>Jersey</th>
+
+                        <!-- ID -->
+                        <th>
+                            <a href="{{ url_for(
+                'players.players_page',
+                search=search,
+                position_filter=position_filter,
+                nationality_filter=nationality_filter,
+                status_filter=status_filter,
+                sort_by='id',
+                sort_order='asc' if sort_by == 'id' and sort_order == 'desc' else 'desc'
+            ) }}" class="sortable">
+
+                                ID
+
+                                {% if sort_by == 'id' %}
+                                <span class="sort-indicator">
+                                    {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endif %}
+
+                            </a>
+                        </th>
+
+
+                        <!-- Player Name -->
+                        <th>
+                            <a href="{{ url_for(
+                'players.players_page',
+                search=search,
+                position_filter=position_filter,
+                nationality_filter=nationality_filter,
+                status_filter=status_filter,
+                sort_by='name',
+                sort_order='asc' if sort_by == 'name' and sort_order == 'desc' else 'desc'
+            ) }}" class="sortable">
+
+                                Player Name
+
+                                {% if sort_by == 'name' %}
+                                <span class="sort-indicator">
+                                    {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endif %}
+
+                            </a>
+                        </th>
+
+
+                        <!-- Nationality -->
+                        <th>
+                            <a href="{{ url_for(
+                'players.players_page',
+                search=search,
+                position_filter=position_filter,
+                nationality_filter=nationality_filter,
+                status_filter=status_filter,
+                sort_by='nationality',
+                sort_order='asc' if sort_by == 'nationality' and sort_order == 'desc' else 'desc'
+            ) }}" class="sortable">
+
+                                Nationality
+
+                                {% if sort_by == 'nationality' %}
+                                <span class="sort-indicator">
+                                    {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endif %}
+
+                            </a>
+                        </th>
+
+
+                        <!-- Main Position -->
+                        <th>
+                            <a href="{{ url_for(
+                'players.players_page',
+                search=search,
+                position_filter=position_filter,
+                nationality_filter=nationality_filter,
+                status_filter=status_filter,
+                sort_by='position',
+                sort_order='asc' if sort_by == 'position' and sort_order == 'desc' else 'desc'
+            ) }}" class="sortable">
+
+                                Main Position
+
+                                {% if sort_by == 'position' %}
+                                <span class="sort-indicator">
+                                    {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endif %}
+
+                            </a>
+                        </th>
+
+
+                        <!-- Jersey -->
+                        <th>
+                            <a href="{{ url_for(
+                'players.players_page',
+                search=search,
+                position_filter=position_filter,
+                nationality_filter=nationality_filter,
+                status_filter=status_filter,
+                sort_by='jersey',
+                sort_order='asc' if sort_by == 'jersey' and sort_order == 'desc' else 'desc'
+            ) }}" class="sortable">
+
+                                Jersey
+
+                                {% if sort_by == 'jersey' %}
+                                <span class="sort-indicator">
+                                    {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endif %}
+
+                            </a>
+                        </th>
+
+
+                        <!-- Status -->
                         <th>Status</th>
+
+
+                        <!-- Actions -->
                         <th style="width: 130px;">Actions</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -60,10 +240,36 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if player.Is_Active %}
-                            <span class="table-status status-active">🟢 Active</span>
-                            {% else %}
-                            <span class="table-status status-inactive">🟡 Inactive</span>
+                            {% if player.status == "deceased" %}
+
+                            <span class="table-status status-deceased">
+                                ⚫ Deceased
+                            </span>
+
+                            {% elif player.status == "retired" %}
+
+                            <span class="table-status status-retired">
+                                ⚪ Retired
+                            </span>
+
+                            {% elif player.status == "active_with_usma" %}
+
+                            <span class="table-status status-active">
+                                🟢 Active
+                            </span>
+
+                            {% elif player.status == "former_usma" %}
+
+                            <span class="table-status status-former">
+                                🟡 Former
+                            </span>
+
+                            {% elif player.status == "active_no_club" %}
+
+                            <span class="table-status status-active">
+                                🔵 Active - No Club
+                            </span>
+
                             {% endif %}
                         </td>
                         <td>

@@ -52,12 +52,12 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="founding_date" class="optional">Founding Date</label>
-                <input type="date" id="founding_date" name="founding_date">
+                <input type="text" id="founding_date" name="founding_date" placeholder="DD/MM/YYYY">
             </div>
 
             <div class="form-group">
                 <label for="dissolution_date" class="optional">Dissolution Date</label>
-                <input type="date" id="dissolution_date" name="dissolution_date">
+                <input type="text" id="dissolution_date" name="dissolution_date" placeholder="DD/MM/YYYY">
             </div>
         </div>
 
@@ -71,6 +71,22 @@
 <!-- Clubs Table -->
 <div class="admin-section">
     <h2>Current Clubs</h2>
+
+    <!-- Clubs Filters -->
+    <form method="GET" action="{{ url_for('clubs.clubs_page') }}" class="admin-filters">
+        <input type="text" name="search" id="search" placeholder="🔍 Search Club Name..." value="{{ search or '' }}">
+
+        <select name="status_filter" id="status-filter">
+            <option value="">All Status</option>
+            <option value="Active" {% if status_filter=='Active' %}selected{% endif %}>🟢 Active</option>
+            <option value="Inactive" {% if status_filter=='Inactive' %}selected{% endif %}>🟡 Inactive</option>
+            <option value="Dissolved" {% if status_filter=='Dissolved' %}selected{% endif %}>🔴 Dissolved</option>
+            <option value="Suspended" {% if status_filter=='Suspended' %}selected{% endif %}>⚫ Suspended</option>
+        </select>
+
+        <button type="submit" class="btn-search">🔍 Search</button>
+        <a href="{{ url_for('clubs.clubs_page') }}" class="btn-clear-filters">🔄 Clear</a>
+    </form>
 
     {% if clubs %}
     <div class="admin-table-container">
@@ -102,7 +118,8 @@
                         </td>
                         <td>
                             <div class="table-actions">
-                                <button class="btn-action btn-edit" title="Edit">✏️</button>
+                                <a href="{{ url_for('edit_clubs.edit_club_page', club_id=club.Club_id) }}"
+                                    class="btn-action btn-edit" title="Edit">✏️</a>
                                 <button class="btn-action btn-delete" title="Delete">🗑️</button>
                             </div>
                         </td>
