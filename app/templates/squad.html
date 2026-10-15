@@ -25,6 +25,26 @@
         </form>
     </div>
 
+    <!-- Season Titles -->
+    {% if titles %}
+    <div class="season-titles">
+        <h3>🏆 Titles won this season</h3>
+        <div class="titles-list">
+            {% for title in titles %}
+            <span class="title-badge type-{{ title.Competition_Type | lower }}">
+                🏆 {{ title.Competition_Name }}
+            </span>
+            {% endfor %}
+        </div>
+        <div style="margin-bottom: 30px; text-align: right;">
+            <a href="{{ url_for('titles_history.titles_history_page') }}"
+                style="color: var(--primary-red); font-weight: 600; text-decoration: none;">
+                View All Titles →
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Players Table -->
     {% if players %}
     <div class="squad-table-container">

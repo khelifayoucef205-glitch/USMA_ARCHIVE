@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="squad-container">
+
+    <div class="squad-header">
+        <div class="squad-title">
+            <h1>🏆 USM Alger Titles</h1>
+            <p>{{ total_titles }} official titles</p>
+        </div>
+
+        <div class="season-selector">
+            <a href="{{ url_for('titles_history.titles_history_page', order='desc' if order == 'asc' else 'asc') }}"
+                class="titles-sort-link">
+                {% if order == 'asc' %}Oldest first ↑{% else %}Newest first ↓{% endif %}
+            </a>
+        </div>
+    </div>
+
+    {% if summary %}
+    <div class="titles-summary">
+        {% for comp_id, item in summary.items() %}
+        <div class="titles-summary-card type-{{ item.type | lower }}">
+            <span class="titles-summary-count">{{ item.count }}</span>
+            <span class="titles-summary-name">{{ item.name }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if seasons_with_titles %}
+    <div class="squad-table-container">
+        <table class="squad-table">
+            <thead>
+                <tr>
+                    <th>Season</th>
+                    <th>Titles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for season in seasons_with_titles %}
+                <tr>
+                    <td class="player-name">
+                        <a href="{{ url_for('squad.squad_page', season=season.Season_Number) }}">
+                            {{ season.Season_Name }}
+                        </a>
+                    </td>
+                    <td>
+                        <div class="titles-list">
+                            {% for title in season.titles %}
+                            <span class="title-badge type-{{ title.Competition_Type | lower }}">
+                                🏆 {{ title.Competition_Name }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-squad">
+        <div style="font-size: 48px; margin-bottom: 15px;">🏆</div>
+        <h3>No titles recorded</h3>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

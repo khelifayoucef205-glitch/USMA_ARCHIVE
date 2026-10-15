@@ -522,3 +522,111 @@
         font-size: 12px;
     }
 }
+
+/* ====== Season Titles ====== */
+.season-titles {
+    margin-bottom: 30px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.12), rgba(220, 20, 60, 0.05));
+    border-radius: 12px;
+    border: 2px solid #f0f0f0;
+    border-left: 4px solid #FFC107;
+}
+
+.season-titles h3 {
+    margin: 0 0 14px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-black);
+}
+
+.titles-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.title-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--neutral-white);
+    background: linear-gradient(135deg, var(--primary-red), #ff1744);
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.2);
+}
+
+.title-badge.type-continental {
+    background: linear-gradient(135deg, #1976D2, #2196F3);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}
+
+.title-badge.type-international {
+    background: linear-gradient(135deg, #2e7d32, #4CAF50);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+@media (max-width: 480px) {
+    .season-titles {
+        padding: 16px;
+    }
+
+    .title-badge {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
+
+
+/* ====== Titles History ====== */
+.titles-sort-link {
+    padding: 10px 18px;
+    border: 2px solid var(--primary-red);
+    border-radius: 6px;
+    color: var(--primary-red);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.titles-sort-link:hover {
+    background: var(--primary-red);
+    color: var(--neutral-white);
+}
+
+.titles-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 30px;
+}
+
+.titles-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    color: var(--neutral-white);
+    background: linear-gradient(135deg, var(--primary-red), #ff1744);
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.2);
+}
+
+.titles-summary-card.type-continental {
+    background: linear-gradient(135deg, #1976D2, #2196F3);
+}
+
+.titles-summary-card.type-international {
+    background: linear-gradient(135deg, #2e7d32, #4CAF50);
+}
+
+.titles-summary-count {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.titles-summary-name {
+    font-size: 14px;
+    font-weight: 600;
+}

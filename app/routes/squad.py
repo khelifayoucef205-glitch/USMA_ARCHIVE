@@ -264,6 +264,29 @@ def squad_page():
 
     staff = cursor.fetchall()
 
+        # =====================================================
+    # USMA TITLES WON IN THE SELECTED SEASON
+    # =====================================================
+
+    cursor.execute("""
+        SELECT
+            c.Competition_id,
+            c.Competition_Name,
+            c.Competition_Name_ar,
+            c.Competition_Type
+        FROM Competition_Season cs
+
+        JOIN Competition c
+            ON cs.Competition_id = c.Competition_id
+
+        WHERE cs.Competition_Winner_Club_id = 1
+          AND cs.Season_Number = %s
+
+        ORDER BY c.Competition_id
+    """, (selected_season,))
+
+    titles = cursor.fetchall()
+
         
     cursor.close()
     connection.close()
@@ -274,6 +297,7 @@ def squad_page():
         seasons=seasons,
         players=players,
         staff=staff,
+        titles=titles,
         selected_season=int(selected_season) if selected_season else None,
         sort_by=sort_by,
         sort_order=sort_order.lower(),

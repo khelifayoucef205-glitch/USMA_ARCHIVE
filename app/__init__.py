@@ -14,12 +14,14 @@ def create_app():
     from app.routes.squad import squad
     from app.routes.staff_member import staff_member
     from app.routes.staff_history import staff_history
+    from app.routes.titles_history import titles_history
 
     app.register_blueprint(main)
     app.register_blueprint(player)
     app.register_blueprint(squad)
     app.register_blueprint(staff_member)
     app.register_blueprint(staff_history)
+    app.register_blueprint(titles_history)
 
 
     # =========================
