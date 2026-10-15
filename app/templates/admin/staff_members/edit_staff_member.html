@@ -1,0 +1,736 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>✏️ Edit Staff Member</h1>
+    <p>Update staff member information and manage relationships</p>
+</div>
+
+<!-- Personal Information Section -->
+<div class="admin-section">
+
+    <h2>👤 Personal Information</h2>
+
+    <form method="POST" class="admin-form">
+
+        <input type="hidden" name="action" value="update_person">
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="first_name" class="optional">
+                    First Name
+                </label>
+
+                <input type="text" id="first_name" name="first_name" value="{{ staff_member.Person_First_Name or '' }}">
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="last_name" class="optional">
+                    Last Name
+                </label>
+
+                <input type="text" id="last_name" name="last_name" value="{{ staff_member.Person_Last_Name or '' }}">
+
+            </div>
+
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="display_name">
+                    Display Name
+                </label>
+
+                <input type="text" id="display_name" name="display_name"
+                    value="{{ staff_member.Person_Display_Name or '' }}" required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="country_id">
+                    Nationality
+                </label>
+
+                <select id="country_id" name="country_id" required>
+
+                    {% for country in countries %}
+
+                    <option value="{{ country.Country_id }}" {% if country.Country_id==staff_member.Country_id
+                        %}selected{% endif %}>
+                        {{ country.Country_Name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="birth_date" class="optional">
+                    Date of Birth
+                </label>
+
+                <input type="text" id="birth_date" name="birth_date"
+                    value="{% if staff_member.Person_birth_date %}{{ staff_member.Person_birth_date.strftime('%d/%m/%Y') }}{% endif %}"
+                    placeholder="DD/MM/YYYY">
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="death_date" class="optional">
+                    Date of Death
+                </label>
+
+                <input type="text" id="death_date" name="death_date"
+                    value="{% if staff_member.Person_death_date %}{{ staff_member.Person_death_date.strftime('%d/%m/%Y') }}{% endif %}"
+                    placeholder="DD/MM/YYYY">
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="sex" class="optional">
+                    Sex
+                </label>
+
+                <select id="sex" name="sex">
+
+                    <option value="Male" {% if staff_member.Sex=='Male' %}selected{% endif %}>
+                        👨 Male
+                    </option>
+
+                    <option value="Female" {% if staff_member.Sex=='Female' %}selected{% endif %}>
+                        👩 Female
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- Arabic Names -->
+        <div style="
+                border-top: 2px solid #f0f0f0;
+                padding-top: 20px;
+                margin-top: 20px;
+            ">
+
+            <h3 style="
+                    font-size: 16px;
+                    color: var(--primary-red);
+                    margin-bottom: 15px;
+                ">
+                Arabic Names (اسم عربي)
+            </h3>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="first_name_ar" class="optional">
+                        First Name (Arabic)
+                    </label>
+
+                    <input type="text" id="first_name_ar" name="first_name_ar"
+                        value="{{ staff_member.Person_First_Name_ar or '' }}" dir="rtl">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="last_name_ar" class="optional">
+                        Last Name (Arabic)
+                    </label>
+
+                    <input type="text" id="last_name_ar" name="last_name_ar"
+                        value="{{ staff_member.Person_Last_Name_ar or '' }}" dir="rtl">
+
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="display_name_ar" class="optional">
+                        Display Name (Arabic)
+                    </label>
+
+                    <input type="text" id="display_name_ar" name="display_name_ar"
+                        value="{{ staff_member.Person_Display_Name_ar or '' }}" dir="rtl">
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+
+            <a href="{{ url_for('staff_members.staff_members_page') }}" class="btn-secondary">
+                ← Back
+            </a>
+
+            <button type="submit" class="btn-primary">
+                ✓ Save Personal Info
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- Staff Member Information Section -->
+<div class="admin-section">
+
+    <h2>👨‍💼 Staff Member Information</h2>
+
+    <form method="POST" class="admin-form">
+
+        <input type="hidden" name="action" value="update_staff_member">
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="role_id">
+                    Main Role
+                </label>
+
+                <select id="role_id" name="role_id" required>
+
+                    <option value="">-- Select Role --</option>
+
+                    {% for role in roles %}
+                    <option value="{{ role.Role_id }}" {% if role.Role_id==main_role_id %}selected{% endif %}>
+                        {{ role.Role_name }}
+                    </option>
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="specialty" class="optional">
+                    Specialty
+                </label>
+
+                <input type="text" id="specialty" name="specialty" value="{{ staff_member.Specialty or '' }}">
+
+            </div>
+
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group" style="width: 100%;">
+
+                <label class="optional">Other Roles in Career</label>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 8px 16px;">
+                    {% for role in roles %}
+                    <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: normal;">
+                        <input type="checkbox" name="other_role_ids" value="{{ role.Role_id }}" {% if role.Role_id in
+                            other_role_ids %}checked{% endif %}>
+                        {{ role.Role_name }}
+                    </label>
+                    {% endfor %}
+                </div>
+
+                <small style="color: #999; display: block; margin-top: 5px;">
+                    Roles this person held during their career (the main role is set above)
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+
+            <a href="{{ url_for('staff_members.staff_members_page') }}" class="btn-secondary">
+                ← Back
+            </a>
+
+            <button type="submit" class="btn-primary">
+                ✓ Save Staff Info
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- Assignments Section -->
+<div class="admin-section">
+
+    <h2>🏛️ Assignments</h2>
+
+    {% if assignments %}
+
+    <div class="admin-table-container">
+
+        <div class="admin-table-wrapper">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Club</th>
+                        <th>Role</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Seasons</th>
+                        <th style="width: 120px;">Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for a in assignments %}
+
+                    <tr>
+
+                        <td class="table-name">{{ a.Club_Current_Name }}</td>
+
+                        <td>
+                            <span
+                                style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                                {{ a.Role_name }}
+                            </span>
+                        </td>
+
+                        <td>{{ a.Start_Date.strftime('%d/%m/%Y') }}</td>
+
+                        <td>
+                            {% if a.End_Date %}
+                            {{ a.End_Date.strftime('%d/%m/%Y') }}
+                            {% else %}
+                            <span style="color: var(--primary-red); font-weight: 600;">Current</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if a.Seasons %}
+                            {{ a.Seasons }}
+                            {% else %}
+                            <span style="color: #999;">— unassigned</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+                            <div class="table-actions">
+
+                                <a href="{{ url_for('edit_staff_assignment.edit_staff_assignment_page', assignment_id=a.Assignment_id) }}"
+                                    class="btn-action btn-edit" title="Edit">
+                                    ✏️
+                                </a>
+
+                                <form method="POST" style="display: inline;"
+                                    onsubmit="return confirm('Delete this assignment?');">
+
+                                    <input type="hidden" name="action" value="delete_assignment">
+                                    <input type="hidden" name="assignment_id" value="{{ a.Assignment_id }}">
+
+                                    <button type="submit" class="btn-action btn-delete" title="Delete"
+                                        style="border: none; background: none; cursor: pointer;">
+                                        🗑️
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-state-icon">🏛️</div>
+
+        <h3>No assignments found</h3>
+
+    </div>
+
+    {% endif %}
+
+    <!-- Add Assignment -->
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+
+        <h3 style="font-size: 16px; margin-bottom: 15px;">
+            Add Assignment
+        </h3>
+
+        <form method="POST" class="admin-form">
+
+            <input type="hidden" name="action" value="add_assignment">
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="club_id">Club</label>
+
+                    <select id="club_id" name="club_id" required>
+
+                        <option value="">-- Select Club --</option>
+
+                        {% for club in clubs %}
+                        <option value="{{ club.Club_id }}">{{ club.Club_Current_Name }}</option>
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="assignment_role_id">Role</label>
+
+                    <select id="assignment_role_id" name="assignment_role_id" required>
+
+                        <option value="">-- Select Role --</option>
+
+                        {% for role in roles %}
+                        <option value="{{ role.Role_id }}">{{ role.Role_name }}</option>
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="start_date">Start Date</label>
+
+                    <input type="text" id="start_date" name="start_date" placeholder="DD/MM/YYYY" required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="end_date" class="optional">End Date</label>
+
+                    <input type="text" id="end_date" name="end_date" placeholder="DD/MM/YYYY">
+
+                    <small style="color: #999; display: block; margin-top: 5px;">
+                        Leave empty if still ongoing
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group" style="width: 100%;">
+
+                    <label class="optional">Seasons</label>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px 16px;">
+                        {% for season in seasons %}
+                        <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: normal;">
+                            <input type="checkbox" name="season_ids" value="{{ season.Season_Number }}">
+                            {{ season.Season_Name }}
+                        </label>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="submit" class="btn-primary">
+                    ✓ Add Assignment
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- Club History Section -->
+<div class="admin-section">
+
+    <h2>🏛️ Employment History</h2>
+
+    {% if staff_member_clubs %}
+
+    <div class="admin-table-container">
+
+        <div class="admin-table-wrapper">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Club</th>
+                        <th>Join Date</th>
+                        <th>Leave Date</th>
+                        <th>Current</th>
+                        <th style="width: 120px;">Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for relation in staff_member_clubs %}
+
+                    <tr>
+
+                        <td class="table-name">
+                            {{ relation.Club_Current_Name }}
+                        </td>
+
+                        <td>
+
+                            {% if relation.Join_Date %}
+                            {{ relation.Join_Date.strftime('%d/%m/%Y') }}
+                            {% else %}
+                            —
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if relation.Leave_Date %}
+
+                            {{ relation.Leave_Date.strftime('%d/%m/%Y') }}
+
+                            {% else %}
+
+                            <span style="color: #999;">
+                                —
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if relation.Is_Actual %}
+
+                            <span style="
+                                    color: var(--primary-red);
+                                    font-weight: 600;
+                                ">
+                                ✓ Yes
+                            </span>
+
+                            {% else %}
+
+                            <span style="color: #999;">
+                                No
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <div class="table-actions">
+
+                                <a href="{{ url_for(
+                                        'edit_staff_member_club.edit_staff_member_club_page',
+                                        staff_member_id=relation.Staff_Member_id,
+                                        club_id=relation.Club_id,
+                                        join_date=relation.Join_Date
+                                    ) }}" class="btn-action btn-edit" title="Edit">
+                                    ✏️
+                                </a>
+
+                                <form method="POST" style="display: inline;"
+                                    onsubmit="return confirm('Delete this relationship?');">
+
+                                    <input type="hidden" name="action" value="delete_club">
+
+                                    <input type="hidden" name="club_id" value="{{ relation.Club_id }}">
+
+                                    <input type="hidden" name="join_date" value="{{ relation.Join_Date }}">
+
+                                    <button type="submit" class="btn-action btn-delete" title="Delete" style="
+                                            border: none;
+                                            background: none;
+                                            cursor: pointer;
+                                        ">
+                                        🗑️
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-state-icon">🏛️</div>
+
+        <h3>No employment history found</h3>
+
+    </div>
+
+    {% endif %}
+
+    <!-- Add Club -->
+    <div style="
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        ">
+
+        <h3 style="
+                font-size: 16px;
+                margin-bottom: 15px;
+            ">
+            Add Employment
+        </h3>
+
+        <form method="POST" class="admin-form">
+
+            <input type="hidden" name="action" value="add_club">
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="club_id">
+                        Club
+                    </label>
+
+                    <select id="club_id" name="club_id" required>
+
+                        <option value="">
+                            -- Select Club --
+                        </option>
+
+                        {% for club in clubs %}
+
+                        <option value="{{ club.Club_id }}">
+                            {{ club.Club_Current_Name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="join_date">
+                        Join Date
+                    </label>
+
+                    <input type="text" id="join_date" name="join_date" placeholder="DD/MM/YYYY" required>
+
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="leave_date" class="optional">
+                        Leave Date
+                    </label>
+
+                    <input type="text" id="leave_date" name="leave_date" placeholder="DD/MM/YYYY">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="is_actual">
+
+                        <input type="checkbox" id="is_actual" name="is_actual">
+
+                        <span>Current Employment</span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="submit" class="btn-primary">
+                    ✓ Add Employment
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

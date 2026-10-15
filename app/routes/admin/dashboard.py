@@ -9,6 +9,11 @@ dashboard = Blueprint(
 )
 
 
+def count(cursor, query):
+    cursor.execute(query)
+    return cursor.fetchone()["count"]
+
+
 @dashboard.route("/")
 def dashboard_page():
 
@@ -17,107 +22,78 @@ def dashboard_page():
 
     try:
 
-        # =========================
-        # Players Count
-        # =========================
+        # Players
+        players_count = count(cursor, "SELECT COUNT(*) AS count FROM Player")
+        active_players_count = count(
+            cursor, "SELECT COUNT(*) AS count FROM Player WHERE Is_Active = 1"
+        )
 
-        cursor.execute("""
-            SELECT COUNT(*) AS count
-            FROM Player
+        # Staff members
+        staff_members_count = count(
+            cursor, "SELECT COUNT(*) AS count FROM Staff_Member"
+        )
+
+        # Staff members with an ongoing assignment (no End_Date)
+        active_staff_members_count = count(cursor, """
+            SELECT COUNT(DISTINCT Staff_Member_id) AS count
+            FROM Staff_Assignment
+            WHERE End_Date IS NULL
         """)
 
-        players_count = cursor.fetchone()["count"]
+        # Clubs
+        clubs_count = count(cursor, "SELECT COUNT(*) AS count FROM Club")
+        active_clubs_count = count(
+            cursor,
+            "SELECT COUNT(*) AS count FROM Club WHERE Club_Status = 'Active'"
+        )
 
-        # Active Players
-        cursor.execute("""
-            SELECT COUNT(*) AS count
-            FROM Player
-            WHERE Is_Active = 1
-        """)
+        # Player clubs
+        player_clubs_count = count(
+            cursor, "SELECT COUNT(*) AS count FROM Player_Club"
+        )
+        current_player_clubs_count = count(
+            cursor, "SELECT COUNT(*) AS count FROM Player_Club WHERE Is_Actual = 1"
+        )
 
-        active_players_count = cursor.fetchone()["count"]
+        # Staff assignments
+        staff_assignments_count = count(
+            cursor, "SELECT COUNT(*) AS count FROM Staff_Assignment"
+        )
+        current_staff_assignments_count = count(
+            cursor,
+            "SELECT COUNT(*) AS count FROM Staff_Assignment WHERE End_Date IS NULL"
+        )
 
+        # Player seasons
+        player_seasons_count = count(
+            cursor, "SELECT COUNT(*) AS count FROM Player_Season"
+        )
 
-        # =========================
-        # Clubs Count
-        # =========================
+        # Assignment-season links
+        staff_assignment_seasons_count = count(
+            cursor, "SELECT COUNT(*) AS count FROM Staff_Assignment_Season"
+        )
 
-        cursor.execute("""
-            SELECT COUNT(*) AS count
-            FROM Club
-        """)
+        # Cities
+        cities_count = count(cursor, "SELECT COUNT(*) AS count FROM City")
 
-        clubs_count = cursor.fetchone()["count"]
-
-        # Active Clubs
-        cursor.execute("""
-            SELECT COUNT(*) AS count
-            FROM Club
-            WHERE Club_Status = 'Active'
-        """)
-
-        active_clubs_count = cursor.fetchone()["count"]
-
-
-        # =========================
-        # Player Clubs Count
-        # =========================
-
-        cursor.execute("""
-            SELECT COUNT(*) AS count
-            FROM Player_Club
-        """)
-
-        player_clubs_count = cursor.fetchone()["count"]
-
-        # Current Player Clubs
-        cursor.execute("""
-            SELECT COUNT(*) AS count
-            FROM Player_Club
-            WHERE Is_Actual = 1
-        """)
-
-        current_player_clubs_count = cursor.fetchone()["count"]
-
-
-        # =========================
-        # Player Seasons Count
-        # =========================
-
-        cursor.execute("""
-            SELECT COUNT(*) AS count
-            FROM Player_Season
-        """)
-
-        player_seasons_count = cursor.fetchone()["count"]
-
-
-        # =========================
-        # Cities Count
-        # =========================
-
-        cursor.execute("""
-            SELECT COUNT(*) AS count
-            FROM City
-        """)
-
-        cities_count = cursor.fetchone()["count"]
-
-        # =========================
-        # USMA Squad Size (Current Season)
-        # =========================
-
-        cursor.execute("""
+        # USMA squad size (latest season)
+        usma_squad_count = count(cursor, """
             SELECT COUNT(*) AS count
             FROM Player_Season ps
             WHERE ps.Club_id = 1
-            AND ps.Season_Number = (
-                SELECT MAX(Season_Number) FROM Season
-            )
+              AND ps.Season_Number = (SELECT MAX(Season_Number) FROM Season)
         """)
 
-        usma_squad_count = cursor.fetchone()["count"]
-
+        # USMA staff size (latest season): distinct people linked to it
+        usma_staff_count = count(cursor, """
+            SELECT COUNT(DISTINCT sa.Staff_Member_id) AS count
+            FROM Staff_Assignment sa
+            JOIN Staff_Assignment_Season sas
+                ON sas.Assignment_id = sa.Assignment_id
+            WHERE sa.Club_id = 1
+              AND sas.Season_Number = (SELECT MAX(Season_Number) FROM Season)
+        """)
 
         return render_template(
             "admin/dashboard.html",
@@ -125,13 +101,19 @@ def dashboard_page():
 
             players_count=players_count,
             active_players_count=active_players_count,
+            staff_members_count=staff_members_count,
+            active_staff_members_count=active_staff_members_count,
             clubs_count=clubs_count,
             active_clubs_count=active_clubs_count,
             player_clubs_count=player_clubs_count,
             current_player_clubs_count=current_player_clubs_count,
+            staff_assignments_count=staff_assignments_count,
+            current_staff_assignments_count=current_staff_assignments_count,
             player_seasons_count=player_seasons_count,
+            staff_assignment_seasons_count=staff_assignment_seasons_count,
             cities_count=cities_count,
-            usma_squad_count=usma_squad_count
+            usma_squad_count=usma_squad_count,
+            usma_staff_count=usma_staff_count
         )
 
     except Exception as error:

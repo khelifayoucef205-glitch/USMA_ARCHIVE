@@ -26,38 +26,117 @@
 
 <body class="admin-page">
 
-    <!-- Admin Navigation Tabs -->
+    <!-- Admin Navigation -->
     <nav class="admin-nav-tabs">
+
+        <!-- Dashboard -->
         <a href="{{ url_for('dashboard.dashboard_page') }}"
             class="{% if 'dashboard' in request.endpoint %}active{% endif %}">
             📊 Dashboard
         </a>
 
-        <a href="{{ url_for('players.players_page') }}" class="{% if 'players' in request.endpoint %}active{% endif %}">
-            ⚽ Players
-        </a>
 
-        <a href="{{ url_for('clubs.clubs_page') }}" class="{% if 'clubs' in request.endpoint %}active{% endif %}">
-            🏛️ Clubs
-        </a>
+        <!-- Players -->
+        <div class="admin-nav-dropdown
+        {% if 'players' in request.endpoint
+        or 'player_club' in request.endpoint
+        or 'player_season' in request.endpoint %}
+        active
+        {% endif %}">
 
-        <a href="{{ url_for('player_club.player_club_page') }}"
-            class="{% if 'player_club' in request.endpoint %}active{% endif %}">
-            🔗 Player Clubs
-        </a>
+            <button class="admin-nav-dropdown-toggle" type="button">
+                ⚽ Players
+                <span class="dropdown-arrow">▾</span>
+            </button>
 
-        <a href="{{ url_for('player_season.player_season_page') }}"
-            class="{% if 'player_season' in request.endpoint %}active{% endif %}">
-            📅 Player Seasons
-        </a>
+            <div class="admin-nav-dropdown-menu">
 
-        <a href="{{ url_for('cities.cities_page') }}" class="{% if 'cities' in request.endpoint %}active{% endif %}">
-            🏙️ Cities
-        </a>
+                <a href="{{ url_for('players.players_page') }}"
+                    class="{% if 'players' in request.endpoint %}active{% endif %}">
+                    ⚽ Players
+                </a>
 
-        <a href="{{ url_for('main.home') }}" style="margin-left: auto;">
+                <a href="{{ url_for('player_club.player_club_page') }}"
+                    class="{% if 'player_club' in request.endpoint %}active{% endif %}">
+                    🔗 Player Clubs
+                </a>
+
+                <a href="{{ url_for('player_season.player_season_page') }}"
+                    class="{% if 'player_season' in request.endpoint %}active{% endif %}">
+                    📅 Player Seasons
+                </a>
+
+            </div>
+        </div>
+
+
+        <!-- Staff -->
+        <div class="admin-nav-dropdown
+        {% if request.blueprint in ['staff_members', 'add_staff_member', 'edit_staff_member',
+                                    'staff_assignment', 'edit_staff_assignment',
+                                    'staff_assignment_season'] %}
+        active
+        {% endif %}">
+
+            <button class="admin-nav-dropdown-toggle" type="button">
+                👨‍💼 Staff
+                <span class="dropdown-arrow">▾</span>
+            </button>
+
+            <div class="admin-nav-dropdown-menu">
+
+                <a href="{{ url_for('staff_members.staff_members_page') }}"
+                    class="{% if request.blueprint in ['staff_members', 'add_staff_member', 'edit_staff_member'] %}active{% endif %}">
+                    👨‍💼 Staff Members
+                </a>
+
+                <a href="{{ url_for('staff_assignment.staff_assignment_page') }}"
+                    class="{% if request.blueprint in ['staff_assignment', 'edit_staff_assignment'] %}active{% endif %}">
+                    🔗 Staff Assignments
+                </a>
+
+                <a href="{{ url_for('staff_assignment_season.staff_assignment_season_page') }}"
+                    class="{% if request.blueprint == 'staff_assignment_season' %}active{% endif %}">
+                    📅 Assignment Seasons
+                </a>
+
+            </div>
+        </div>
+
+
+        <!-- Others -->
+        <div class="admin-nav-dropdown
+        {% if 'clubs' in request.endpoint
+        or 'cities' in request.endpoint %}
+        active
+        {% endif %}">
+
+            <button class="admin-nav-dropdown-toggle" type="button">
+                ⚙️ Others
+                <span class="dropdown-arrow">▾</span>
+            </button>
+
+            <div class="admin-nav-dropdown-menu">
+
+                <a href="{{ url_for('clubs.clubs_page') }}"
+                    class="{% if 'clubs' in request.endpoint %}active{% endif %}">
+                    🏛️ Clubs
+                </a>
+
+                <a href="{{ url_for('cities.cities_page') }}"
+                    class="{% if 'cities' in request.endpoint %}active{% endif %}">
+                    🏙️ Cities
+                </a>
+
+            </div>
+        </div>
+
+
+        <!-- View Site -->
+        <a href="{{ url_for('main.home') }}" class="admin-nav-site">
             👁️ View Site
         </a>
+
     </nav>
 
     <!-- Admin Container -->

@@ -92,24 +92,33 @@
                     </p>
                 </div>
             </div>
-            {% elif usma_history %}
+            {% endif %}
+
+            <!-- Previous spells with USMA -->
+            {% if usma_history %}
             <div class="usma-status history">
                 <div class="status-indicator"></div>
                 <div class="status-content">
-                    <h3>Former Player</h3>
-                    {% if usma_history[0].Leave_Date %}
-                    <p class="period">
-                        {{ usma_history[0].Join_Date }}
-                        <span class="separator">→</span>
-                        {{ usma_history[0].Leave_Date }}
-                    </p>
-                    {% else %}
-                    <p class="period">From {{ usma_history[0].Join_Date }}</p>
-                    {% endif %}
+                    <h3>{% if usma_current %}Previous Spells{% else %}Former Player{% endif %}</h3>
+
+                    <div class="usma-periods">
+                        {% for period in usma_history %}
+                        <div class="period">
+                            {% if period.Join_Date and period.Leave_Date %}
+                            {{ period.Join_Date }}
+                            <span class="separator">→</span>
+                            {{ period.Leave_Date }}
+                            {% elif period.Join_Date %}
+                            From {{ period.Join_Date }}
+                            {% else %}
+                            No date information
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
             {% endif %}
-
             <!-- USMA Seasons -->
             {% if usma_seasons %}
             <div class="seasons-container">

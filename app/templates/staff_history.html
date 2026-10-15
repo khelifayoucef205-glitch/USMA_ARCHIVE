@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="squad-container">
+
+    <div class="squad-header">
+        <div class="squad-title">
+            <h1>👨‍💼 Staff History</h1>
+            <p>All staff assignments, latest first</p>
+        </div>
+    </div>
+
+    {% if assignments %}
+    <div class="squad-table-container">
+        <table class="squad-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Club</th>
+                    <th>Period</th>
+                    <th>Seasons</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for a in assignments %}
+                <tr>
+                    <td class="player-name">
+                        <a href="{{ url_for('staff_member.staff_member_page', staff_member_id=a.Staff_Member_id) }}">
+                            {{ a.Person_Display_Name }}
+                        </a>
+                    </td>
+
+                    <td>
+                        <span class="position-code">{{ a.Role_name }}</span>
+                    </td>
+
+                    <td>{{ a.Club_Current_Name }}</td>
+
+                    <td>
+                        {{ a.Start_Date.strftime('%d/%m/%Y') }}
+                        <span class="separator">→</span>
+                        {% if a.End_Date %}
+                        {{ a.End_Date.strftime('%d/%m/%Y') }}
+                        {% else %}
+                        Present
+                        {% endif %}
+                    </td>
+
+                    <td>{{ a.Seasons or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-squad">
+        <div style="font-size: 48px; margin-bottom: 15px;">👨‍💼</div>
+        <h3>No staff assignments yet</h3>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('squad.squad_page') }}"
+            style="color: var(--primary-red); font-weight: 600; text-decoration: none;">
+            ← Back to Squad
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

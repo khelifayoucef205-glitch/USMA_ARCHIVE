@@ -223,7 +223,48 @@ def squad_page():
         round(total_age / known_age_count, 1)
         if known_age_count > 0
         else 0 
-    )    
+    )
+
+        # =====================================================
+    # USMA STAFF FOR THE SELECTED SEASON
+    # =====================================================
+
+    cursor.execute("""
+        SELECT
+            sa.Assignment_id,
+            sa.Staff_Member_id,
+            p.Person_Display_Name,
+            co.Country_Name,
+            sr.Role_name,
+            sa.Start_Date,
+            sa.End_Date
+
+        FROM Staff_Assignment sa
+
+        JOIN Staff_Assignment_Season sas
+            ON sas.Assignment_id = sa.Assignment_id
+
+        JOIN Staff_Member sm
+            ON sa.Staff_Member_id = sm.Staff_Member_id
+
+        JOIN Person p
+            ON sm.Person_id = p.Person_id
+
+        LEFT JOIN Country co
+            ON p.Country_id = co.Country_id
+
+        JOIN Staff_Role sr
+            ON sa.Role_id = sr.Role_id
+
+        WHERE sa.Club_id = 1
+          AND sas.Season_Number = %s
+
+        ORDER BY sa.Start_Date, sr.Role_id
+    """, (selected_season,))
+
+    staff = cursor.fetchall()
+
+        
     cursor.close()
     connection.close()
 
@@ -232,6 +273,7 @@ def squad_page():
         Title="Squad",
         seasons=seasons,
         players=players,
+        staff=staff,
         selected_season=int(selected_season) if selected_season else None,
         sort_by=sort_by,
         sort_order=sort_order.lower(),

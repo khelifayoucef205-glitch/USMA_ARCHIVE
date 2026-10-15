@@ -172,6 +172,62 @@
     </div>
     {% endif %}
 
+    <!-- Staff Table -->
+    <div class="squad-table-container" style="margin-top: 30px;">
+        <h3 style="margin-bottom: 15px;">👨‍💼 Technical Staff</h3>
+
+        {% if staff %}
+        <table class="squad-table">
+            <thead>
+                <tr>
+                    <th>Role</th>
+                    <th>Name</th>
+                    <th>Nationality</th>
+                    <th>Period</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for member in staff %}
+                <tr>
+                    <td>
+                        <span class="position-code">{{ member.Role_name }}</span>
+                    </td>
+
+                    <td class="player-name">
+                        <a
+                            href="{{ url_for('staff_member.staff_member_page', staff_member_id=member.Staff_Member_id) }}">
+                            {{ member.Person_Display_Name }}
+                        </a>
+                    </td>
+
+                    <td>{{ member.Country_Name or '—' }}</td>
+
+                    <td>
+                        {{ member.Start_Date.strftime('%d/%m/%Y') }}
+                        <span class="separator">→</span>
+                        {% if member.End_Date %}
+                        {{ member.End_Date.strftime('%d/%m/%Y') }}
+                        {% else %}
+                        Present
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #999;">No staff recorded for this season.</p>
+        {% endif %}
+
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="{{ url_for('staff_history.staff_history_page') }}"
+                style="display: inline-block; color: var(--primary-red); font-weight: 600; text-decoration: none; padding: 10px 24px; border: 2px solid var(--primary-red); border-radius: 6px;">
+                View All Staff History →
+            </a>
+        </div>
+    </div>
+
 </div>
 
 {% endblock %}

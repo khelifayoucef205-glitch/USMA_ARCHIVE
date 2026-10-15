@@ -1,0 +1,256 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>👨‍💼 Staff Members Management</h1>
+    <p>Manage all staff members in the system</p>
+</div>
+
+<!-- Add Staff Member Button -->
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('add_staff_member.add_staff_member_page') }}" class="btn-primary"
+        style="display: inline-block; padding: 12px 28px; text-decoration: none; border-radius: 8px;">
+        ➕ Add New Staff Member
+    </a>
+</div>
+
+<!-- Staff Members Table -->
+<div class="admin-section">
+    <h2>All Staff Members <span class="result-count">({{ staff_members|length }})</span></h2>
+
+    <form method="GET" action="{{ url_for('staff_members.staff_members_page') }}" class="admin-filters">
+        <input type="text" name="search" id="search" placeholder="🔍 Search A Staff Member..."
+            value="{{ search or '' }}">
+
+        <select name="role_filter" id="role-filter">
+            <option value="">All Roles</option>
+            {% for role in roles %}
+            <option value="{{ role.Role_id }}" {% if role_filter==role.Role_id|string %}selected{% endif %}>
+                {{ role.Role_name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="nationality_filter" id="nationality-filter">
+            <option value="">All Nationalities</option>
+            {% for nationality in nationalities %}
+            <option value="{{ nationality.Country_id }}" {% if nationality_filter==nationality.Country_id|string
+                %}selected{% endif %}>
+                {{ nationality.Country_Name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="status_filter" id="status-filter">
+            <option value="">All Statuses</option>
+
+            <option value="active_with_usma" {% if status_filter=='active_with_usma' %}selected{% endif %}>
+                Active
+            </option>
+
+            <option value="former_usma" {% if status_filter=='former_usma' %}selected{% endif %}>
+                Former
+            </option>
+
+            <option value="no_club" {% if status_filter=='no_club' %}selected{% endif %}>
+                No Club
+            </option>
+
+            <option value="deceased" {% if status_filter=='deceased' %}selected{% endif %}>
+                Deceased
+            </option>
+        </select>
+
+        <button type="submit" class="btn-search"
+            style="padding: 10px 20px; background: var(--primary-red); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            🔍 Search
+        </button>
+
+        <a href="{{ url_for('staff_members.staff_members_page') }}" class="btn-clear-filters">
+            🔄 Clear
+        </a>
+    </form>
+
+    {% if staff_members %}
+    <div class="admin-table-container">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+
+                        <!-- ID -->
+                        <th>
+                            <a href="{{ url_for(
+                'staff_members.staff_members_page',
+                search=search,
+                role_filter=role_filter,
+                nationality_filter=nationality_filter,
+                status_filter=status_filter,
+                sort_by='id',
+                sort_order='asc' if sort_by == 'id' and sort_order == 'desc' else 'desc'
+            ) }}" class="sortable">
+
+                                ID
+
+                                {% if sort_by == 'id' %}
+                                <span class="sort-indicator">
+                                    {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endif %}
+
+                            </a>
+                        </th>
+
+                        <!-- Staff Member Name -->
+                        <th>
+                            <a href="{{ url_for(
+                'staff_members.staff_members_page',
+                search=search,
+                role_filter=role_filter,
+                nationality_filter=nationality_filter,
+                status_filter=status_filter,
+                sort_by='name',
+                sort_order='asc' if sort_by == 'name' and sort_order == 'desc' else 'desc'
+            ) }}" class="sortable">
+
+                                Name
+
+                                {% if sort_by == 'name' %}
+                                <span class="sort-indicator">
+                                    {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endif %}
+
+                            </a>
+                        </th>
+
+                        <!-- Nationality -->
+                        <th>
+                            <a href="{{ url_for(
+                'staff_members.staff_members_page',
+                search=search,
+                role_filter=role_filter,
+                nationality_filter=nationality_filter,
+                status_filter=status_filter,
+                sort_by='nationality',
+                sort_order='asc' if sort_by == 'nationality' and sort_order == 'desc' else 'desc'
+            ) }}" class="sortable">
+
+                                Nationality
+
+                                {% if sort_by == 'nationality' %}
+                                <span class="sort-indicator">
+                                    {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endif %}
+
+                            </a>
+                        </th>
+
+                        <!-- Role -->
+                        <th>
+                            <a href="{{ url_for(
+                'staff_members.staff_members_page',
+                search=search,
+                role_filter=role_filter,
+                nationality_filter=nationality_filter,
+                status_filter=status_filter,
+                sort_by='role',
+                sort_order='asc' if sort_by == 'role' and sort_order == 'desc' else 'desc'
+            ) }}" class="sortable">
+
+                                Role
+
+                                {% if sort_by == 'role' %}
+                                <span class="sort-indicator">
+                                    {% if sort_order == 'asc' %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endif %}
+
+                            </a>
+                        </th>
+
+                        <!-- Status -->
+                        <th>Status</th>
+
+                        <!-- Actions -->
+                        <th style="width: 130px;">Actions</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff in staff_members %}
+                    <tr>
+                        <td class="table-id">#{{ staff.Staff_Member_id }}</td>
+                        <td class="table-name">
+                            <a href="{{ url_for('staff_member.staff_member_page', staff_member_id=staff.Staff_Member_id) }}"
+                                style="color: var(--primary-red); font-weight: 600; text-decoration: none;">
+                                {{ staff.Person_Display_Name }}
+                            </a>
+                        </td>
+                        <td>{{ staff.Country_Name }}</td>
+                        <td>
+                            <span
+                                style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                                {{ staff.Role or '—' }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if staff.status == "deceased" %}
+
+                            <span class="table-status status-deceased">
+                                ⚫ Deceased
+                            </span>
+
+                            {% elif staff.status == "active_with_usma" %}
+
+                            <span class="table-status status-active">
+                                🟢 Active
+                            </span>
+
+                            {% elif staff.status == "former_usma" %}
+
+                            <span class="table-status status-former">
+                                🟡 Former
+                            </span>
+
+                            {% elif staff.status == "no_club" %}
+
+                            <span class="table-status status-active">
+                                🔵 No Club
+                            </span>
+
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{{ url_for('edit_staff_member.edit_staff_member_page', staff_member_id=staff.Staff_Member_id) }}"
+                                    class="btn-action btn-edit" title="Edit">✏️</a>
+
+                                <form method="POST"
+                                    action="{{ url_for('staff_members.delete_staff_member', staff_member_id=staff.Staff_Member_id) }}"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('Are you sure you want to delete this staff member?');">
+                                    <button type="submit" class="btn-action btn-delete" title="Delete"
+                                        style="border: none; background: none; cursor: pointer;">🗑️</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">👨‍💼</div>
+        <h3>No staff members found</h3>
+        <p>Start by adding your first staff member using the button above.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

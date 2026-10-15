@@ -1,0 +1,98 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<div class="admin-header">
+    <h1>✏️ Edit Assignment Season</h1>
+    <p>Change the season this assignment is linked to</p>
+</div>
+
+<div class="admin-section">
+    <h2>Link Details</h2>
+
+    <form method="POST" class="admin-form">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Staff Member (Read-Only)</label>
+                <input type="text" value="{{ link.Person_Display_Name }}" disabled
+                    style="background-color: #f0f0f0; cursor: not-allowed;">
+            </div>
+
+            <div class="form-group">
+                <label>Club (Read-Only)</label>
+                <input type="text" value="{{ link.Club_Current_Name }}" disabled
+                    style="background-color: #f0f0f0; cursor: not-allowed;">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Role (Read-Only)</label>
+                <input type="text" value="{{ link.Role_name }}" disabled
+                    style="background-color: #f0f0f0; cursor: not-allowed;">
+            </div>
+
+            <div class="form-group">
+                <label>Period (Read-Only)</label>
+                <input type="text"
+                    value="{{ link.Start_Date }} → {% if link.End_Date %}{{ link.End_Date }}{% else %}Current{% endif %}"
+                    disabled style="background-color: #f0f0f0; cursor: not-allowed;">
+                <small style="color: #999; display: block; margin-top: 5px;">
+                    Edit the period from the assignment page
+                </small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="season_number">Season</label>
+                <select id="season_number" name="season_number" required>
+                    {% for season in seasons %}
+                    <option value="{{ season.Season_Number }}" {% if season.Season_Number==link.Season_Number
+                        %}selected{% endif %}>
+                        {{ season.Season_Name }} ({{ season.Start_Year }}-{{ season.End_Year }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_outside">
+                    <input type="checkbox" id="confirm_outside" name="confirm_outside">
+                    Confirm outside range
+                </label>
+                <small style="color: #999; display: block; margin-top: 5px;">
+                    Only needed if the season does not overlap the assignment dates
+                </small>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('staff_assignment_season.staff_assignment_season_page') }}" class="btn-secondary">←
+                Back</a>
+            <button type="submit" class="btn-primary">✓ Save Changes</button>
+        </div>
+
+    </form>
+</div>
+
+<!-- Delete -->
+<div class="admin-section" style="border-left: 4px solid var(--primary-red);">
+    <h2 style="color: var(--primary-red);">⚠️ Remove Link</h2>
+
+    <div style="background: rgba(220, 20, 60, 0.1); padding: 15px; border-radius: 8px;">
+        <p style="margin: 0 0 10px 0; color: var(--primary-black);">
+            Unlink {{ link.Person_Display_Name }} ({{ link.Role_name }}) from {{ link.Season_Name }}?
+            The assignment itself is not deleted.
+        </p>
+
+        <form method="POST"
+            action="{{ url_for('staff_assignment_season.delete_staff_assignment_season', assignment_id=link.Assignment_id, season_number=link.Season_Number) }}"
+            onsubmit="return confirm('Are you sure?');" style="display: inline;">
+            <button type="submit" class="btn-danger">🗑️ Remove Link</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

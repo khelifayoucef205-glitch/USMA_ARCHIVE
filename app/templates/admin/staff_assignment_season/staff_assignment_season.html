@@ -1,0 +1,157 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<div class="admin-header">
+    <h1>📅 Staff Assignment Seasons</h1>
+    <p>Link each assignment period to the seasons it belongs to</p>
+</div>
+
+<!-- Add Link -->
+<div class="admin-section">
+    <h2>Link Assignment to Season</h2>
+
+    <form method="POST" class="admin-form">
+
+        <div class="form-row">
+            <div class="form-group" style="width: 100%;">
+                <label for="assignment_id">Assignment</label>
+                <select id="assignment_id" name="assignment_id" required>
+                    <option value="">-- Select Assignment --</option>
+                    {% for a in assignments %}
+                    <option value="{{ a.Assignment_id }}">
+                        {{ a.Person_Display_Name }} — {{ a.Club_Current_Name }} — {{ a.Role_name }}
+                        ({{ a.Start_Date }} → {% if a.End_Date %}{{ a.End_Date }}{% else %}Current{% endif %})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="season_number">Season</label>
+                <select id="season_number" name="season_number" required>
+                    <option value="">-- Select Season --</option>
+                    {% for season in seasons %}
+                    <option value="{{ season.Season_Number }}">
+                        {{ season.Season_Name }} ({{ season.Start_Year }}-{{ season.End_Year }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_outside">
+                    <input type="checkbox" id="confirm_outside" name="confirm_outside">
+                    Confirm outside range
+                </label>
+                <small style="color: #999; display: block; margin-top: 5px;">
+                    Only needed if the season does not overlap the assignment dates
+                </small>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-secondary" onclick="location.reload();">Cancel</button>
+            <button type="submit" class="btn-primary">✓ Add Link</button>
+        </div>
+
+    </form>
+</div>
+
+<!-- Links Table -->
+<div class="admin-section">
+    <h2>Links <span class="result-count">({{ links|length }})</span></h2>
+
+    <form method="GET" action="{{ url_for('staff_assignment_season.staff_assignment_season_page') }}"
+        class="admin-filters">
+        <input type="text" name="search_staff_member" placeholder="🔍 Search Staff Member..."
+            value="{{ search_staff_member or '' }}">
+
+        <input type="text" name="search_club" placeholder="🔍 Search Club..." value="{{ search_club or '' }}">
+
+        <select name="season_filter">
+            <option value="">All Seasons</option>
+            {% for season in seasons %}
+            <option value="{{ season.Season_Number }}" {% if season_filter==season.Season_Number|string %}selected{%
+                endif %}>
+                {{ season.Season_Name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="role_filter">
+            <option value="">All Roles</option>
+            {% for role in roles %}
+            <option value="{{ role.Role_id }}" {% if role_filter==role.Role_id|string %}selected{% endif %}>
+                {{ role.Role_name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-search">🔍 Search</button>
+        <a href="{{ url_for('staff_assignment_season.staff_assignment_season_page') }}" class="btn-clear-filters">🔄
+            Clear</a>
+    </form>
+
+    {% if links %}
+    <div class="admin-table-container">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Staff Member</th>
+                        <th>Club</th>
+                        <th>Role</th>
+                        <th>Period</th>
+                        <th>Season</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in links %}
+                    <tr>
+                        <td class="table-name">{{ l.Person_Display_Name }}</td>
+                        <td class="table-name">{{ l.Club_Current_Name }}</td>
+                        <td>
+                            <span
+                                style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                                {{ l.Role_name }}
+                            </span>
+                        </td>
+                        <td>
+                            {{ l.Start_Date }} →
+                            {% if l.End_Date %}{{ l.End_Date }}{% else %}
+                            <span style="color: var(--primary-red); font-weight: 600;">Current</span>{% endif %}
+                        </td>
+                        <td>{{ l.Season_Name }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{{ url_for('staff_assignment_season.edit_staff_assignment_season', assignment_id=l.Assignment_id, season_number=l.Season_Number) }}"
+                                    class="btn-action btn-edit" title="Edit">✏️</a>
+
+                                <form method="POST"
+                                    action="{{ url_for('staff_assignment_season.delete_staff_assignment_season', assignment_id=l.Assignment_id, season_number=l.Season_Number) }}"
+                                    style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-action btn-delete" title="Delete"
+                                        style="border: none; background: none; cursor: pointer;">🗑️</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📅</div>
+        <h3>No links found</h3>
+        <p>Start by linking an assignment to a season using the form above.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -16,56 +16,209 @@ body.admin-page {
     background-color: var(--admin-bg);
 }
 
-/* ====== Admin Navigation (Top Tabs) ====== */
+/* ====================================
+   ADMIN NAVIGATION
+   ==================================== */
+
 .admin-nav-tabs {
     background: linear-gradient(135deg, var(--primary-black) 0%, #2a2a2a 100%);
     padding: 0;
     margin: 0;
     border-bottom: 3px solid var(--primary-red);
     box-shadow: 0 4px 12px rgba(220, 20, 60, 0.2);
+
     display: flex;
+    align-items: stretch;
     flex-wrap: wrap;
-    gap: 0;
 }
 
-.admin-nav-tabs a {
+
+/* ===== Top-Level Navigation Links ===== */
+
+.admin-nav-tabs>a,
+.admin-nav-dropdown-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     padding: 16px 20px;
+
     color: #b0b0b0;
+    background: transparent;
+
     text-decoration: none;
+
+    font-family: inherit;
     font-weight: 500;
     font-size: 14px;
+
     border: none;
     border-bottom: 3px solid transparent;
+
     transition: var(--admin-transition);
+
     white-space: nowrap;
-    position: relative;
+
+    cursor: pointer;
 }
 
-.admin-nav-tabs a:hover {
+
+/* Hover */
+
+.admin-nav-tabs>a:hover,
+.admin-nav-dropdown-toggle:hover {
     background: rgba(220, 20, 60, 0.15);
     color: var(--primary-red);
     border-bottom-color: var(--primary-red);
 }
 
-.admin-nav-tabs a.active {
+
+/* Active */
+
+.admin-nav-tabs>a.active,
+.admin-nav-dropdown.active>.admin-nav-dropdown-toggle {
     background: rgba(220, 20, 60, 0.2);
     color: var(--primary-red);
     border-bottom-color: var(--primary-red);
 }
 
-/* Divider */
-.admin-nav-tabs a+a::before {
-    content: '';
+
+/* ===== Dropdown Container ===== */
+
+.admin-nav-dropdown {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+
+/* ===== Dropdown Arrow ===== */
+
+.dropdown-arrow {
+    margin-left: 7px;
+    font-size: 11px;
+    transition: transform 0.2s ease;
+}
+
+
+.admin-nav-dropdown:hover .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+
+/* ===== Dropdown Menu ===== */
+
+.admin-nav-dropdown-menu {
     position: absolute;
+
+    top: 100%;
     left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1px;
-    height: 20px;
-    background: rgba(220, 20, 60, 0.3);
+
+    min-width: 210px;
+
+    background: var(--primary-black);
+
+    border: 1px solid rgba(220, 20, 60, 0.35);
+    border-top: 3px solid var(--primary-red);
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+
+    display: none;
+
+    z-index: 1000;
+}
+
+
+/* Show dropdown */
+
+.admin-nav-dropdown:hover .admin-nav-dropdown-menu {
+    display: block;
+}
+
+
+/* ===== Dropdown Links ===== */
+
+.admin-nav-dropdown-menu a {
+    display: flex;
+
+    align-items: center;
+
+    padding: 13px 18px;
+
+    color: #b0b0b0;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+    transition: var(--admin-transition);
+
+    white-space: nowrap;
+}
+
+
+.admin-nav-dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+
+.admin-nav-dropdown-menu a:hover {
+    background: rgba(220, 20, 60, 0.15);
+    color: var(--primary-red);
+}
+
+
+.admin-nav-dropdown-menu a.active {
+    background: rgba(220, 20, 60, 0.2);
+    color: var(--primary-red);
+}
+
+
+/* ===== View Site ===== */
+
+.admin-nav-site {
+    margin-left: auto;
+}
+
+
+/* ===== Remove Old Divider System ===== */
+
+.admin-nav-tabs a+a::before {
+    display: none;
+}
+
+
+/* ====================================
+   RESPONSIVE
+   ==================================== */
+
+@media (max-width: 768px) {
+
+    .admin-nav-tabs {
+        flex-wrap: wrap;
+    }
+
+    .admin-nav-tabs>a,
+    .admin-nav-dropdown-toggle {
+        padding: 12px 15px;
+        font-size: 12px;
+    }
+
+    .admin-nav-dropdown-menu {
+        min-width: 190px;
+    }
+
+    .admin-nav-dropdown-menu a {
+        padding: 11px 14px;
+        font-size: 12px;
+    }
+
+    .admin-nav-site {
+        margin-left: 0;
+    }
 }
 
 /* ====== Admin Container ====== */

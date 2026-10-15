@@ -1,0 +1,359 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>👨‍💼 Add New Staff Member</h1>
+    <p>Register a new staff member in the system</p>
+</div>
+
+<form method="POST" class="admin-form">
+
+    <!-- Person Source -->
+    <div class="admin-section">
+
+        <h2>👤 Person</h2>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label for="person_source">Person</label>
+
+                <select id="person_source" name="person_source">
+                    <option value="new">Create New Person</option>
+                    <option value="existing">Use Existing Person</option>
+                </select>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Existing Person Section -->
+    <div class="admin-section" id="existing-person-section" style="display: none;">
+
+        <h2>🔗 Existing Person</h2>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label for="existing_person_id">
+                    Select Person
+                </label>
+
+                <select id="existing_person_id" name="existing_person_id">
+
+                    <option value="">
+                        -- Select Existing Person --
+                    </option>
+
+                    {% for person in existing_persons %}
+
+                    <option value="{{ person.Person_id }}">
+
+                        {{ person.Person_Display_Name }}
+
+                        {% if person.is_player %}
+                        — Player
+                        {% endif %}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- New Person Information -->
+    <div class="admin-section" id="new-person-section">
+
+        <h2>👤 Personal Information</h2>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label for="first_name" class="optional">
+                    First Name
+                </label>
+
+                <input type="text" id="first_name" name="first_name" placeholder="e.g., Mohamed">
+            </div>
+
+
+            <div class="form-group">
+                <label for="last_name" class="optional">
+                    Last Name
+                </label>
+
+                <input type="text" id="last_name" name="last_name" placeholder="e.g., Ali">
+            </div>
+
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="display_name">
+                    Display Name
+                </label>
+
+                <input type="text" id="display_name" name="display_name" placeholder="e.g., Mohamed Ali">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="country_id">
+                    Nationality
+                </label>
+
+                <select id="country_id" name="country_id">
+
+                    <option value="">
+                        -- Select Country --
+                    </option>
+
+                    {% for country in countries %}
+
+                    <option value="{{ country.Country_id }}">
+                        {{ country.Country_Name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="birth_date" class="optional">
+                    Date of Birth
+                </label>
+
+                <input type="text" id="birth_date" name="birth_date" placeholder="DD/MM/YYYY">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="death_date" class="optional">
+                    Date of Death
+                </label>
+
+                <input type="text" id="death_date" name="death_date" placeholder="DD/MM/YYYY">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="sex" class="optional">
+                    Sex
+                </label>
+
+                <select id="sex" name="sex">
+
+                    <option value="Male">
+                        👨 Male
+                    </option>
+
+                    <option value="Female">
+                        👩 Female
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- Arabic Names -->
+
+        <div style="
+            border-top: 2px solid #f0f0f0;
+            padding-top: 20px;
+            margin-top: 20px;
+        ">
+
+            <h3 style="
+                font-size: 16px;
+                color: var(--primary-red);
+                margin-bottom: 15px;
+            ">
+                Arabic Names (اسم عربي)
+            </h3>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="first_name_ar" class="optional">
+                        First Name (Arabic)
+                    </label>
+
+                    <input type="text" id="first_name_ar" name="first_name_ar" placeholder="الاسم الأول" dir="rtl">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="last_name_ar" class="optional">
+                        Last Name (Arabic)
+                    </label>
+
+                    <input type="text" id="last_name_ar" name="last_name_ar" placeholder="الكنية" dir="rtl">
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="display_name_ar" class="optional">
+                        Display Name (Arabic)
+                    </label>
+
+                    <input type="text" id="display_name_ar" name="display_name_ar" placeholder="الاسم الكامل" dir="rtl">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Staff Member Information -->
+
+    <div class="admin-section">
+
+        <h2>👨‍💼 Staff Member Information</h2>
+
+
+        <div class="form-row">
+
+            <!-- Role -->
+
+            <div class="form-group">
+                <select id="role_id" name="role_id" required>
+
+                    <option value="">
+                        -- Select Role --
+                    </option>
+
+                    {% for role in roles %}
+                    <option value="{{ role.Role_id }}">
+                        {{ role.Role_name }}
+                    </option>
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- Specialty -->
+
+            <div class="form-group">
+
+                <label for="specialty" class="optional">
+                    Specialty
+                </label>
+
+                <input type="text" id="specialty" name="specialty" placeholder="e.g., Defensive Tactics">
+
+            </div>
+
+        </div>
+
+
+        <!-- Form Actions -->
+
+        <div class="form-actions">
+
+            <a href="{{ url_for('staff_members.staff_members_page') }}" class="btn-secondary">
+                ← Back to Staff Members
+            </a>
+
+            <button type="submit" class="btn-primary">
+                ✓ Add Staff Member
+            </button>
+
+        </div>
+
+    </div>
+
+</form>
+
+
+<script>
+
+    const personSource = document.getElementById("person_source");
+
+    const existingPersonSection =
+        document.getElementById("existing-person-section");
+
+    const newPersonSection =
+        document.getElementById("new-person-section");
+
+    const existingPersonSelect =
+        document.getElementById("existing_person_id");
+
+
+    function updatePersonSource() {
+
+        if (personSource.value === "existing") {
+
+            existingPersonSection.style.display = "block";
+            newPersonSection.style.display = "none";
+
+            existingPersonSelect.required = true;
+
+        } else {
+
+            existingPersonSection.style.display = "none";
+            newPersonSection.style.display = "block";
+
+            existingPersonSelect.required = false;
+
+        }
+
+    }
+
+
+    personSource.addEventListener(
+        "change",
+        updatePersonSource
+    );
+
+
+    updatePersonSource();
+
+</script>
+
+{% endblock %}

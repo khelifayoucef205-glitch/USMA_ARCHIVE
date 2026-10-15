@@ -130,16 +130,25 @@ def player_page(player_id):
 
     usma_records = cursor.fetchall()
 
-    # معالجة USMA - تحديد الحالي والسابق
     usma_current = None
     usma_history = []
-
+    
     for record in usma_records:
-        if record['Is_Actual'] == 1 and not record['Leave_Date']:
-            usma_current = record
+    
+        is_current = (
+            record['Is_Actual'] == 1
+            and record['Leave_Date'] is None
+        )
+    
+        if is_current:
+            if usma_current is None:
+                usma_current = record
+            else:
+                # توجد أكثر من فترة حالية
+                # نضع الأقدم في التاريخ بدلاً من فقدانها
+                usma_history.append(record)
         else:
             usma_history.append(record)
-
     # 4. مواسم USMA
     cursor.execute("""
         SELECT

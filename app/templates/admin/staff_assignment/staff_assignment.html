@@ -1,0 +1,189 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<div class="admin-header">
+    <h1>🔗 Staff Assignments</h1>
+    <p>Manage staff roles, periods and seasons at each club</p>
+</div>
+
+<!-- Add Assignment -->
+<div class="admin-section">
+    <h2>Add New Assignment</h2>
+
+    <form method="POST" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="staff_member_id">Staff Member</label>
+                <select id="staff_member_id" name="staff_member_id" required>
+                    <option value="">-- Select Staff Member --</option>
+                    {% for staff in staff_members %}
+                    <option value="{{ staff.Staff_Member_id }}" {% if staff.Staff_Member_id==last_staff_member_id
+                        %}selected{% endif %}>
+                        {{ staff.Person_Display_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="club_id">Club</label>
+                <select id="club_id" name="club_id" required>
+                    <option value="">-- Select Club --</option>
+                    {% for club in clubs %}
+                    <option value="{{ club.Club_id }}" {% if club.Club_id==usma_club_id %}selected{% endif %}>
+                        {{ club.Club_Current_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="role_id">Role</label>
+                <select id="role_id" name="role_id" required>
+                    <option value="">-- Select Role --</option>
+                    {% for role in roles %}
+                    <option value="{{ role.Role_id }}">{{ role.Role_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="start_date">Start Date</label>
+                <input type="text" id="start_date" name="start_date" placeholder="DD/MM/YYYY" required>
+            </div>
+
+            <div class="form-group">
+                <label for="end_date" class="optional">End Date</label>
+                <input type="text" id="end_date" name="end_date" placeholder="DD/MM/YYYY">
+                <small style="color: #999; display: block; margin-top: 5px;">
+                    Leave empty if the assignment is still ongoing
+                </small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" style="width: 100%;">
+                <label class="optional">Seasons</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px 16px;">
+                    {% for season in seasons %}
+                    <label style="display: inline-flex; align-items: center; gap: 6px; font-weight: normal;">
+                        <input type="checkbox" name="season_ids" value="{{ season.Season_Number }}">
+                        {{ season.Season_Name }}
+                    </label>
+                    {% endfor %}
+                </div>
+                <small style="color: #999; display: block; margin-top: 5px;">
+                    Select every season this period belongs to, based on evidence (matches supervised, etc.)
+                </small>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-secondary" onclick="location.reload();">Cancel</button>
+            <button type="submit" class="btn-primary">✓ Add Assignment</button>
+        </div>
+    </form>
+</div>
+
+<!-- Assignments Table -->
+<div class="admin-section">
+    <h2>Assignments <span class="result-count">({{ assignments|length }})</span></h2>
+
+    <form method="GET" action="{{ url_for('staff_assignment.staff_assignment_page') }}" class="admin-filters">
+        <input type="text" name="search_staff_member" placeholder="🔍 Search Staff Member..."
+            value="{{ search_staff_member or '' }}">
+
+        <input type="text" name="search_club" placeholder="🔍 Search Club..." value="{{ search_club or '' }}">
+
+        <select name="role_filter">
+            <option value="">All Roles</option>
+            {% for role in roles %}
+            <option value="{{ role.Role_id }}" {% if role_filter==role.Role_id|string %}selected{% endif %}>
+                {{ role.Role_name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="status_filter">
+            <option value="">All Status</option>
+            <option value="current" {% if status_filter=='current' %}selected{% endif %}>✓ Current</option>
+            <option value="former" {% if status_filter=='former' %}selected{% endif %}>✗ Former</option>
+        </select>
+
+        <button type="submit" class="btn-search">🔍 Search</button>
+        <a href="{{ url_for('staff_assignment.staff_assignment_page') }}" class="btn-clear-filters">🔄 Clear</a>
+    </form>
+
+    {% if assignments %}
+    <div class="admin-table-container">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Staff Member</th>
+                        <th>Club</th>
+                        <th>Role</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Seasons</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in assignments %}
+                    <tr>
+                        <td class="table-name">{{ a.Person_Display_Name }}</td>
+                        <td class="table-name">{{ a.Club_Current_Name }}</td>
+                        <td>
+                            <span
+                                style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                                {{ a.Role_name }}
+                            </span>
+                        </td>
+                        <td>{{ a.Start_Date }}</td>
+                        <td>
+                            {% if a.End_Date %}
+                            {{ a.End_Date }}
+                            {% else %}
+                            <span style="color: var(--primary-red); font-weight: 600;">Current</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if a.Seasons %}
+                            {{ a.Seasons }}
+                            {% else %}
+                            <span style="color: #999;">— unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{{ url_for('edit_staff_assignment.edit_staff_assignment_page', assignment_id=a.Assignment_id) }}"
+                                    class="btn-action btn-edit" title="Edit">✏️</a>
+
+                                <form method="POST"
+                                    action="{{ url_for('staff_assignment.delete_staff_assignment', assignment_id=a.Assignment_id) }}"
+                                    style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-action btn-delete" title="Delete"
+                                        style="border: none; background: none; cursor: pointer;">🗑️</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🔗</div>
+        <h3>No assignments found</h3>
+        <p>Start by adding an assignment using the form above.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

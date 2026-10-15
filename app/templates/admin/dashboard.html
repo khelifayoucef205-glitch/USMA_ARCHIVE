@@ -21,6 +21,16 @@
         </div>
     </div>
 
+    <!-- Staff Members Card -->
+    <div class="dashboard-card card-staff">
+        <div class="dashboard-card-icon">👨‍💼</div>
+        <div class="dashboard-card-title">Staff Members</div>
+        <div class="dashboard-card-value">{{ staff_members_count }}</div>
+        <div class="dashboard-card-footer">
+            <a href="{{ url_for('staff_members.staff_members_page') }}">Manage Staff →</a>
+        </div>
+    </div>
+
     <!-- Clubs Card -->
     <div class="dashboard-card card-clubs">
         <div class="dashboard-card-icon">🏛️</div>
@@ -41,6 +51,16 @@
         </div>
     </div>
 
+    <!-- Staff Assignments Card -->
+    <div class="dashboard-card card-primary">
+        <div class="dashboard-card-icon">🔗</div>
+        <div class="dashboard-card-title">Staff Assignments</div>
+        <div class="dashboard-card-value">{{ staff_assignments_count }}</div>
+        <div class="dashboard-card-footer">
+            <a href="{{ url_for('staff_assignment.staff_assignment_page') }}">Manage →</a>
+        </div>
+    </div>
+
     <!-- Player Seasons Card -->
     <div class="dashboard-card card-primary">
         <div class="dashboard-card-icon">📅</div>
@@ -48,6 +68,16 @@
         <div class="dashboard-card-value">{{ player_seasons_count }}</div>
         <div class="dashboard-card-footer">
             <a href="{{ url_for('player_season.player_season_page') }}">Manage →</a>
+        </div>
+    </div>
+
+    <!-- Assignment Seasons Card -->
+    <div class="dashboard-card card-primary">
+        <div class="dashboard-card-icon">📅</div>
+        <div class="dashboard-card-title">Assignment Seasons</div>
+        <div class="dashboard-card-value">{{ staff_assignment_seasons_count }}</div>
+        <div class="dashboard-card-footer">
+            <a href="{{ url_for('staff_assignment_season.staff_assignment_season_page') }}">Manage →</a>
         </div>
     </div>
 
@@ -73,6 +103,13 @@
             onmouseover="this.style.background='rgba(220, 20, 60, 0.2)'"
             onmouseout="this.style.background='rgba(220, 20, 60, 0.1)'">
             ➕ Add New Player
+        </a>
+
+        <a href="{{ url_for('add_staff_member.add_staff_member_page') }}"
+            style="padding: 15px; background: rgba(220, 20, 60, 0.1); border-left: 4px solid var(--primary-red); text-decoration: none; color: var(--primary-black); font-weight: 600; border-radius: 6px; transition: all 0.3s ease;"
+            onmouseover="this.style.background='rgba(220, 20, 60, 0.2)'"
+            onmouseout="this.style.background='rgba(220, 20, 60, 0.1)'">
+            ➕ Add New Staff Member
         </a>
 
         <a href="{{ url_for('clubs.clubs_page') }}"
@@ -108,6 +145,17 @@
             </p>
         </div>
 
+        <!-- Total Staff Members -->
+        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
+            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Total Staff Members</h3>
+            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
+                {{ staff_members_count }}
+            </p>
+            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+                👨‍💼 {{ active_staff_members_count }} active
+            </p>
+        </div>
+
         <!-- Total Clubs -->
         <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
             <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Total Clubs</h3>
@@ -130,11 +178,33 @@
             </p>
         </div>
 
+        <!-- Staff Assignments -->
+        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
+            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Staff Assignments</h3>
+            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
+                {{ staff_assignments_count }}
+            </p>
+            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+                🔗 {{ current_staff_assignments_count }} ongoing
+            </p>
+        </div>
+
         <!-- Player Seasons -->
         <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
             <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Player Seasons</h3>
             <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
                 {{ player_seasons_count }}
+            </p>
+            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+                📅 Historical records
+            </p>
+        </div>
+
+        <!-- Assignment Seasons -->
+        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
+            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Assignment Seasons</h3>
+            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
+                {{ staff_assignment_seasons_count }}
             </p>
             <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
                 📅 Historical records
@@ -152,7 +222,7 @@
             </p>
         </div>
 
-        <!-- USMA Squad -->
+        <!-- USMA Player Squad -->
         <div
             style="padding: 20px; background: linear-gradient(135deg, rgba(196, 30, 58, 0.1), rgba(220, 20, 60, 0.05)); border-left: 4px solid var(--primary-red); border-radius: 6px;">
             <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">USMA Current Squad</h3>
@@ -161,6 +231,18 @@
             </p>
             <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
                 ⚽ Latest season
+            </p>
+        </div>
+
+        <!-- USMA Staff -->
+        <div
+            style="padding: 20px; background: linear-gradient(135deg, rgba(196, 30, 58, 0.1), rgba(220, 20, 60, 0.05)); border-left: 4px solid var(--primary-red); border-radius: 6px;">
+            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">USMA Current Staff</h3>
+            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
+                {{ usma_staff_count }}
+            </p>
+            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+                👨‍💼 Latest season
             </p>
         </div>
 
