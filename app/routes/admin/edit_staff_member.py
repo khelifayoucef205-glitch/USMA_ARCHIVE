@@ -1,16 +1,30 @@
-from flask import Blueprint, render_template, request, redirect, url_for
-from app.database import get_db_connection
-from app.routes.admin.staff_assignment_utils import (
-    parse_date, has_overlap, clean_season_ids, valid_role_ids
+from flask import (
+    Blueprint,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    url_for,
 )
+from mysql.connector import IntegrityError
 
+from app.database import get_db_connection
+from app.routes.admin.person_utils import update_person
+from app.routes.admin.staff_assignment_utils import (
+    clean_season_ids,
+    has_overlap,
+    parse_date,
+    valid_role_ids,
+)
 
 edit_staff_member = Blueprint("edit_staff_member", __name__)
 
 
-@edit_staff_member.route("/staff-member/<int:staff_member_id>/edit", methods=["GET", "POST"])
+@edit_staff_member.route(
+    "/staff-member/<int:staff_member_id>/edit",
+    methods=["GET", "POST"]
+)
 def edit_staff_member_page(staff_member_id):
-
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
@@ -60,181 +74,167 @@ def edit_staff_member_page(staff_member_id):
         # =========================================================
 
         if request.method == "POST":
-
             action = request.form.get("action")
 
-            # -----------------------------------------------------
-            # UPDATE PERSON
-            # -----------------------------------------------------
+            try:
 
-            if action == "update_person":
+                # -------------------------------------------------
+                # UPDATE PERSON
+                # -------------------------------------------------
 
-                display_name = request.form.get("display_name")
-                country_id = request.form.get("country_id") or None
+                if action == "update_person":
 
-                if not display_name:
-                    return "Display name is required", 400
+                    try:
+                        update_person(
+                            cursor, staff_data["Person_id"], request.form
+                        )
+                    except ValueError as error:
+                        return str(error), 400
 
-                try:
-                    birth_date = parse_date(request.form.get("birth_date"))
-                    death_date = parse_date(request.form.get("death_date"))
-                except ValueError as error:
-                    return str(error), 400
+                    connection.commit()
+                    return redirect(edit_url)
 
-                cursor.execute("""
-                    UPDATE Person
-                    SET
-                        Person_First_Name = %s,
-                        Person_Last_Name = %s,
-                        Person_Display_Name = %s,
-                        Person_First_Name_ar = %s,
-                        Person_Last_Name_ar = %s,
-                        Person_Display_Name_ar = %s,
-                        Person_birth_date = %s,
-                        Person_death_date = %s,
-                        Sex = %s,
-                        Country_id = %s
-                    WHERE Person_id = %s
-                """, (
-                    request.form.get("first_name") or None,
-                    request.form.get("last_name") or None,
-                    display_name,
-                    request.form.get("first_name_ar") or None,
-                    request.form.get("last_name_ar") or None,
-                    request.form.get("display_name_ar") or None,
-                    birth_date,
-                    death_date,
-                    request.form.get("sex"),
-                    country_id,
-                    staff_data["Person_id"]
-                ))
+                # -------------------------------------------------
+                # UPDATE STAFF INFO (specialty + career roles)
+                # -------------------------------------------------
 
-                connection.commit()
-                return redirect(edit_url)
+                elif action == "update_staff_member":
 
-            # -----------------------------------------------------
-            # UPDATE STAFF INFO (specialty + career roles)
-            # -----------------------------------------------------
+                    specialty = (
+                        request.form.get("specialty") or ""
+                    ).strip() or None
+                    main_role_id = request.form.get("role_id", type=int)
 
-            elif action == "update_staff_member":
+                    if main_role_id is None or not valid_role_ids(
+                        cursor, [main_role_id]
+                    ):
+                        return "Please select a valid main role", 400
 
-                specialty = request.form.get("specialty") or None
-                main_role_id = request.form.get("role_id")
-                other_role_ids = request.form.getlist("other_role_ids")
-
-                main_valid = valid_role_ids(cursor, [main_role_id])
-
-                if not main_valid:
-                    return "Please select a valid main role", 400
-
-                main_role_id = int(main_role_id)
-
-                other_valid = valid_role_ids(cursor, other_role_ids)
-                other_valid.discard(main_role_id)
-
-                cursor.execute("""
-                    UPDATE Staff_Member
-                    SET Specialty = %s
-                    WHERE Staff_Member_id = %s
-                """, (specialty, staff_member_id))
-
-                cursor.execute("""
-                    DELETE FROM Staff_Member_Role
-                    WHERE Staff_Member_id = %s
-                """, (staff_member_id,))
-
-                cursor.execute("""
-                    INSERT INTO Staff_Member_Role (Staff_Member_id, Role_id, Is_Main)
-                    VALUES (%s, %s, TRUE)
-                """, (staff_member_id, main_role_id))
-
-                for role_id in other_valid:
-                    cursor.execute("""
-                        INSERT INTO Staff_Member_Role (Staff_Member_id, Role_id, Is_Main)
-                        VALUES (%s, %s, FALSE)
-                    """, (staff_member_id, role_id))
-
-                connection.commit()
-                return redirect(edit_url)
-
-            # -----------------------------------------------------
-            # ADD ASSIGNMENT
-            # -----------------------------------------------------
-
-            elif action == "add_assignment":
-
-                club_id = request.form.get("club_id")
-                role_id = request.form.get("assignment_role_id")
-
-                try:
-                    start_date = parse_date(request.form.get("start_date"))
-                    end_date = parse_date(request.form.get("end_date"))
-                except ValueError as error:
-                    return str(error), 400
-
-                if not club_id:
-                    return "Club is required", 400
-
-                if not valid_role_ids(cursor, [role_id]):
-                    return "Please select a valid role", 400
-
-                if not start_date:
-                    return "Start date is required", 400
-
-                if end_date and end_date < start_date:
-                    return "End date cannot be before Start date", 400
-
-                if has_overlap(cursor, staff_member_id, club_id, role_id,
-                               start_date, end_date):
-                    return ("This person already has an overlapping assignment "
-                            "with the same club and role"), 400
-
-                season_ids = clean_season_ids(
-                    cursor, request.form.getlist("season_ids")
-                )
-
-                cursor.execute("""
-                    INSERT INTO Staff_Assignment (
-                        Staff_Member_id,
-                        Club_id,
-                        Role_id,
-                        Start_Date,
-                        End_Date
+                    other_valid = valid_role_ids(
+                        cursor, request.form.getlist("other_role_ids")
                     )
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (staff_member_id, club_id, role_id, start_date, end_date))
+                    other_valid.discard(main_role_id)
 
-                assignment_id = cursor.lastrowid
-
-                for season_number in season_ids:
                     cursor.execute("""
-                        INSERT INTO Staff_Assignment_Season (Assignment_id, Season_Number)
-                        VALUES (%s, %s)
-                    """, (assignment_id, season_number))
+                        UPDATE Staff_Member
+                        SET Specialty = %s
+                        WHERE Staff_Member_id = %s
+                    """, (specialty, staff_member_id))
 
-                connection.commit()
-                return redirect(edit_url)
+                    cursor.execute("""
+                        DELETE FROM Staff_Member_Role
+                        WHERE Staff_Member_id = %s
+                    """, (staff_member_id,))
 
-            # -----------------------------------------------------
-            # DELETE ASSIGNMENT
-            # -----------------------------------------------------
+                    cursor.execute("""
+                        INSERT INTO Staff_Member_Role
+                            (Staff_Member_id, Role_id, Is_Main)
+                        VALUES (%s, %s, TRUE)
+                    """, (staff_member_id, main_role_id))
 
-            elif action == "delete_assignment":
+                    for role_id in sorted(other_valid):
+                        cursor.execute("""
+                            INSERT INTO Staff_Member_Role
+                                (Staff_Member_id, Role_id, Is_Main)
+                            VALUES (%s, %s, FALSE)
+                        """, (staff_member_id, role_id))
 
-                assignment_id = request.form.get("assignment_id")
+                    connection.commit()
+                    return redirect(edit_url)
 
-                # Only delete assignments that belong to this staff member
-                cursor.execute("""
-                    DELETE FROM Staff_Assignment
-                    WHERE Assignment_id = %s
-                      AND Staff_Member_id = %s
-                """, (assignment_id, staff_member_id))
+                # -------------------------------------------------
+                # ADD ASSIGNMENT
+                # -------------------------------------------------
 
-                connection.commit()
-                return redirect(edit_url)
+                elif action == "add_assignment":
 
-            else:
-                return "Unknown action", 400
+                    club_id = request.form.get("club_id", type=int)
+                    role_id = request.form.get("assignment_role_id", type=int)
+
+                    if club_id is None:
+                        return "Club is required", 400
+
+                    if role_id is None or not valid_role_ids(cursor, [role_id]):
+                        return "Please select a valid role", 400
+
+                    try:
+                        start_date = parse_date(request.form.get("start_date"))
+                        end_date = parse_date(request.form.get("end_date"))
+                    except ValueError as error:
+                        return str(error), 400
+
+                    if not start_date:
+                        return "Start date is required", 400
+
+                    if end_date and end_date < start_date:
+                        return "End date cannot be before Start date", 400
+
+                    if has_overlap(cursor, staff_member_id, club_id, role_id,
+                                   start_date, end_date):
+                        return ("This person already has an overlapping "
+                                "assignment with the same club and role"), 400
+
+                    season_ids = clean_season_ids(
+                        cursor, request.form.getlist("season_ids")
+                    )
+
+                    cursor.execute("""
+                        INSERT INTO Staff_Assignment (
+                            Staff_Member_id,
+                            Club_id,
+                            Role_id,
+                            Start_Date,
+                            End_Date
+                        )
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (staff_member_id, club_id, role_id,
+                          start_date, end_date))
+
+                    assignment_id = cursor.lastrowid
+
+                    for season_number in season_ids:
+                        cursor.execute("""
+                            INSERT INTO Staff_Assignment_Season
+                                (Assignment_id, Season_Number)
+                            VALUES (%s, %s)
+                        """, (assignment_id, season_number))
+
+                    connection.commit()
+                    return redirect(edit_url)
+
+                # -------------------------------------------------
+                # DELETE ASSIGNMENT
+                # -------------------------------------------------
+
+                elif action == "delete_assignment":
+
+                    assignment_id = request.form.get("assignment_id", type=int)
+
+                    if assignment_id is None:
+                        return "Assignment is required", 400
+
+                    # Only delete assignments that belong to this member
+                    cursor.execute("""
+                        DELETE FROM Staff_Assignment
+                        WHERE Assignment_id = %s
+                          AND Staff_Member_id = %s
+                    """, (assignment_id, staff_member_id))
+
+                    if cursor.rowcount == 0:
+                        connection.rollback()
+                        return "Assignment not found", 404
+
+                    connection.commit()
+                    return redirect(edit_url)
+
+                else:
+                    return "Unknown action", 400
+
+            except IntegrityError as error:
+                connection.rollback()
+                if error.errno == 1452:      # foreign key failure
+                    return "Invalid club or role", 400
+                raise
 
         # =========================================================
         # GET
@@ -275,12 +275,10 @@ def edit_staff_member_page(staff_member_id):
             WHERE Staff_Member_id = %s
         """, (staff_member_id,))
 
-        role_rows = cursor.fetchall()
-
         main_role_id = None
         other_role_ids = []
 
-        for row in role_rows:
+        for row in cursor.fetchall():
             if row["Is_Main"] and main_role_id is None:
                 main_role_id = row["Role_id"]
             else:
@@ -332,13 +330,11 @@ def edit_staff_member_page(staff_member_id):
             assignments=assignments
         )
 
-    except Exception as error:
-
+    except Exception:
         connection.rollback()
-
-        return f"Error: {error}", 500
+        current_app.logger.exception("Error in edit staff member page")
+        return "Something went wrong", 500
 
     finally:
-
         cursor.close()
         connection.close()

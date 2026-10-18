@@ -1,14 +1,22 @@
-from flask import Blueprint, render_template, request, redirect, url_for
 from datetime import date
-from app.database import get_db_connection
 
+from flask import (
+    Blueprint,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from mysql.connector import IntegrityError
+from app.database import get_db_connection
+from app.utils import escape_like
 
 staff_assignment_season = Blueprint(
     "staff_assignment_season",
     __name__,
     url_prefix="/admin/staff-assignment-season"
 )
-
 
 def season_outside_range(assignment, season):
     """True if the assignment's years do not overlap the season's years."""
@@ -49,7 +57,6 @@ def load_season(cursor, season_number):
 
 @staff_assignment_season.route("/", methods=["GET", "POST"])
 def staff_assignment_season_page():
-
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
@@ -60,12 +67,11 @@ def staff_assignment_season_page():
         # =================================================
 
         if request.method == "POST":
-
-            assignment_id = request.form.get("assignment_id")
-            season_number = request.form.get("season_number")
+            assignment_id = request.form.get("assignment_id", type=int)
+            season_number = request.form.get("season_number", type=int)
             confirm_outside = request.form.get("confirm_outside")
 
-            if not (assignment_id and season_number):
+            if assignment_id is None or season_number is None:
                 return "Assignment and season are required", 400
 
             assignment = load_assignment(cursor, assignment_id)
@@ -91,12 +97,18 @@ def staff_assignment_season_page():
                     400
                 )
 
-            cursor.execute("""
-                INSERT INTO Staff_Assignment_Season (Assignment_id, Season_Number)
-                VALUES (%s, %s)
-            """, (assignment_id, season_number))
+            try:
+                cursor.execute("""
+                    INSERT INTO Staff_Assignment_Season (Assignment_id, Season_Number)
+                    VALUES (%s, %s)
+                """, (assignment_id, season_number))
+                connection.commit()
 
-            connection.commit()
+            except IntegrityError as error:
+                connection.rollback()
+                if error.errno == 1062:      # duplicate (race condition)
+                    return "This assignment is already linked to this season", 400
+                raise
 
             return redirect(
                 url_for("staff_assignment_season.staff_assignment_season_page")
@@ -108,8 +120,8 @@ def staff_assignment_season_page():
 
         search_staff_member = request.args.get("search_staff_member", "").strip()
         search_club = request.args.get("search_club", "").strip()
-        season_filter = request.args.get("season_filter", "")
-        role_filter = request.args.get("role_filter", "")
+        season_filter = request.args.get("season_filter", "").strip()
+        role_filter = request.args.get("role_filter", "").strip()
 
         # All assignments (for the add form dropdown)
         cursor.execute("""
@@ -146,29 +158,27 @@ def staff_assignment_season_page():
         """)
         roles = cursor.fetchall()
 
-        # Filters
-        where_clauses = []
+        # Only fixed SQL fragments are added here; values go in params
+        conditions = []
         params = []
 
         if search_staff_member:
-            where_clauses.append("p.Person_Display_Name LIKE %s")
-            params.append(f"%{search_staff_member}%")
+            conditions.append("p.Person_Display_Name LIKE %s")
+            params.append(f"%{escape_like(search_staff_member)}%")
 
         if search_club:
-            where_clauses.append("c.Club_Current_Name LIKE %s")
-            params.append(f"%{search_club}%")
+            conditions.append("c.Club_Current_Name LIKE %s")
+            params.append(f"%{escape_like(search_club)}%")
 
-        if season_filter and season_filter.isdigit():
-            where_clauses.append("sas.Season_Number = %s")
+        if season_filter.isdigit():
+            conditions.append("sas.Season_Number = %s")
             params.append(int(season_filter))
 
-        if role_filter and role_filter.isdigit():
-            where_clauses.append("sa.Role_id = %s")
+        if role_filter.isdigit():
+            conditions.append("sa.Role_id = %s")
             params.append(int(role_filter))
 
-        where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
-
-        query = f"""
+        query = """
             SELECT
                 sas.Assignment_id,
                 sas.Season_Number,
@@ -187,14 +197,16 @@ def staff_assignment_season_page():
             JOIN Person p ON sm.Person_id = p.Person_id
             JOIN Club c ON sa.Club_id = c.Club_id
             JOIN Staff_Role sr ON sa.Role_id = sr.Role_id
+        """
 
-            WHERE {where_clause}
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
 
+        query += """
             ORDER BY
                 sa.Start_Date DESC,
                 s.Start_Year DESC,
                 p.Person_Display_Name
-                
         """
 
         cursor.execute(query, params)
@@ -213,9 +225,10 @@ def staff_assignment_season_page():
             role_filter=role_filter
         )
 
-    except Exception as error:
+    except Exception:
         connection.rollback()
-        return f"Error: {error}", 500
+        current_app.logger.exception("Error in staff assignment season page")
+        return "Something went wrong", 500
 
     finally:
         cursor.close()
@@ -231,12 +244,10 @@ def staff_assignment_season_page():
     methods=["GET", "POST"]
 )
 def edit_staff_assignment_season(assignment_id, season_number):
-
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
     try:
-
         cursor.execute("""
             SELECT
                 sas.Assignment_id,
@@ -271,11 +282,10 @@ def edit_staff_assignment_season(assignment_id, season_number):
         # =================================================
 
         if request.method == "POST":
-
-            new_season_number = request.form.get("season_number")
+            new_season_number = request.form.get("season_number", type=int)
             confirm_outside = request.form.get("confirm_outside")
 
-            if not new_season_number:
+            if new_season_number is None:
                 return "Season is required", 400
 
             new_season = load_season(cursor, new_season_number)
@@ -283,7 +293,7 @@ def edit_staff_assignment_season(assignment_id, season_number):
             if new_season is None:
                 return "Season not found", 404
 
-            if int(new_season_number) != season_number:
+            if new_season_number != season_number:
 
                 cursor.execute("""
                     SELECT 1
@@ -304,14 +314,20 @@ def edit_staff_assignment_season(assignment_id, season_number):
                         400
                     )
 
-                cursor.execute("""
-                    UPDATE Staff_Assignment_Season
-                    SET Season_Number = %s
-                    WHERE Assignment_id = %s
-                      AND Season_Number = %s
-                """, (new_season_number, assignment_id, season_number))
+                try:
+                    cursor.execute("""
+                        UPDATE Staff_Assignment_Season
+                        SET Season_Number = %s
+                        WHERE Assignment_id = %s
+                          AND Season_Number = %s
+                    """, (new_season_number, assignment_id, season_number))
+                    connection.commit()
 
-                connection.commit()
+                except IntegrityError as error:
+                    connection.rollback()
+                    if error.errno == 1062:  # duplicate (race condition)
+                        return "This assignment is already linked to that season", 400
+                    raise
 
             return redirect(
                 url_for("staff_assignment_season.staff_assignment_season_page")
@@ -335,9 +351,10 @@ def edit_staff_assignment_season(assignment_id, season_number):
             seasons=seasons
         )
 
-    except Exception as error:
+    except Exception:
         connection.rollback()
-        return f"Error: {error}", 500
+        current_app.logger.exception("Error while editing assignment season")
+        return "Something went wrong", 500
 
     finally:
         cursor.close()
@@ -353,28 +370,30 @@ def edit_staff_assignment_season(assignment_id, season_number):
     methods=["POST"]
 )
 def delete_staff_assignment_season(assignment_id, season_number):
-
     connection = get_db_connection()
     cursor = connection.cursor()
 
     try:
-
         cursor.execute("""
             DELETE FROM Staff_Assignment_Season
             WHERE Assignment_id = %s
               AND Season_Number = %s
         """, (assignment_id, season_number))
 
-        connection.commit()
+        if cursor.rowcount == 0:
+            connection.rollback()
+            return "Assignment-season record not found", 404
 
-    except Exception as error:
+        connection.commit()
+        return redirect(
+            url_for("staff_assignment_season.staff_assignment_season_page")
+        )
+
+    except Exception:
         connection.rollback()
-        return f"Error deleting: {error}", 500
+        current_app.logger.exception("Error while deleting assignment season")
+        return "Something went wrong", 500
 
     finally:
         cursor.close()
         connection.close()
-
-    return redirect(
-        url_for("staff_assignment_season.staff_assignment_season_page")
-    )

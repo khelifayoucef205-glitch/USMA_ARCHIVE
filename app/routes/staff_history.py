@@ -1,18 +1,17 @@
 from flask import Blueprint, render_template
-from app.database import get_db_connection
 
+from app.constants import USMA_CLUB_ID
+from app.database import get_db_connection
 
 staff_history = Blueprint("staff_history", __name__)
 
 
 @staff_history.route("/staff-history")
 def staff_history_page():
-
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
     try:
-
         cursor.execute("""
             SELECT
                 sa.Assignment_id,
@@ -36,7 +35,8 @@ def staff_history_page():
             JOIN Staff_Role sr ON sa.Role_id = sr.Role_id
             LEFT JOIN Staff_Assignment_Season sas ON sas.Assignment_id = sa.Assignment_id
             LEFT JOIN Season s ON s.Season_Number = sas.Season_Number
-            WHERE sa.Club_id = 1
+
+            WHERE sa.Club_id = %s
 
             GROUP BY
                 sa.Assignment_id,
@@ -48,7 +48,7 @@ def staff_history_page():
                 sr.Role_name
 
             ORDER BY sa.Start_Date DESC, sa.Assignment_id DESC
-        """)
+        """, (USMA_CLUB_ID,))
 
         assignments = cursor.fetchall()
 

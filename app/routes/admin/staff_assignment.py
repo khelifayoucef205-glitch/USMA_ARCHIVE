@@ -1,13 +1,28 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import (
+    Blueprint,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from mysql.connector import IntegrityError
+
+from app.constants import USMA_CLUB_ID
 from app.database import get_db_connection
-from app.routes.admin.staff_assignment_utils import parse_date, has_overlap, clean_season_ids
+from app.utils import escape_like
+from app.routes.admin.staff_assignment_utils import (
+    clean_season_ids,
+    has_overlap,
+    parse_date,
+    valid_role_ids,
+)
 
 staff_assignment = Blueprint("staff_assignment", __name__)
 
 
 @staff_assignment.route("/staff-assignment", methods=["GET", "POST"])
 def staff_assignment_page():
-
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
@@ -18,19 +33,21 @@ def staff_assignment_page():
         # =================================================
 
         if request.method == "POST":
+            staff_member_id = request.form.get("staff_member_id", type=int)
+            club_id = request.form.get("club_id", type=int)
+            role_id = request.form.get("role_id", type=int)
 
-            staff_member_id = request.form.get("staff_member_id")
-            club_id = request.form.get("club_id")
-            role_id = request.form.get("role_id")
+            if None in (staff_member_id, club_id, role_id):
+                return "Staff member, club and role are required", 400
+
+            if not valid_role_ids(cursor, [role_id]):
+                return "Please select a valid role", 400
 
             try:
                 start_date = parse_date(request.form.get("start_date"))
                 end_date = parse_date(request.form.get("end_date"))
             except ValueError as error:
                 return str(error), 400
-
-            if not (staff_member_id and club_id and role_id):
-                return "Staff member, club and role are required", 400
 
             if not start_date:
                 return "Start date is required", 400
@@ -47,26 +64,34 @@ def staff_assignment_page():
                 cursor, request.form.getlist("season_ids")
             )
 
-            cursor.execute("""
-                INSERT INTO Staff_Assignment (
-                    Staff_Member_id,
-                    Club_id,
-                    Role_id,
-                    Start_Date,
-                    End_Date
-                )
-                VALUES (%s, %s, %s, %s, %s)
-            """, (staff_member_id, club_id, role_id, start_date, end_date))
-
-            assignment_id = cursor.lastrowid
-
-            for season_number in season_ids:
+            try:
                 cursor.execute("""
-                    INSERT INTO Staff_Assignment_Season (Assignment_id, Season_Number)
-                    VALUES (%s, %s)
-                """, (assignment_id, season_number))
+                    INSERT INTO Staff_Assignment (
+                        Staff_Member_id,
+                        Club_id,
+                        Role_id,
+                        Start_Date,
+                        End_Date
+                    )
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (staff_member_id, club_id, role_id, start_date, end_date))
 
-            connection.commit()
+                assignment_id = cursor.lastrowid
+
+                for season_number in season_ids:
+                    cursor.execute("""
+                        INSERT INTO Staff_Assignment_Season
+                            (Assignment_id, Season_Number)
+                        VALUES (%s, %s)
+                    """, (assignment_id, season_number))
+
+                connection.commit()
+
+            except IntegrityError as error:
+                connection.rollback()
+                if error.errno == 1452:      # foreign key failure
+                    return "Invalid staff member or club", 400
+                raise
 
             return redirect(url_for("staff_assignment.staff_assignment_page"))
 
@@ -76,8 +101,8 @@ def staff_assignment_page():
 
         search_staff_member = request.args.get("search_staff_member", "").strip()
         search_club = request.args.get("search_club", "").strip()
-        role_filter = request.args.get("role_filter", "")
-        status_filter = request.args.get("status_filter", "")
+        role_filter = request.args.get("role_filter", "").strip()
+        status_filter = request.args.get("status_filter", "").strip()
 
         # Last added staff member (pre-selected in the form)
         cursor.execute("""
@@ -90,16 +115,6 @@ def staff_assignment_page():
         last_staff_member_id = (
             last_staff_member["Staff_Member_id"] if last_staff_member else None
         )
-
-        # USMA club id
-        cursor.execute("""
-            SELECT Club_id
-            FROM Club
-            WHERE Club_Current_Name = 'USM Alger'
-            LIMIT 1
-        """)
-        usma_club = cursor.fetchone()
-        usma_club_id = usma_club["Club_id"] if usma_club else 1
 
         cursor.execute("""
             SELECT sm.Staff_Member_id, p.Person_Display_Name
@@ -130,30 +145,28 @@ def staff_assignment_page():
         """)
         seasons = cursor.fetchall()
 
-        # Filters
-        where_clauses = []
+        # Only fixed SQL fragments are added here; values go in params
+        conditions = []
         params = []
 
         if search_staff_member:
-            where_clauses.append("p.Person_Display_Name LIKE %s")
-            params.append(f"%{search_staff_member}%")
+            conditions.append("p.Person_Display_Name LIKE %s")
+            params.append(f"%{escape_like(search_staff_member)}%")
 
         if search_club:
-            where_clauses.append("c.Club_Current_Name LIKE %s")
-            params.append(f"%{search_club}%")
+            conditions.append("c.Club_Current_Name LIKE %s")
+            params.append(f"%{escape_like(search_club)}%")
 
-        if role_filter and role_filter.isdigit():
-            where_clauses.append("sa.Role_id = %s")
+        if role_filter.isdigit():
+            conditions.append("sa.Role_id = %s")
             params.append(int(role_filter))
 
         if status_filter == "current":
-            where_clauses.append("sa.End_Date IS NULL")
+            conditions.append("sa.End_Date IS NULL")
         elif status_filter == "former":
-            where_clauses.append("sa.End_Date IS NOT NULL")
+            conditions.append("sa.End_Date IS NOT NULL")
 
-        where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
-
-        query = f"""
+        query = """
             SELECT
                 sa.Assignment_id,
                 sa.Staff_Member_id,
@@ -173,9 +186,12 @@ def staff_assignment_page():
             JOIN Staff_Role sr ON sa.Role_id = sr.Role_id
             LEFT JOIN Staff_Assignment_Season sas ON sas.Assignment_id = sa.Assignment_id
             LEFT JOIN Season s ON s.Season_Number = sas.Season_Number
+        """
 
-            WHERE {where_clause}
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
 
+        query += """
             GROUP BY
                 sa.Assignment_id,
                 sa.Staff_Member_id,
@@ -203,25 +219,28 @@ def staff_assignment_page():
             seasons=seasons,
             assignments=assignments,
             last_staff_member_id=last_staff_member_id,
-            usma_club_id=usma_club_id,
+            usma_club_id=USMA_CLUB_ID,
             search_staff_member=search_staff_member,
             search_club=search_club,
             role_filter=role_filter,
             status_filter=status_filter
         )
 
-    except Exception as error:
+    except Exception:
         connection.rollback()
-        return f"Error: {error}", 500
+        current_app.logger.exception("Error in staff assignment page")
+        return "Something went wrong", 500
 
     finally:
         cursor.close()
         connection.close()
 
 
-@staff_assignment.route("/staff-assignment/delete/<int:assignment_id>", methods=["POST"])
+@staff_assignment.route(
+    "/staff-assignment/delete/<int:assignment_id>",
+    methods=["POST"]
+)
 def delete_staff_assignment(assignment_id):
-
     connection = get_db_connection()
     cursor = connection.cursor()
 
@@ -232,14 +251,18 @@ def delete_staff_assignment(assignment_id):
             WHERE Assignment_id = %s
         """, (assignment_id,))
 
-        connection.commit()
+        if cursor.rowcount == 0:
+            connection.rollback()
+            return "Assignment not found", 404
 
-    except Exception as error:
+        connection.commit()
+        return redirect(url_for("staff_assignment.staff_assignment_page"))
+
+    except Exception:
         connection.rollback()
-        return f"Error deleting: {error}", 500
+        current_app.logger.exception("Error while deleting staff assignment")
+        return "Something went wrong", 500
 
     finally:
         cursor.close()
         connection.close()
-
-    return redirect(url_for("staff_assignment.staff_assignment_page"))

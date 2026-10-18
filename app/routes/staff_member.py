@@ -1,49 +1,32 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, abort, render_template
+
+from app.constants import USMA_CLUB_ID
 from app.database import get_db_connection
-from datetime import datetime
+from app.utils import calculate_age
 
 staff_member = Blueprint("staff_member", __name__)
 
 
 def get_staff_member_status(staff_member_data):
+    """Classify the staff member for display purposes."""
+    if staff_member_data.get("Person_death_date"):
+        return "deceased"
 
-    if staff_member_data.get('Person_death_date'):
-        return 'deceased'
+    if staff_member_data.get("usma_current"):
+        return "active_with_usma"
 
-    if staff_member_data.get('usma_current'):
-        return 'active_with_usma'
+    if staff_member_data.get("usma_history"):
+        return "former_usma"
 
-    if staff_member_data.get('usma_history'):
-        return 'former_usma'
-
-    return 'no_club'
-
-
-def calculate_age(birth_date, death_date=None):
-    if not birth_date:
-        return None
-
-    reference_date = death_date if death_date else datetime.now().date()
-
-    if isinstance(birth_date, str):
-        birth_date = datetime.strptime(birth_date, '%Y-%m-%d').date()
-    if isinstance(reference_date, str):
-        reference_date = datetime.strptime(reference_date, '%Y-%m-%d').date()
-
-    return reference_date.year - birth_date.year - (
-        (reference_date.month, reference_date.day)
-        < (birth_date.month, birth_date.day)
-    )
+    return "no_club"
 
 
 @staff_member.route("/staff-member/<int:staff_member_id>")
 def staff_member_page(staff_member_id):
-
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
     try:
-
         # 1. Basic data
         cursor.execute("""
             SELECT
@@ -65,14 +48,14 @@ def staff_member_page(staff_member_id):
 
             FROM Staff_Member sm
             JOIN Person p ON sm.Person_id = p.Person_id
-            JOIN Country c ON p.Country_id = c.Country_id
+            LEFT JOIN Country c ON p.Country_id = c.Country_id
             WHERE sm.Staff_Member_id = %s
         """, (staff_member_id,))
 
         staff_data = cursor.fetchone()
 
         if staff_data is None:
-            return "Staff Member not found", 404
+            abort(404)
 
         # 2. Career roles (main first)
         cursor.execute("""
@@ -111,7 +94,7 @@ def staff_member_page(staff_member_id):
             LEFT JOIN Season s ON s.Season_Number = sas.Season_Number
 
             WHERE sa.Staff_Member_id = %s
-              AND sa.Club_id = 1
+              AND sa.Club_id = %s
 
             GROUP BY
                 sa.Assignment_id,
@@ -120,10 +103,11 @@ def staff_member_page(staff_member_id):
                 sr.Role_name
 
             ORDER BY sa.Start_Date DESC
-        """, (staff_member_id,))
+        """, (staff_member_id, USMA_CLUB_ID))
 
         usma_assignments = cursor.fetchall()
 
+        # An assignment without an end date is the current one
         usma_current = [a for a in usma_assignments if a["End_Date"] is None]
         usma_history = [a for a in usma_assignments if a["End_Date"] is not None]
 
@@ -141,11 +125,11 @@ def staff_member_page(staff_member_id):
             JOIN Staff_Role sr ON sa.Role_id = sr.Role_id
 
             WHERE sa.Staff_Member_id = %s
-              AND sa.Club_id = 1
+              AND sa.Club_id = %s
 
             GROUP BY s.Season_Number, s.Season_Name, s.Start_Year
             ORDER BY s.Start_Year DESC
-        """, (staff_member_id,))
+        """, (staff_member_id, USMA_CLUB_ID))
 
         usma_seasons = cursor.fetchall()
 
@@ -165,10 +149,10 @@ def staff_member_page(staff_member_id):
             LEFT JOIN City ci ON c.City_id = ci.City_id
 
             WHERE sa.Staff_Member_id = %s
-              AND sa.Club_id != 1
+              AND sa.Club_id != %s
 
             ORDER BY sa.Start_Date DESC
-        """, (staff_member_id,))
+        """, (staff_member_id, USMA_CLUB_ID))
 
         other_clubs = cursor.fetchall()
 
@@ -185,10 +169,9 @@ def staff_member_page(staff_member_id):
         cursor.close()
         connection.close()
 
+    # Derived values used by the template
     staff_data["usma_current"] = bool(usma_current)
     staff_data["usma_history"] = bool(usma_history)
-    staff_status = get_staff_member_status(staff_data)
-
     staff_data["age"] = calculate_age(
         staff_data["Person_birth_date"],
         staff_data["Person_death_date"]
@@ -203,6 +186,6 @@ def staff_member_page(staff_member_id):
         usma_history=usma_history,
         usma_seasons=usma_seasons,
         other_clubs=other_clubs,
-        staff_status=staff_status,
+        staff_status=get_staff_member_status(staff_data),
         player_record=player_record
     )

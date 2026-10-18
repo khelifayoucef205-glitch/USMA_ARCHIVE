@@ -1,6 +1,20 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import (
+    Blueprint,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from mysql.connector import IntegrityError
+
 from app.database import get_db_connection
-from app.routes.admin.staff_assignment_utils import parse_date, has_overlap, clean_season_ids
+from app.routes.admin.staff_assignment_utils import (
+    clean_season_ids,
+    has_overlap,
+    parse_date,
+    valid_role_ids,
+)
 
 edit_staff_assignment = Blueprint(
     "edit_staff_assignment",
@@ -11,12 +25,10 @@ edit_staff_assignment = Blueprint(
 
 @edit_staff_assignment.route("/<int:assignment_id>/edit", methods=["GET", "POST"])
 def edit_staff_assignment_page(assignment_id):
-
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
     try:
-
         # Load the assignment (needed for both GET and POST)
         cursor.execute("""
             SELECT
@@ -48,18 +60,20 @@ def edit_staff_assignment_page(assignment_id):
         # =================================================
 
         if request.method == "POST":
+            new_club_id = request.form.get("club_id", type=int)
+            new_role_id = request.form.get("role_id", type=int)
 
-            new_club_id = request.form.get("club_id")
-            new_role_id = request.form.get("role_id")
+            if new_club_id is None or new_role_id is None:
+                return "Club and role are required", 400
+
+            if not valid_role_ids(cursor, [new_role_id]):
+                return "Please select a valid role", 400
 
             try:
                 new_start = parse_date(request.form.get("start_date"))
                 new_end = parse_date(request.form.get("end_date"))
             except ValueError as error:
                 return str(error), 400
-
-            if not (new_club_id and new_role_id):
-                return "Club and role are required", 400
 
             if not new_start:
                 return "Start date is required", 400
@@ -77,28 +91,37 @@ def edit_staff_assignment_page(assignment_id):
                 cursor, request.form.getlist("season_ids")
             )
 
-            cursor.execute("""
-                UPDATE Staff_Assignment
-                SET Club_id = %s,
-                    Role_id = %s,
-                    Start_Date = %s,
-                    End_Date = %s
-                WHERE Assignment_id = %s
-            """, (new_club_id, new_role_id, new_start, new_end, assignment_id))
-
-            # Replace the seasons
-            cursor.execute("""
-                DELETE FROM Staff_Assignment_Season
-                WHERE Assignment_id = %s
-            """, (assignment_id,))
-
-            for season_number in season_ids:
+            try:
                 cursor.execute("""
-                    INSERT INTO Staff_Assignment_Season (Assignment_id, Season_Number)
-                    VALUES (%s, %s)
-                """, (assignment_id, season_number))
+                    UPDATE Staff_Assignment
+                    SET Club_id = %s,
+                        Role_id = %s,
+                        Start_Date = %s,
+                        End_Date = %s
+                    WHERE Assignment_id = %s
+                """, (new_club_id, new_role_id, new_start, new_end,
+                      assignment_id))
 
-            connection.commit()
+                # Replace the seasons
+                cursor.execute("""
+                    DELETE FROM Staff_Assignment_Season
+                    WHERE Assignment_id = %s
+                """, (assignment_id,))
+
+                for season_number in season_ids:
+                    cursor.execute("""
+                        INSERT INTO Staff_Assignment_Season
+                            (Assignment_id, Season_Number)
+                        VALUES (%s, %s)
+                    """, (assignment_id, season_number))
+
+                connection.commit()
+
+            except IntegrityError as error:
+                connection.rollback()
+                if error.errno == 1452:      # foreign key failure
+                    return "Invalid club or role", 400
+                raise
 
             return redirect(url_for("staff_assignment.staff_assignment_page"))
 
@@ -144,9 +167,10 @@ def edit_staff_assignment_page(assignment_id):
             selected_seasons=selected_seasons
         )
 
-    except Exception as error:
+    except Exception:
         connection.rollback()
-        return f"Error: {error}", 500
+        current_app.logger.exception("Error while editing staff assignment")
+        return "Something went wrong", 500
 
     finally:
         cursor.close()

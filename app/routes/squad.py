@@ -1,71 +1,20 @@
 from flask import Blueprint, render_template, request
-from app.database import get_db_connection
-from datetime import datetime
 
+from app.constants import USMA_CLUB_ID
+from app.database import get_db_connection
+from app.utils import calculate_age, season_reference_date, to_date
 
 squad = Blueprint("squad", __name__)
 
-
-def calculate_age(birth_date, reference_date):
-    if not birth_date:
-        return None
-    
-    try:
-        if isinstance(birth_date, str):
-            birth_date = datetime.strptime(birth_date, "%Y-%m-%d").date()
-        elif isinstance(birth_date, datetime):
-            birth_date = birth_date.date()
-        
-        if isinstance(reference_date, str):
-            reference_date = datetime.strptime(reference_date, "%Y-%m-%d").date()
-        elif isinstance(reference_date, datetime):
-            reference_date = reference_date.date()
+VALID_SORTS = ("position", "jersey", "age", "name")
 
 
-        if birth_date > reference_date:
-            return None
-        
-        age_in_days = (reference_date - birth_date).days
-        
-        
-        age_decimal = age_in_days / 365.25
-        
-        return (int(age_decimal), age_decimal)
-    except:
-        return None
+# =====================================================
+# QUERIES
+# =====================================================
 
-@squad.route("/squad")
-def squad_page():
-
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
-
-    # Get selected season
-    selected_season = request.args.get("season")
-
-    # If no season is selected, use the latest season
-    if selected_season is None:
-        cursor.execute("""
-            SELECT Season_Number
-            FROM Season
-            ORDER BY Start_Year DESC
-            LIMIT 1
-        """)
-
-        latest_season = cursor.fetchone()
-
-        if latest_season:
-            selected_season = latest_season["Season_Number"]
-
-    # Get sorting parameters
-    sort_by = request.args.get("sort_by", "position")
-    sort_order = request.args.get("sort_order", "asc").upper()
-
-    # Validate sort_order
-    if sort_order not in ["ASC", "DESC"]:
-        sort_order = "ASC"
-
-    # Load all seasons
+def get_seasons(cursor):
+    """All seasons, latest first."""
     cursor.execute("""
         SELECT
             Season_Number,
@@ -75,17 +24,11 @@ def squad_page():
         FROM Season
         ORDER BY Start_Year DESC
     """)
+    return cursor.fetchall()
 
-    seasons = cursor.fetchall()
 
-    # Get the selected season's details (for age calculation)
-    season_details = None
-    for season in seasons:
-        if season["Season_Number"] == int(selected_season):
-            season_details = season
-            break
-
-    # Load USMA squad for selected season
+def get_squad(cursor, season_number):
+    """USMA players for a season."""
     cursor.execute("""
         SELECT
             ps.Player_id,
@@ -120,115 +63,22 @@ def squad_page():
         JOIN Position_Category pc
             ON p.Position_Category_id = pc.Position_Category_id
 
-        JOIN Country co
+        LEFT JOIN Country co
             ON pe.Country_id = co.Country_id
 
-        WHERE ps.Club_id = 1
+        WHERE ps.Club_id = %s
           AND ps.Season_Number = %s
 
         ORDER BY
             p.Position_Category_id,
             p.Position_id,
             ps.Jersey_Number
-    """, (selected_season,))
+    """, (USMA_CLUB_ID, season_number))
+    return cursor.fetchall()
 
-    players_data = cursor.fetchall()
 
-    # Calculate age for each player based on season dates
-    players = []
-    if season_details:
-        reference_date = datetime(season_details["Start_Year"], 7, 1)
-        
-        for player in players_data:
-            player["Age"] = calculate_age(player["Person_birth_date"], reference_date)
-            players.append(player)
-    else:
-        players = players_data
-
-    # =====================================================
-    # SORTING LOGIC
-    # =====================================================
-
-    if sort_by == "jersey":
-        # Sort by Jersey Number
-        players.sort(
-            key=lambda p: p["Jersey_Number"] if p["Jersey_Number"] else 999,
-            reverse=(sort_order == "DESC")
-        )
-    
-    elif sort_by == "age":
-        players.sort(
-            key=lambda p: p["Age"][1] if p["Age"] is not None else 999,
-            reverse=(sort_order == "DESC")
-        )
-    
-    elif sort_by == "name":
-        # Sort by Player Name
-        players.sort(
-            key=lambda p: p["Person_Display_Name"],
-            reverse=(sort_order == "DESC")
-        )
-    
-    else:  # position (default)
-        # Sort by Position Category and Position
-        players.sort(
-            key=lambda p: (p["Position_Category_id"], p["Position_id"]),
-            reverse=(sort_order == "DESC")
-        )
-    # =====================================================
-    # CALCULATE STATISTICS
-    # =====================================================
-    position_stats = {}
-    for player in players:
-        category_id = player["Position_Category_id"]
-        category_name = player["Category_Name"]
-        age = player["Age"]
-        if category_id not in position_stats:
-            position_stats[category_id] = {
-                "category_name": category_name,
-                "count": 0,
-                "known_age_count": 0,
-                "total_age": 0,
-                "avg_age": 0
-            }
-        position_stats[category_id]["count"] += 1
-        if age is not None:
-            position_stats[category_id]["known_age_count"] += 1
-            position_stats[category_id]["total_age"] += age[0]
-    # حساب متوسط الأعمار لكل منصب
-    for stats in position_stats.values():
-        if stats["known_age_count"] > 0:
-            stats["avg_age"] = round(
-                stats["total_age"] / stats["known_age_count"],
-                1
-            )
-        else:
-            stats["avg_age"] = 0
-    position_stats = dict(sorted(position_stats.items()))
-    # =====================================================
-    # TOTAL STATISTICS
-    # =====================================================
-    total_players = len(players)
-    total_age = sum(
-        p["Age"][0]
-        for p in players
-        if p["Age"] is not None
-    )
-    known_age_count = sum(
-        1
-        for p in players
-        if p["Age"] is not None
-    )
-    avg_age_total = (
-        round(total_age / known_age_count, 1)
-        if known_age_count > 0
-        else 0 
-    )
-
-        # =====================================================
-    # USMA STAFF FOR THE SELECTED SEASON
-    # =====================================================
-
+def get_staff(cursor, season_number):
+    """USMA staff for a season."""
     cursor.execute("""
         SELECT
             sa.Assignment_id,
@@ -256,18 +106,16 @@ def squad_page():
         JOIN Staff_Role sr
             ON sa.Role_id = sr.Role_id
 
-        WHERE sa.Club_id = 1
+        WHERE sa.Club_id = %s
           AND sas.Season_Number = %s
 
         ORDER BY sa.Start_Date, sr.Role_id
-    """, (selected_season,))
+    """, (USMA_CLUB_ID, season_number))
+    return cursor.fetchall()
 
-    staff = cursor.fetchall()
 
-        # =====================================================
-    # USMA TITLES WON IN THE SELECTED SEASON
-    # =====================================================
-
+def get_titles(cursor, season_number):
+    """Titles won by USMA in a season."""
     cursor.execute("""
         SELECT
             c.Competition_id,
@@ -279,17 +127,138 @@ def squad_page():
         JOIN Competition c
             ON cs.Competition_id = c.Competition_id
 
-        WHERE cs.Competition_Winner_Club_id = 1
+        WHERE cs.Competition_Winner_Club_id = %s
           AND cs.Season_Number = %s
 
         ORDER BY c.Competition_id
-    """, (selected_season,))
+    """, (USMA_CLUB_ID, season_number))
+    return cursor.fetchall()
 
-    titles = cursor.fetchall()
 
-        
-    cursor.close()
-    connection.close()
+# =====================================================
+# HELPERS
+# =====================================================
+
+def pick_season(seasons, requested_number):
+    """Return the requested season, or the latest one if missing/invalid."""
+    for season in seasons:
+        if season["Season_Number"] == requested_number:
+            return season
+    return seasons[0] if seasons else None
+
+
+def sort_players(players, sort_by, descending):
+    """Sort players. Unknown values (jersey / birth date) always go last."""
+    if sort_by == "jersey":
+        known = [p for p in players if p["Jersey_Number"] is not None]
+        unknown = [p for p in players if p["Jersey_Number"] is None]
+        known.sort(key=lambda p: p["Jersey_Number"], reverse=descending)
+        return known + unknown
+
+    if sort_by == "age":
+        known = [p for p in players if p["Person_birth_date"]]
+        unknown = [p for p in players if not p["Person_birth_date"]]
+        # Youngest first (ascending age) = latest birth date first
+        known.sort(
+            key=lambda p: to_date(p["Person_birth_date"]),
+            reverse=not descending
+        )
+        return known + unknown
+
+    if sort_by == "name":
+        players.sort(
+            key=lambda p: (p["Person_Display_Name"] or "").casefold(),
+            reverse=descending
+        )
+        return players
+
+    # position (default). The sort is stable, so players in the same
+    # position keep the query order (jersey number ascending).
+    players.sort(
+        key=lambda p: (p["Position_Category_id"], p["Position_id"]),
+        reverse=descending
+    )
+    return players
+
+
+def compute_stats(players):
+    """Return (position_stats, total_players, avg_age_total)."""
+    position_stats = {}
+
+    for p in players:
+        stats = position_stats.setdefault(p["Position_Category_id"], {
+            "category_name": p["Category_Name"],
+            "count": 0,
+            "known_age_count": 0,
+            "total_age": 0,
+            "avg_age": 0
+        })
+
+        stats["count"] += 1
+        if p["Age"] is not None:
+            stats["known_age_count"] += 1
+            stats["total_age"] += p["Age"]
+
+    for stats in position_stats.values():
+        if stats["known_age_count"] > 0:
+            stats["avg_age"] = round(
+                stats["total_age"] / stats["known_age_count"], 1
+            )
+
+    total_known = sum(s["known_age_count"] for s in position_stats.values())
+    total_age = sum(s["total_age"] for s in position_stats.values())
+    avg_age_total = round(total_age / total_known, 1) if total_known else 0
+
+    return dict(sorted(position_stats.items())), len(players), avg_age_total
+
+
+# =====================================================
+# ROUTE
+# =====================================================
+
+@squad.route("/squad")
+def squad_page():
+    # Sorting parameters (validated)
+    sort_by = request.args.get("sort_by", "position")
+    if sort_by not in VALID_SORTS:
+        sort_by = "position"
+
+    sort_order = request.args.get("sort_order", "asc").lower()
+    if sort_order not in ("asc", "desc"):
+        sort_order = "asc"
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        seasons = get_seasons(cursor)
+
+        # type=int returns None for a missing or invalid value
+        season_details = pick_season(
+            seasons, request.args.get("season", type=int)
+        )
+
+        if season_details:
+            season_number = season_details["Season_Number"]
+            players = get_squad(cursor, season_number)
+            staff = get_staff(cursor, season_number)
+            titles = get_titles(cursor, season_number)
+        else:
+            season_number = None
+            players, staff, titles = [], [], []
+
+    finally:
+        cursor.close()
+        connection.close()
+
+    # Age is computed at 1 July of the season's start year
+    if season_details:
+        reference_date = season_reference_date(season_details["Start_Year"])
+        for p in players:
+            p["Age"] = calculate_age(p["Person_birth_date"], reference_date)
+
+    players = sort_players(players, sort_by, descending=(sort_order == "desc"))
+    position_stats, total_players, avg_age_total = compute_stats(players)
 
     return render_template(
         "squad.html",
@@ -298,9 +267,9 @@ def squad_page():
         players=players,
         staff=staff,
         titles=titles,
-        selected_season=int(selected_season) if selected_season else None,
+        selected_season=season_number,
         sort_by=sort_by,
-        sort_order=sort_order.lower(),
+        sort_order=sort_order,
         position_stats=position_stats,
         total_players=total_players,
         avg_age_total=avg_age_total

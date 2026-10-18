@@ -1,88 +1,99 @@
-from flask import Blueprint, render_template, request, redirect, url_for
-from app.database import get_db_connection
+from flask import (
+    Blueprint,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
+from app.database import get_db_connection
+from app.routes.admin.person_utils import create_person
+from app.utils import clean_text, parse_int
 
 add_player = Blueprint("add_player", __name__)
 
 
 @add_player.route("/add-player", methods=["GET", "POST"])
 def add_player_page():
-
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
-    if request.method == "POST":
-
-        try:
-
-            # --------------------------------
-            # Person information
-            # --------------------------------
-
-            first_name = request.form.get("first_name") or None
-            last_name = request.form.get("last_name") or None
-            display_name = request.form.get("display_name")
-
-            first_name_ar = request.form.get("first_name_ar") or None
-            last_name_ar = request.form.get("last_name_ar") or None
-            display_name_ar = request.form.get("display_name_ar") or None
-
-            birth_date = request.form.get("birth_date") or None
-            death_date = request.form.get("death_date") or None
-            sex = request.form.get("sex") or None
-            country_id = request.form.get("country_id")
-
+    try:
+        if request.method == "POST":
+            form = request.form
 
             # --------------------------------
-            # Player information
+            # Validate player data first (nothing is written yet)
             # --------------------------------
 
-            position_id = request.form.get("position_id")
-
-            nickname = request.form.get("nickname") or None
-            nickname_ar = request.form.get("nickname_ar") or None
-
-            jersey_number = request.form.get("jersey_number") or None
-
-            is_active = 1 if request.form.get("is_active") else 0
-
-            # Get other positions (multiple select)
-            other_positions = request.form.getlist("other_positions")
-
-
-            # --------------------------------
-            # Create Person
-            # --------------------------------
-
-            cursor.execute("""
-                INSERT INTO Person (
-                    Person_First_Name,
-                    Person_Last_Name,
-                    Person_Display_Name,
-                    Person_First_Name_ar,
-                    Person_Last_Name_ar,
-                    Person_Display_Name_ar,
-                    Person_birth_date,
-                    Person_death_date,
-                    Sex,
-                    Country_id
+            try:
+                position_id = parse_int(form.get("position_id"), "Main position")
+                jersey_number = parse_int(
+                    form.get("jersey_number"), "Jersey number", minimum=0
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                first_name,
-                last_name,
-                display_name,
-                first_name_ar,
-                last_name_ar,
-                display_name_ar,
-                birth_date,
-                death_date,
-                sex,
-                country_id
-            ))
+                other_positions = {
+                    parse_int(value, "Other position")
+                    for value in form.getlist("other_positions")
+                    if value
+                }
+            except ValueError as error:
+                return str(error), 400
 
-            person_id = cursor.lastrowid
+            if position_id is None:
+                return "Please select a main position", 400
 
+            # The main position must not be inserted twice
+            other_positions.discard(position_id)
+
+            # Make sure every selected position really exists
+            wanted_positions = {position_id} | other_positions
+            placeholders = ", ".join(["%s"] * len(wanted_positions))
+
+            cursor.execute(
+                f"SELECT Position_id FROM Position "
+                f"WHERE Position_id IN ({placeholders})",
+                tuple(wanted_positions)
+            )
+
+            if len(cursor.fetchall()) != len(wanted_positions):
+                return "One or more selected positions are invalid", 400
+
+            nickname = form.get("nickname") or None
+            nickname_ar = form.get("nickname_ar") or None
+            is_active = 1 if form.get("is_active") else 0
+
+            # --------------------------------
+            # Existing person or new person
+            # --------------------------------
+
+            if form.get("person_source", "new") == "existing":
+                existing_person_id = form.get("existing_person_id")
+
+                if not existing_person_id:
+                    return "Please select an existing person", 400
+
+                cursor.execute("""
+                    SELECT p.Person_id
+                    FROM Person p
+                    LEFT JOIN Player pl
+                        ON pl.Person_id = p.Person_id
+                    WHERE p.Person_id = %s
+                      AND pl.Player_id IS NULL
+                """, (existing_person_id,))
+
+                person = cursor.fetchone()
+
+                if person is None:
+                    return "Invalid person or person is already a player", 400
+
+                person_id = person["Person_id"]
+
+            else:
+                try:
+                    person_id = create_person(cursor, form)
+                except ValueError as error:
+                    return str(error), 400
 
             # --------------------------------
             # Create Player
@@ -107,121 +118,84 @@ def add_player_page():
 
             player_id = cursor.lastrowid
 
-
             # --------------------------------
-            # Create Main Position
+            # Positions (main + others)
             # --------------------------------
 
             cursor.execute("""
-                INSERT INTO Player_Position (
-                    Player_id,
-                    Position_id,
-                    Is_Main
-                )
-                VALUES (%s, %s, %s)
-            """, (
-                player_id,
-                position_id,
-                1
-            ))
+                INSERT INTO Player_Position (Player_id, Position_id, Is_Main)
+                VALUES (%s, %s, 1)
+            """, (player_id, position_id))
 
-
-            # --------------------------------
-            # Create Other Positions
-            # --------------------------------
-
-            if other_positions:
-                for pos_id in other_positions:
-                    # تأكد من عدم إضافة الـ main position مرة أخرى
-                    if pos_id and str(pos_id) != str(position_id):
-                        cursor.execute("""
-                            INSERT INTO Player_Position (
-                                Player_id,
-                                Position_id,
-                                Is_Main
-                            )
-                            VALUES (%s, %s, %s)
-                        """, (
-                            player_id,
-                            pos_id,
-                            0
-                        ))
-
-
-            # --------------------------------
-            # Everything succeeded
-            # --------------------------------
+            for other_id in sorted(other_positions):
+                cursor.execute("""
+                    INSERT INTO Player_Position (Player_id, Position_id, Is_Main)
+                    VALUES (%s, %s, 0)
+                """, (player_id, other_id))
 
             connection.commit()
 
-            return redirect(
-                url_for("players.players_page")
+            return redirect(url_for("players.players_page"))
+
+        # ========================================
+        # GET
+        # ========================================
+
+        cursor.execute("""
+            SELECT Country_id, Country_Name
+            FROM Country
+            ORDER BY Country_Name
+        """)
+        countries = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT Position_id, Position_Code, Position_Name
+            FROM Position
+            ORDER BY Position_Category_id, Position_id
+        """)
+        positions = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT
+                p.Person_id,
+                p.Person_Display_Name,
+                p.Person_Display_Name_ar,
+
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM Staff_Member sm
+                        WHERE sm.Person_id = p.Person_id
+                    )
+                    THEN 1
+                    ELSE 0
+                END AS is_staff
+
+            FROM Person p
+
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM Player pl
+                WHERE pl.Person_id = p.Person_id
             )
 
+            ORDER BY p.Person_Display_Name
+        """)
+        existing_persons = cursor.fetchall()
 
-        except Exception as error:
+        return render_template(
+            "admin/players/add_player.html",
+            Title="Add Player",
+            countries=countries,
+            positions=positions,
+            existing_persons=existing_persons
+        )
 
-            # Something failed
-            # Undo everything
+    except Exception:
+        connection.rollback()
+        current_app.logger.exception("Error while adding player")
+        return "Error while adding player", 500
 
-            connection.rollback()
-
-            print(
-                "Error while adding player:",
-                error
-            )
-
-            return "Error while adding player", 500
-
-
-        finally:
-
-            cursor.close()
-            connection.close()
-
-
-    # ========================================
-    # GET REQUEST
-    # ========================================
-
-    # --------------------------------
-    # Load countries
-    # --------------------------------
-
-    cursor.execute("""
-        SELECT
-            Country_id,
-            Country_Name
-        FROM Country
-        ORDER BY Country_Name
-    """)
-
-    countries = cursor.fetchall()
-
-
-    # --------------------------------
-    # Load positions
-    # --------------------------------
-
-    cursor.execute("""
-        SELECT
-            Position_id,
-            Position_Code,
-            Position_Name
-        FROM Position
-        ORDER BY Position_Category_id, Position_id
-    """)
-
-    positions = cursor.fetchall()
-
-
-    cursor.close()
-    connection.close()
-
-
-    return render_template(
-        "admin/players/add_player.html",
-        Title="Add Player",
-        countries=countries,
-        positions=positions
-    )
+    finally:
+        cursor.close()
+        connection.close()

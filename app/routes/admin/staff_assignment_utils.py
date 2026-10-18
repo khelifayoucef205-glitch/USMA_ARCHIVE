@@ -1,19 +1,14 @@
-from datetime import datetime
+from app.utils import parse_date
 
-
-def parse_date(value):
-    """Accepts DD/MM/YYYY or YYYY-MM-DD. Returns a date or None."""
-    if not value:
-        return None
-    value = value.strip()
-    if not value:
-        return None
-    for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+def _int_set(raw_ids):
+    """Return the set of values that can be converted to int."""
+    ids = set()
+    for value in raw_ids:
         try:
-            return datetime.strptime(value, fmt).date()
-        except ValueError:
+            ids.add(int(value))
+        except (TypeError, ValueError):
             continue
-    raise ValueError(f"Invalid date: {value}")
+    return ids
 
 
 def has_overlap(cursor, staff_member_id, club_id, role_id,
@@ -41,21 +36,25 @@ def has_overlap(cursor, staff_member_id, club_id, role_id,
 
 def clean_season_ids(cursor, raw_ids):
     """Keeps only season numbers that really exist in the Season table."""
-    ids = {int(x) for x in raw_ids if str(x).isdigit()}
+    ids = _int_set(raw_ids)
     if not ids:
         return []
+
     placeholders = ",".join(["%s"] * len(ids))
     cursor.execute(
-        f"SELECT Season_Number FROM Season WHERE Season_Number IN ({placeholders})",
+        f"SELECT Season_Number FROM Season "
+        f"WHERE Season_Number IN ({placeholders})",
         tuple(ids)
     )
     return [row["Season_Number"] for row in cursor.fetchall()]
 
+
 def valid_role_ids(cursor, raw_ids):
     """Keeps only role ids that really exist in Staff_Role."""
-    ids = {int(x) for x in raw_ids if str(x).isdigit()}
+    ids = _int_set(raw_ids)
     if not ids:
         return set()
+
     placeholders = ",".join(["%s"] * len(ids))
     cursor.execute(
         f"SELECT Role_id FROM Staff_Role WHERE Role_id IN ({placeholders})",

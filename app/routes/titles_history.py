@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request
-from app.database import get_db_connection
 
+from app.constants import USMA_CLUB_ID
+from app.database import get_db_connection
 
 titles_history = Blueprint("titles_history", __name__)
 
@@ -12,38 +13,45 @@ def titles_history_page():
     order = request.args.get("order", "asc").lower()
     if order not in ("asc", "desc"):
         order = "asc"
+
+    # Only "ASC" or "DESC" can reach the SQL text below
     direction = "DESC" if order == "desc" else "ASC"
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
-    cursor.execute(f"""
-        SELECT
-            s.Season_Number,
-            s.Season_Name,
-            s.Start_Year,
-            s.End_Year,
-            c.Competition_id,
-            c.Competition_Name,
-            c.Competition_Name_ar,
-            c.Competition_Type
-        FROM Competition_Season cs
+    try:
+        cursor.execute(f"""
+            SELECT
+                s.Season_Number,
+                s.Season_Name,
+                s.Start_Year,
+                s.End_Year,
+                c.Competition_id,
+                c.Competition_Name,
+                c.Competition_Name_ar,
+                c.Competition_Type
+            FROM Competition_Season cs
 
-        JOIN Season s
-            ON cs.Season_Number = s.Season_Number
+            JOIN Season s
+                ON cs.Season_Number = s.Season_Number
 
-        JOIN Competition c
-            ON cs.Competition_id = c.Competition_id
+            JOIN Competition c
+                ON cs.Competition_id = c.Competition_id
 
-        WHERE cs.Competition_Winner_Club_id = 1
+            WHERE cs.Competition_Winner_Club_id = %s
 
-        ORDER BY s.Start_Year {direction}, c.Competition_id
-    """)
+            ORDER BY
+                s.Start_Year {direction},
+                s.Season_Number {direction},
+                c.Competition_id
+        """, (USMA_CLUB_ID,))
 
-    rows = cursor.fetchall()
+        rows = cursor.fetchall()
 
-    cursor.close()
-    connection.close()
+    finally:
+        cursor.close()
+        connection.close()
 
     # Group titles by season (order is preserved)
     seasons_with_titles = []
@@ -67,6 +75,7 @@ def titles_history_page():
         if comp_id not in summary:
             summary[comp_id] = {
                 "name": row["Competition_Name"],
+                "name_ar": row["Competition_Name_ar"],
                 "type": row["Competition_Type"],
                 "count": 0
             }

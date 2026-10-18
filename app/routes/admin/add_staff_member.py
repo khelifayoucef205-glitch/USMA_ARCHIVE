@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from app.database import get_db_connection
-from app.routes.admin.staff_assignment_utils import parse_date, valid_role_ids
+from app.utils import parse_date
+from app.routes.admin.staff_assignment_utils import  valid_role_ids
+from app.routes.admin.person_utils import create_person
 
 
 add_staff_member = Blueprint("add_staff_member", __name__)
@@ -55,21 +57,8 @@ def add_staff_member_page():
             # --------------------------------
 
             else:
-
-                first_name = request.form.get("first_name") or None
-                last_name = request.form.get("last_name") or None
-                display_name = request.form.get("display_name")
-
-                first_name_ar = request.form.get("first_name_ar") or None
-                last_name_ar = request.form.get("last_name_ar") or None
-                display_name_ar = request.form.get("display_name_ar") or None
-
-                sex = request.form.get("sex") or None
-                country_id = request.form.get("country_id")
-
                 try:
-                    birth_date = parse_date(request.form.get("birth_date"))
-                    death_date = parse_date(request.form.get("death_date"))
+                    person_id = create_person(cursor, request.form)
                 except ValueError as error:
                     return str(error), 400
 

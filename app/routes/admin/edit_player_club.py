@@ -1,5 +1,17 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import (
+    Blueprint,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from mysql.connector import IntegrityError
+
 from app.database import get_db_connection
+from app.utils import parse_date
+from app.routes.admin.club_utils import read_club_spell, update_club_spell
+
 
 edit_player_club = Blueprint(
     "edit_player_club",
@@ -7,77 +19,25 @@ edit_player_club = Blueprint(
     url_prefix="/admin/player-club"
 )
 
-# =====================================================
-# EDIT PLAYER CLUB
-# =====================================================
 
-@edit_player_club.route("/<int:player_id>/<int:club_id>/<join_date>/edit", methods=["GET", "POST"])
+@edit_player_club.route(
+    "/<int:player_id>/<int:club_id>/<join_date>/edit",
+    methods=["GET", "POST"]
+)
 def edit_player_club_page(player_id, club_id, join_date):
+    try:
+        old_join_date = parse_date(join_date)
+    except ValueError as error:
+        return str(error), 400
+
+    if old_join_date is None:
+        return "Invalid join date", 400
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
     try:
-
-        # =================================================
-        # POST - Update
-        # =================================================
-
-        if request.method == "POST":
-
-            new_club_id = request.form.get("club_id")
-            new_join_date = request.form.get("join_date")
-            leave_date = request.form.get("leave_date") or None
-            is_actual = 1 if request.form.get("is_actual") else 0
-
-            # Check if relationship exists
-            cursor.execute("""
-                SELECT Player_id, Club_id, Join_Date
-                FROM Player_Club
-                WHERE Player_id = %s
-                  AND Club_id = %s
-                  AND Join_Date = %s
-            """, (player_id, club_id, join_date))
-
-            relationship = cursor.fetchone()
-
-            if relationship is None:
-                return "Player-club relationship not found", 404
-
-            # Delete old record
-            cursor.execute("""
-                DELETE FROM Player_Club
-                WHERE Player_id = %s
-                  AND Club_id = %s
-                  AND Join_Date = %s
-            """, (player_id, club_id, join_date))
-
-            # Insert new record
-            cursor.execute("""
-                INSERT INTO Player_Club (
-                    Player_id,
-                    Club_id,
-                    Join_Date,
-                    Leave_Date,
-                    Is_Actual
-                )
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                player_id,
-                new_club_id,
-                new_join_date,
-                leave_date,
-                is_actual
-            ))
-
-            connection.commit()
-
-            return redirect(url_for("player_club.player_club_page"))
-
-        # =================================================
-        # GET - Load Relationship
-        # =================================================
-
+        # Load the record first, for both GET and POST
         cursor.execute("""
             SELECT
                 pc.Player_id,
@@ -102,19 +62,51 @@ def edit_player_club_page(player_id, club_id, join_date):
             WHERE pc.Player_id = %s
               AND pc.Club_id = %s
               AND pc.Join_Date = %s
-        """, (player_id, club_id, join_date))
+        """, (player_id, club_id, old_join_date))
 
         relationship = cursor.fetchone()
 
         if relationship is None:
             return "Player-club relationship not found", 404
 
-        # Load Players
+        # =================================================
+        # POST - Update
+        # =================================================
+
+        if request.method == "POST":
+            try:
+                new_club_id, new_join_date, leave_date, is_actual = (
+                    read_club_spell(request.form)
+                )
+                update_club_spell(
+                    cursor, player_id,
+                    club_id, old_join_date,
+                    new_club_id, new_join_date, leave_date, is_actual
+                )
+                connection.commit()
+
+            except ValueError as error:
+                connection.rollback()
+                return str(error), 400
+
+            except IntegrityError as error:
+                connection.rollback()
+                if error.errno == 1062:      # duplicate entry
+                    return "This record already exists", 400
+                if error.errno == 1452:      # foreign key failure
+                    return "Invalid club", 400
+                raise
+
+            return redirect(url_for("player_club.player_club_page"))
+
+        # =================================================
+        # GET
+        # =================================================
+
         cursor.execute("""
             SELECT
                 p.Player_id,
                 pe.Person_Display_Name
-
             FROM Player p
 
             JOIN Person pe
@@ -122,20 +114,13 @@ def edit_player_club_page(player_id, club_id, join_date):
 
             ORDER BY pe.Person_Display_Name
         """)
-
         players = cursor.fetchall()
 
-        # Load Clubs
         cursor.execute("""
-            SELECT
-                Club_id,
-                Club_Current_Name
-
+            SELECT Club_id, Club_Current_Name
             FROM Club
-
             ORDER BY Club_Current_Name
         """)
-
         clubs = cursor.fetchall()
 
         return render_template(
@@ -146,9 +131,10 @@ def edit_player_club_page(player_id, club_id, join_date):
             clubs=clubs
         )
 
-    except Exception as error:
+    except Exception:
         connection.rollback()
-        return f"Error: {error}", 500
+        current_app.logger.exception("Error while editing player club")
+        return "Something went wrong", 500
 
     finally:
         cursor.close()

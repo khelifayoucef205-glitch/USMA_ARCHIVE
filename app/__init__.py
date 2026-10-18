@@ -27,7 +27,6 @@ def create_app():
     # =========================
     # Admin Panel
     # =========================
-    # from app.routes.admin import admin
     from app.routes.admin.add_player import add_player
     from app.routes.admin.players import players
     from app.routes.admin.edit_player import edit_player
@@ -45,7 +44,6 @@ def create_app():
     from app.routes.admin.edit_staff_member import edit_staff_member
     from app.routes.admin.staff_assignment import staff_assignment
     
-    # app.register_blueprint(admin)
     app.register_blueprint(add_player)
     app.register_blueprint(players)
     app.register_blueprint(edit_player)

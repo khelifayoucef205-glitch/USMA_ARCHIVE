@@ -1,161 +1,160 @@
-from flask import Blueprint, render_template, redirect, url_for, request
-from app.database import get_db_connection
+from flask import (
+    Blueprint,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from mysql.connector import IntegrityError
 
+from app.constants import USMA_CLUB_ID
+from app.database import get_db_connection
+from app.utils import escape_like
 
 staff_members = Blueprint("staff_members", __name__)
 
+def get_staff_member_status(staff_member_data):
+    """Classify the staff member for display purposes."""
+    if staff_member_data.get("Person_death_date"):
+        return "deceased"
 
-USMA_CURRENT_SQL = """
+    if staff_member_data.get("usma_current"):
+        return "active_with_usma"
+
+    if staff_member_data.get("usma_history"):
+        return "former_usma"
+
+    return "no_club"
+
+
+# USMA_CLUB_ID is a constant integer, never user input, so it is safe
+# to place it in the SQL text.
+USMA_CURRENT_SQL = f"""
     EXISTS (
         SELECT 1
         FROM Staff_Assignment sa
         WHERE sa.Staff_Member_id = sm.Staff_Member_id
-          AND sa.Club_id = 1
+          AND sa.Club_id = {int(USMA_CLUB_ID)}
           AND sa.End_Date IS NULL
     )
 """
 
-USMA_HISTORY_SQL = """
+USMA_HISTORY_SQL = f"""
     EXISTS (
         SELECT 1
         FROM Staff_Assignment sa
         WHERE sa.Staff_Member_id = sm.Staff_Member_id
-          AND sa.Club_id = 1
+          AND sa.Club_id = {int(USMA_CLUB_ID)}
     )
 """
 
+# Must stay consistent with get_staff_member_status above
+STATUS_CONDITIONS = {
+    "deceased": "p.Person_death_date IS NOT NULL",
+    "active_with_usma": f"p.Person_death_date IS NULL AND {USMA_CURRENT_SQL}",
+    "former_usma": (
+        "p.Person_death_date IS NULL "
+        f"AND {USMA_HISTORY_SQL} AND NOT {USMA_CURRENT_SQL}"
+    ),
+    "no_club": f"p.Person_death_date IS NULL AND NOT {USMA_HISTORY_SQL}",
+}
 
-def get_staff_member_status(staff_member_data):
-
-    if staff_member_data.get('Person_death_date'):
-        return 'deceased'
-
-    if staff_member_data.get('usma_current'):
-        return 'active_with_usma'
-
-    if staff_member_data.get('usma_history'):
-        return 'former_usma'
-
-    return 'no_club'
+# Whitelist: user input only selects a key, never goes into the SQL
+SORT_COLUMNS = {
+    "id": "sm.Staff_Member_id",
+    "name": "p.Person_Display_Name",
+    "nationality": "c.Country_Name",
+    "role": "Role",
+}
 
 
 @staff_members.route("/staff-members")
 def staff_members_page():
+    search = request.args.get("search", "").strip()
+    role_filter = request.args.get("role_filter", "").strip()
+    status_filter = request.args.get("status_filter", "").strip()
+    nationality_filter = request.args.get("nationality_filter", "").strip()
+
+    sort_by = request.args.get("sort_by", "name")
+    if sort_by not in SORT_COLUMNS:
+        sort_by = "name"
+
+    sort_order = request.args.get("sort_order", "asc").lower()
+    if sort_order not in ("asc", "desc"):
+        sort_order = "asc"
+
+    # Only fixed SQL fragments are added here; values go in params
+    conditions = []
+    params = []
+
+    if search:
+        conditions.append("p.Person_Display_Name LIKE %s")
+        params.append(f"%{escape_like(search)}%")
+
+    # Filter by MAIN role (Staff_Member_Role.Is_Main = 1)
+    if role_filter.isdigit():
+        conditions.append("""
+            EXISTS (
+                SELECT 1
+                FROM Staff_Member_Role smr
+                WHERE smr.Staff_Member_id = sm.Staff_Member_id
+                  AND smr.Is_Main = 1
+                  AND smr.Role_id = %s
+            )
+        """)
+        params.append(int(role_filter))
+
+    if nationality_filter.isdigit():
+        conditions.append("p.Country_id = %s")
+        params.append(int(nationality_filter))
+
+    if status_filter in STATUS_CONDITIONS:
+        conditions.append(f"({STATUS_CONDITIONS[status_filter]})")
+
+    query = f"""
+        SELECT
+            sm.Staff_Member_id,
+            p.Person_Display_Name,
+            p.Country_id,
+            c.Country_Name,
+            sm.Specialty,
+            p.Person_death_date,
+
+            (
+                SELECT sr.Role_name
+                FROM Staff_Member_Role smr
+                JOIN Staff_Role sr ON smr.Role_id = sr.Role_id
+                WHERE smr.Staff_Member_id = sm.Staff_Member_id
+                  AND smr.Is_Main = 1
+                ORDER BY sr.Role_id
+                LIMIT 1
+            ) AS Role,
+
+            {USMA_CURRENT_SQL} AS usma_current,
+            {USMA_HISTORY_SQL} AS usma_history
+
+        FROM Staff_Member sm
+
+        JOIN Person p
+            ON sm.Person_id = p.Person_id
+
+        LEFT JOIN Country c
+            ON p.Country_id = c.Country_id
+    """
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    query += (
+        f" ORDER BY {SORT_COLUMNS[sort_by]} {sort_order.upper()}, "
+        "sm.Staff_Member_id"
+    )
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
     try:
-
-        search = request.args.get("search", "").strip()
-        role_filter = request.args.get("role_filter", "")
-        status_filter = request.args.get("status_filter", "")
-        nationality_filter = request.args.get("nationality_filter", "")
-        sort_by = request.args.get("sort_by", "name")
-        sort_order = request.args.get("sort_order", "asc").upper()
-
-        if sort_order not in ["ASC", "DESC"]:
-            sort_order = "ASC"
-
-        where_clauses = []
-        params = []
-
-        if search:
-            where_clauses.append("p.Person_Display_Name LIKE %s")
-            params.append(f"%{search}%")
-
-        # Filter by MAIN role (Staff_Member_Role.Is_Main = 1)
-        if role_filter and role_filter.isdigit():
-            where_clauses.append("""
-                EXISTS (
-                    SELECT 1
-                    FROM Staff_Member_Role smr
-                    WHERE smr.Staff_Member_id = sm.Staff_Member_id
-                      AND smr.Is_Main = 1
-                      AND smr.Role_id = %s
-                )
-            """)
-            params.append(int(role_filter))
-
-        if nationality_filter and nationality_filter.isdigit():
-            where_clauses.append("p.Country_id = %s")
-            params.append(int(nationality_filter))
-
-        if status_filter == "deceased":
-
-            where_clauses.append("p.Person_death_date IS NOT NULL")
-
-        elif status_filter == "active_with_usma":
-
-            where_clauses.append(f"""
-                p.Person_death_date IS NULL
-                AND {USMA_CURRENT_SQL}
-            """)
-
-        elif status_filter == "former_usma":
-
-            where_clauses.append(f"""
-                p.Person_death_date IS NULL
-                AND {USMA_HISTORY_SQL}
-                AND NOT {USMA_CURRENT_SQL}
-            """)
-
-        elif status_filter == "no_club":
-
-            where_clauses.append(f"""
-                p.Person_death_date IS NULL
-                AND NOT {USMA_HISTORY_SQL}
-            """)
-
-        where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
-
-        if sort_by == "id":
-            order_by = "sm.Staff_Member_id"
-        elif sort_by == "name":
-            order_by = "p.Person_Display_Name"
-        elif sort_by == "nationality":
-            order_by = "c.Country_Name"
-        elif sort_by == "role":
-            order_by = "Role"
-        else:
-            sort_by = "name"
-            order_by = "p.Person_Display_Name"
-
-        query = f"""
-            SELECT
-                sm.Staff_Member_id,
-                p.Person_Display_Name,
-                p.Country_id,
-                c.Country_Name,
-                sm.Specialty,
-                p.Person_death_date,
-
-                (
-                    SELECT sr.Role_name
-                    FROM Staff_Member_Role smr
-                    JOIN Staff_Role sr ON smr.Role_id = sr.Role_id
-                    WHERE smr.Staff_Member_id = sm.Staff_Member_id
-                      AND smr.Is_Main = 1
-                    ORDER BY sr.Role_id
-                    LIMIT 1
-                ) AS Role,
-
-                {USMA_CURRENT_SQL} AS usma_current,
-                {USMA_HISTORY_SQL} AS usma_history
-
-            FROM Staff_Member sm
-
-            JOIN Person p
-                ON sm.Person_id = p.Person_id
-
-            LEFT JOIN Country c
-                ON p.Country_id = c.Country_id
-
-            WHERE {where_clause}
-
-            ORDER BY {order_by} {sort_order}
-        """
-
         cursor.execute(query, params)
         staff_members_list = cursor.fetchall()
 
@@ -187,7 +186,7 @@ def staff_members_page():
             status_filter=status_filter,
             nationality_filter=nationality_filter,
             sort_by=sort_by,
-            sort_order=sort_order.lower(),
+            sort_order=sort_order,
             roles=roles,
             nationalities=nationalities
         )
@@ -197,14 +196,15 @@ def staff_members_page():
         connection.close()
 
 
-@staff_members.route("/staff-members/delete/<int:staff_member_id>", methods=["POST"])
+@staff_members.route(
+    "/staff-members/delete/<int:staff_member_id>",
+    methods=["POST"]
+)
 def delete_staff_member(staff_member_id):
-
     connection = get_db_connection()
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)
 
     try:
-
         cursor.execute("""
             SELECT Person_id
             FROM Staff_Member
@@ -216,7 +216,7 @@ def delete_staff_member(staff_member_id):
         if result is None:
             return "Staff Member not found", 404
 
-        person_id = result[0]
+        person_id = result["Person_id"]
 
         # Refuse if match history exists (it would be lost or blocked by the FK)
         cursor.execute("""
@@ -251,27 +251,37 @@ def delete_staff_member(staff_member_id):
 
         # Delete Person only if no other role remains (e.g. Player)
         cursor.execute("""
-            SELECT 1 FROM Player WHERE Person_id = %s LIMIT 1
+            SELECT 1
+            FROM Player
+            WHERE Person_id = %s
+            LIMIT 1
         """, (person_id,))
-        is_also_player = cursor.fetchone() is not None
 
-        if not is_also_player:
+        if cursor.fetchone() is None:
             cursor.execute("""
                 DELETE FROM Person
                 WHERE Person_id = %s
             """, (person_id,))
 
         connection.commit()
+        return redirect(url_for("staff_members.staff_members_page"))
+
+    except IntegrityError as error:
+        connection.rollback()
+        if error.errno == 1451:      # still referenced by other rows
+            return (
+                "Cannot delete this staff member because other records "
+                "still reference him.",
+                400
+            )
+        current_app.logger.exception("Error while deleting staff member")
+        return "Something went wrong", 500
 
     except Exception:
-
         connection.rollback()
-
-        raise
+        current_app.logger.exception("Error while deleting staff member")
+        return "Something went wrong", 500
 
     finally:
-
         cursor.close()
         connection.close()
-
-    return redirect(url_for("staff_members.staff_members_page"))
