@@ -46,6 +46,10 @@
     color: var(--dark-gray);
 }
 
+.form-group label:has(input[type="checkbox"])::after {
+    content: '';
+}
+
 /* ====== Input Fields ====== */
 .form-group input[type="text"],
 .form-group input[type="email"],
@@ -120,6 +124,20 @@
 }
 
 /* ====== Button Styles ====== */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .btn-primary {
     background: linear-gradient(135deg, var(--primary-red), #ff1744);
     color: var(--neutral-white);
@@ -182,8 +200,8 @@
 }
 
 /* ====== Form Validation ====== */
-.form-group input:invalid,
-.form-group select:invalid {
+.form-group input:user-invalid,
+.form-group select:user-invalid {
     border-color: var(--primary-red);
     background: rgba(220, 20, 60, 0.05);
 }

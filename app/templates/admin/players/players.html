@@ -95,7 +95,7 @@
                 nationality_filter=nationality_filter,
                 status_filter=status_filter,
                 sort_by='id',
-                sort_order='asc' if sort_by == 'id' and sort_order == 'desc' else 'desc'
+                sort_order='desc' if sort_by == 'id' and sort_order == 'asc' else 'asc'
             ) }}" class="sortable">
 
                                 ID
@@ -119,7 +119,7 @@
                 nationality_filter=nationality_filter,
                 status_filter=status_filter,
                 sort_by='name',
-                sort_order='asc' if sort_by == 'name' and sort_order == 'desc' else 'desc'
+                sort_order='desc' if sort_by == 'name' and sort_order == 'asc' else 'asc'
             ) }}" class="sortable">
 
                                 Player Name
@@ -191,7 +191,7 @@
                 nationality_filter=nationality_filter,
                 status_filter=status_filter,
                 sort_by='jersey',
-                sort_order='asc' if sort_by == 'jersey' and sort_order == 'desc' else 'desc'
+                sort_order='desc' if sort_by == 'jersey' and sort_order == 'asc' else 'asc'
             ) }}" class="sortable">
 
                                 Jersey
@@ -229,11 +229,11 @@
                         <td>
                             <span
                                 style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">
-                                {{ player.Position_Code }}
+                                {{ player.Position_Code or '—' }}
                             </span>
                         </td>
                         <td style="text-align: center; font-weight: 600;">
-                            {% if player.Main_Jersey_Number %}
+                            {% if player.Main_Jersey_Number is not none %}
                             #{{ player.Main_Jersey_Number }}
                             {% else %}
                             <span style="color: #999;">—</span>

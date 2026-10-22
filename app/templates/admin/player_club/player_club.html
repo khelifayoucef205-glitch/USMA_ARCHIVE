@@ -61,7 +61,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="button" class="btn-secondary" onclick="location.reload();">Cancel</button>
+            <button type="reset" class="btn-secondary">Cancel</button>
             <button type="submit" class="btn-primary">✓ Add Player Club</button>
         </div>
     </form>
@@ -108,10 +108,10 @@
                     <tr>
                         <td class="table-name">{{ pc.Person_Display_Name }}</td>
                         <td class="table-name">{{ pc.Club_Current_Name }}</td>
-                        <td>{{ pc.Join_Date }}</td>
+                        <td>{{ pc.Join_Date | fmt_date }}</td>
                         <td>
                             {% if pc.Leave_Date %}
-                            {{ pc.Leave_Date }}
+                            {{ pc.Leave_Date | fmt_date }}
                             {% else %}
                             <span style="color: #999;">—</span>
                             {% endif %}

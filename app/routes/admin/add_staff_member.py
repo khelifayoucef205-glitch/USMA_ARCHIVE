@@ -62,38 +62,6 @@ def add_staff_member_page():
                 except ValueError as error:
                     return str(error), 400
 
-                if not display_name:
-                    return "Display name is required", 400
-
-                cursor.execute("""
-                    INSERT INTO Person (
-                        Person_First_Name,
-                        Person_Last_Name,
-                        Person_Display_Name,
-                        Person_First_Name_ar,
-                        Person_Last_Name_ar,
-                        Person_Display_Name_ar,
-                        Person_birth_date,
-                        Person_death_date,
-                        Sex,
-                        Country_id
-                    )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """, (
-                    first_name,
-                    last_name,
-                    display_name,
-                    first_name_ar,
-                    last_name_ar,
-                    display_name_ar,
-                    birth_date,
-                    death_date,
-                    sex,
-                    country_id
-                ))
-
-                person_id = cursor.lastrowid
-
             # --------------------------------
             # Staff Member + main career role
             # --------------------------------

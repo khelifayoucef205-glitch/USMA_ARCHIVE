@@ -40,7 +40,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="button" class="btn-secondary" onclick="location.reload();">Cancel</button>
+            <button type="reset" class="btn-secondary">Cancel</button>
             <button type="submit" class="btn-primary">✓ Add City</button>
         </div>
     </form>
@@ -80,8 +80,15 @@
                         <td>{{ city.Country_Name }}</td>
                         <td>
                             <div class="table-actions">
-                                <button class="btn-action btn-edit" title="Edit">✏️</button>
-                                <button class="btn-action btn-delete" title="Delete">🗑️</button>
+                                <a href="{{ url_for('cities.edit_city_page', city_id=city.City_id) }}"
+                                    class="btn-action btn-edit" title="Edit">✏️</a>
+
+                                <form method="POST" action="{{ url_for('cities.delete_city', city_id=city.City_id) }}"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('Are you sure you want to delete this city?');">
+                                    <button type="submit" class="btn-action btn-delete" title="Delete"
+                                        style="border: none; background: none; cursor: pointer;">🗑️</button>
+                                </form>
                             </div>
                         </td>
                     </tr>

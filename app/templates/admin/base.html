@@ -144,30 +144,11 @@
         {% block content %}
         {% endblock %}
     </div>
-    <!-- تهيئة جميع حقول التاريخ -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // تهيئة جميع حقول التاريخ تلقائياً
-            const dateInputs = document.querySelectorAll('input[type="text"][name*="date"], input[type="text"][name*="birth"], input[type="text"][name*="Date"]');
-
-            dateInputs.forEach(input => {
-                flatpickr(input, {
-                    dateFormat: "d/m/Y",
-                    locale: "ar"
-                });
-            });
-
-            // تحويل القيمة قبل الإرسال
-            document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', function (e) {
-                    const inputs = this.querySelectorAll('input[type="text"][name*="date"], input[type="text"][name*="birth"]');
-                    inputs.forEach(input => {
-                        if (input.value && input.value.includes('/')) {
-                            const [day, month, year] = input.value.split('/');
-                            input.value = `${year}-${month}-${day}`;
-                        }
-                    });
-                });
+            flatpickr('input[type="text"][name*="date"]', {
+                dateFormat: "d/m/Y",
+                allowInput: true
             });
         });
     </script>

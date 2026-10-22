@@ -1,0 +1,67 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="admin-header">
+    <h1>✏️ Edit City</h1>
+    <p>Update city information</p>
+</div>
+
+<!-- Edit City Form -->
+<div class="admin-section">
+    <h2>City Information</h2>
+
+    <form method="POST" class="admin-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="city_name">City Name (English)</label>
+                <input type="text" id="city_name" name="city_name" value="{{ city.City_Name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="city_name_ar" class="optional">City Name (Arabic)</label>
+                <input type="text" id="city_name_ar" name="city_name_ar" value="{{ city.City_Name_ar or '' }}"
+                    dir="rtl">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="country_id">Country</label>
+                <select id="country_id" name="country_id" required>
+                    {% for country in countries %}
+                    <option value="{{ country.Country_id }}" {% if country.Country_id==city.Country_id %}selected{%
+                        endif %}>
+                        {{ country.Country_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('cities.cities_page') }}" class="btn-secondary">← Back</a>
+            <button type="submit" class="btn-primary">✓ Save Changes</button>
+        </div>
+    </form>
+</div>
+
+<!-- Danger Zone - Delete City -->
+<div class="admin-section" style="border-left: 4px solid var(--primary-red);">
+    <h2 style="color: var(--primary-red);">⚠️ Danger Zone</h2>
+
+    <div style="background: rgba(220, 20, 60, 0.1); padding: 15px; border-radius: 8px;">
+        <p style="margin: 0 0 10px 0; color: var(--primary-black);">
+            <strong>Delete City</strong><br>
+            A city linked to clubs cannot be deleted.
+        </p>
+
+        <form method="POST" action="{{ url_for('cities.delete_city', city_id=city.City_id) }}"
+            onsubmit="return confirm('Are you sure you want to delete this city?');" style="display: inline;">
+            <button type="submit" class="btn-danger">🗑️ Delete City</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

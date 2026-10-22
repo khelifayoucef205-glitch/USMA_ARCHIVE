@@ -55,7 +55,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="button" class="btn-secondary" onclick="location.reload();">Cancel</button>
+            <button type="reset" class="btn-secondary">Cancel</button>
             <button type="submit" class="btn-primary">✓ Add Link</button>
         </div>
 
@@ -123,8 +123,8 @@
                             </span>
                         </td>
                         <td>
-                            {{ l.Start_Date }} →
-                            {% if l.End_Date %}{{ l.End_Date }}{% else %}
+                            {{ l.Start_Date | fmt_date }} →
+                            {% if l.End_Date %}{{ l.End_Date | fmt_date }}{% else %}
                             <span style="color: var(--primary-red); font-weight: 600;">Current</span>{% endif %}
                         </td>
                         <td>{{ l.Season_Name }}</td>

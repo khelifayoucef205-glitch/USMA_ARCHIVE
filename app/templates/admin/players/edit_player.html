@@ -67,7 +67,7 @@
                 </label>
 
                 <select id="country_id" name="country_id" required>
-
+                    <option value="">-- Select Country --</option>
                     {% for country in countries %}
 
                     <option value="{{ country.Country_id }}" {% if country.Country_id==player.Country_id %}selected{%
@@ -235,7 +235,7 @@
                 </label>
 
                 <select id="position_id" name="position_id" required>
-
+                    <option value="">-- Select Position --</option>
                     {% for position in positions %}
 
                     <option value="{{ position.Position_id }}" {% if position.Position_id==current_position_id
@@ -258,7 +258,7 @@
                 </label>
 
                 <input type="number" id="jersey_number" name="jersey_number" min="0" max="99"
-                    value="{{ player.Main_Jersey_Number or '' }}">
+                    value="{{ player.Main_Jersey_Number if player.Main_Jersey_Number is not none else '' }}">
 
             </div>
 

@@ -9,8 +9,42 @@
 </div>
 
 <form method="POST" class="admin-form">
-    <!-- Personal Information Section -->
+    <!-- Person Source -->
     <div class="admin-section">
+        <h2>👤 Person</h2>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="person_source">Person</label>
+                <select id="person_source" name="person_source">
+                    <option value="new">Create New Person</option>
+                    <option value="existing">Use Existing Person</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Existing Person -->
+    <div class="admin-section" id="existing-person-section" style="display: none;">
+        <h2>🔗 Existing Person</h2>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="existing_person_id">Select Person</label>
+                <select id="existing_person_id" name="existing_person_id" disabled>
+                    <option value="">-- Select Existing Person --</option>
+                    {% for person in existing_persons %}
+                    <option value="{{ person.Person_id }}">
+                        {{ person.Person_Display_Name }}{% if person.is_staff %} — Staff{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Information Section -->
+    <div class="admin-section" id="new-person-section">
         <h2>👤 Personal Information</h2>
 
         <div class="form-row">
@@ -42,7 +76,7 @@
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="form-row three-col">
             <div class="form-group">
                 <label for="birth_date" class="optional">Date of Birth</label>
                 <input type="text" id="birth_date" name="birth_date" placeholder="DD/MM/YYYY">
@@ -160,5 +194,34 @@
         </div>
     </div>
 </form>
+
+<script>
+    const personSource = document.getElementById("person_source");
+    const existingSection = document.getElementById("existing-person-section");
+    const newSection = document.getElementById("new-person-section");
+    const existingSelect = document.getElementById("existing_person_id");
+
+    // A disabled field is neither validated nor submitted
+    function setDisabled(container, disabled) {
+        container.querySelectorAll("input, select, textarea").forEach(function (el) {
+            el.disabled = disabled;
+        });
+    }
+
+    function updatePersonSource() {
+        const useExisting = personSource.value === "existing";
+
+        existingSection.style.display = useExisting ? "block" : "none";
+        newSection.style.display = useExisting ? "none" : "block";
+
+        setDisabled(existingSection, !useExisting);
+        setDisabled(newSection, useExisting);
+
+        existingSelect.required = useExisting;
+    }
+
+    personSource.addEventListener("change", updatePersonSource);
+    updatePersonSource();
+</script>
 
 {% endblock %}

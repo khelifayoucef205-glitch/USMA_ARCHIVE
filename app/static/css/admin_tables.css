@@ -1,4 +1,3 @@
-css
 /* ====================================
    ADMIN TABLES & DATA DISPLAY - USMA Theme
    ==================================== */
@@ -187,6 +186,11 @@ css
     border: 1px dashed var(--primary-red);
 }
 
+.status-inactive {
+    background: rgba(245, 158, 11, 0.12);
+    color: #D97706;
+    border: 1px solid #F59E0B;
+}
 
 /* ====================================
    TABLE ACTIONS

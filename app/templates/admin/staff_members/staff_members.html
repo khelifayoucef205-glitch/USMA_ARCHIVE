@@ -89,7 +89,7 @@
                 nationality_filter=nationality_filter,
                 status_filter=status_filter,
                 sort_by='id',
-                sort_order='asc' if sort_by == 'id' and sort_order == 'desc' else 'desc'
+                sort_order='desc' if sort_by == 'id' and sort_order == 'asc' else 'asc'
             ) }}" class="sortable">
 
                                 ID
@@ -112,7 +112,7 @@
                 nationality_filter=nationality_filter,
                 status_filter=status_filter,
                 sort_by='name',
-                sort_order='asc' if sort_by == 'name' and sort_order == 'desc' else 'desc'
+                sort_order='desc' if sort_by == 'name' and sort_order == 'asc' else 'asc'
             ) }}" class="sortable">
 
                                 Name
@@ -190,7 +190,7 @@
                                 {{ staff.Person_Display_Name }}
                             </a>
                         </td>
-                        <td>{{ staff.Country_Name }}</td>
+                        <td>{{ staff.Country_Name or '—' }}</td>
                         <td>
                             <span
                                 style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">

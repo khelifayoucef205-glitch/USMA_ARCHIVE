@@ -52,7 +52,7 @@
             <thead>
                 <tr>
                     <th>
-                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='jersey', sort_order='asc' if sort_by == 'jersey' and sort_order == 'desc' else 'desc') }}"
+                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='jersey', sort_order='desc' if sort_by == 'jersey' and sort_order == 'asc' else 'asc') }}"
                             class="sortable">
                             Number
                             {% if sort_by == 'jersey' %}
@@ -74,7 +74,7 @@
                         </a>
                     </th>
                     <th>
-                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='name', sort_order='asc' if sort_by == 'name' and sort_order == 'desc' else 'desc') }}"
+                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='name', sort_order='desc' if sort_by == 'name' and sort_order == 'asc' else 'asc') }}"
                             class="sortable">
                             Player Name
                             {% if sort_by == 'name' %}
@@ -87,7 +87,7 @@
                     <th>Nationality</th>
                     <th>Date of Birth</th>
                     <th>
-                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='age', sort_order='asc' if sort_by == 'age' and sort_order == 'desc' else 'desc') }}"
+                        <a href="{{ url_for('squad.squad_page', season=selected_season, sort_by='age', sort_order='desc' if sort_by == 'age' and sort_order == 'asc' else 'asc') }}"
                             class="sortable">
                             Age
                             {% if sort_by == 'age' %}
@@ -116,7 +116,7 @@
 
                     <td>
                         <span class="position-code">
-                            {{ player.Position_Code }}
+                            {{ player.Position_Code or '—' }}
                         </span>
                     </td>
 

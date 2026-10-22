@@ -36,7 +36,7 @@
             <div class="form-group">
                 <label>Period (Read-Only)</label>
                 <input type="text"
-                    value="{{ link.Start_Date }} → {% if link.End_Date %}{{ link.End_Date }}{% else %}Current{% endif %}"
+                    value="{{ link.Start_Date | fmt_date }} → {% if link.End_Date %}{{ link.End_Date | fmt_date }}{% else %}Current{% endif %}"
                     disabled style="background-color: #f0f0f0; cursor: not-allowed;">
                 <small style="color: #999; display: block; margin-top: 5px;">
                     Edit the period from the assignment page

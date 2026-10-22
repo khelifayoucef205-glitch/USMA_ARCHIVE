@@ -22,15 +22,10 @@
             </div>
 
             <div class="form-group">
-                <label for="club_id">Club</label>
-                <select id="club_id" name="club_id" required>
-                    <option value="">-- Select Club --</option>
-                    {% for club in clubs %}
-                    <option value="{{ club.Club_id }}" {% if club.Club_id==player_season.Club_id %}selected{% endif %}>
-                        {{ club.Club_Current_Name }}
-                    </option>
-                    {% endfor %}
-                </select>
+                <label for="club_display">Club (Read-Only)</label>
+                <input type="text" id="club_display" value="{{ player_season.Club_Current_Name }}" disabled
+                    style="background-color: #f0f0f0; cursor: not-allowed;">
+                <small style="color: #999; display: block; margin-top: 5px;">Cannot be changed</small>
             </div>
         </div>
 
@@ -60,7 +55,8 @@
             <div class="form-group">
                 <label for="jersey_number" class="optional">Jersey Number</label>
                 <input type="number" id="jersey_number" name="jersey_number" min="0" max="99"
-                    value="{{ player_season.Jersey_Number or '' }}" placeholder="e.g., 7">
+                    value="{{ player_season.Jersey_Number if player_season.Jersey_Number is not none else '' }}"
+                    placeholder="e.g., 7">
             </div>
         </div>
 
