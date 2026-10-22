@@ -394,7 +394,7 @@
     transform: translateX(4px);
 }
 
-.position-code {
+.position-badge {
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -513,6 +513,7 @@
 .status-details .status-indicator.active-no-club {
     background: #3B82F6;
 }
+
 .status-info {
     flex: 1;
 }

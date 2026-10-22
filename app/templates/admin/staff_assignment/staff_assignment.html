@@ -143,10 +143,10 @@
                                 {{ a.Role_name }}
                             </span>
                         </td>
-                        <td>{{ a.Start_Date }}</td>
+                        <td>{{ a.Start_Date | fmt_date }}</td>
                         <td>
                             {% if a.End_Date %}
-                            {{ a.End_Date }}
+                            {{ a.End_Date | fmt_date }}
                             {% else %}
                             <span style="color: var(--primary-red); font-weight: 600;">Current</span>
                             {% endif %}

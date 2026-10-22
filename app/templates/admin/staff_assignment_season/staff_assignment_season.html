@@ -21,7 +21,9 @@
                     {% for a in assignments %}
                     <option value="{{ a.Assignment_id }}">
                         {{ a.Person_Display_Name }} — {{ a.Club_Current_Name }} — {{ a.Role_name }}
-                        ({{ a.Start_Date }} → {% if a.End_Date %}{{ a.End_Date }}{% else %}Current{% endif %})
+                        ({{ a.Start_Date | fmt_date }} → {% if a.End_Date %}{{ a.End_Date | fmt_date }}{% else
+                        %}Current{% endif
+                        %})
                     </option>
                     {% endfor %}
                 </select>

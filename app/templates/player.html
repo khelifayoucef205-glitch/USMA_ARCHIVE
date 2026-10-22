@@ -8,7 +8,7 @@
     <div class="status-badge deceased">
         <span class="status-icon">⚰</span>
         <span class="status-text">Deceased</span>
-        <span class="status-date">({{ player.Person_death_date }})</span>
+        <span class="status-date">({{ player.Person_death_date | fmt_date }})</span>
     </div>
     {% elif player_status == 'retired' %}
     <div class="status-badge retired">
@@ -54,7 +54,7 @@
         <div class="player-meta">
             <span class="meta-item">
                 <span class="meta-label">Nationality</span>
-                <span class="meta-value">{{ player.Country_Name }}</span>
+                <span class="meta-value">{{ player.Country_Name or '—' }}</span>
             </span>
 
             {% if player.Person_birth_date %}
@@ -88,7 +88,7 @@
                 <div class="status-content">
                     <h3>Currently Playing</h3>
                     <p class="joined-date">
-                        Joined: <strong>{{ usma_current.Join_Date }}</strong>
+                        Joined: <strong>{{ usma_current.Join_Date | fmt_date }}</strong>
                     </p>
                 </div>
             </div>
@@ -105,11 +105,11 @@
                         {% for period in usma_history %}
                         <div class="period">
                             {% if period.Join_Date and period.Leave_Date %}
-                            {{ period.Join_Date }}
+                            {{ period.Join_Date | fmt_date }}
                             <span class="separator">→</span>
-                            {{ period.Leave_Date }}
+                            {{ period.Leave_Date | fmt_date }}
                             {% elif period.Join_Date %}
-                            From {{ period.Join_Date }}
+                            From {{ period.Join_Date | fmt_date }}
                             {% else %}
                             No date information
                             {% endif %}
@@ -135,7 +135,7 @@
                                     <span class="position-name">{{ season.Position_Name }}</span>
                                 </span>
                             </div>
-                            {% if season.Jersey_Number %}
+                            {% if season.Jersey_Number is not none %}
                             <div class="detail-row">
                                 <span class="detail-label">Jersey</span>
                                 <span class="detail-value">#{{ season.Jersey_Number }}</span>
@@ -184,7 +184,7 @@
                     <div class="positions-list">
                         {% for pos in secondary_positions %}
                         <div class="position-item">
-                            <div class="position-code">{{ pos.Position_Code }}</div>
+                            <div class="position-badge">{{ pos.Position_Code }}</div>
                             <div class="position-details">
                                 <div class="position-name">{{ pos.Position_Name }}</div>
                                 {% if pos.Position_Name_ar %}
@@ -213,7 +213,7 @@
                 <div class="info-row">
                     <span class="info-label">Full Name</span>
                     <span class="info-value">
-                        {{ player.Person_First_Name }} {{ player.Person_Last_Name }}
+                        {{ player.Person_First_Name or '' }} {{ player.Person_Last_Name or '' }}
                     </span>
                 </div>
                 {% endif %}
@@ -222,7 +222,7 @@
                 <div class="info-row">
                     <span class="info-label">Arabic Name</span>
                     <span class="info-value">
-                        {{ player.Person_First_Name_ar }} {{ player.Person_Last_Name_ar }}
+                        {{ player.Person_First_Name_ar or '' }} {{ player.Person_Last_Name_ar or '' }}
                     </span>
                 </div>
                 {% endif %}
@@ -230,7 +230,7 @@
                 {% if player.Person_birth_date %}
                 <div class="info-row">
                     <span class="info-label">Date of Birth</span>
-                    <span class="info-value">{{ player.Person_birth_date }}</span>
+                    <span class="info-value">{{ player.Person_birth_date | fmt_date }}</span>
                 </div>
                 {% endif %}
 
@@ -265,7 +265,7 @@
                 <div class="status-indicator deceased"></div>
                 <div class="status-info">
                     <strong>Deceased</strong>
-                    <p>{{ player.Person_death_date }}</p>
+                    <p>{{ player.Person_death_date | fmt_date }}</p>
                 </div>
                 {% elif player_status == 'retired' %}
                 <div class="status-indicator retired"></div>
@@ -311,9 +311,9 @@
             </div>
             <div class="club-period">
                 {% if club.Join_Date and club.Leave_Date %}
-                <span>{{ club.Join_Date }} → {{ club.Leave_Date }}</span>
+                <span>{{ club.Join_Date | fmt_date }} → {{ club.Leave_Date | fmt_date }}</span>
                 {% elif club.Join_Date %}
-                <span>From {{ club.Join_Date }}</span>
+                <span>From {{ club.Join_Date | fmt_date }}</span>
                 {% else %}
                 <span>No date information</span>
                 {% endif %}

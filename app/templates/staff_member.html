@@ -8,7 +8,7 @@
     <div class="status-badge deceased">
         <span class="status-icon">⚰</span>
         <span class="status-text">Deceased</span>
-        <span class="status-date">({{ staff_member.Person_death_date }})</span>
+        <span class="status-date">({{ staff_member.Person_death_date | fmt_date }})</span>
     </div>
     {% elif staff_status == 'active_with_usma' %}
     <div class="status-badge active">
@@ -45,7 +45,7 @@
         <div class="player-meta">
             <span class="meta-item">
                 <span class="meta-label">Nationality</span>
-                <span class="meta-value">{{ staff_member.Country_Name }}</span>
+                <span class="meta-value">{{ staff_member.Country_Name or '—' }}</span>
             </span>
 
             {% if staff_member.Person_birth_date %}
@@ -80,7 +80,7 @@
                     <h3>Currently with Staff</h3>
                     {% for a in usma_current %}
                     <p class="joined-date">
-                        {{ a.Role_name }} — since <strong>{{ a.Start_Date }}</strong>
+                        {{ a.Role_name }} — since <strong>{{ a.Start_Date | fmt_date }}</strong>
                     </p>
                     {% endfor %}
                 </div>
@@ -98,9 +98,9 @@
                         {% for a in usma_history %}
                         <div class="period">
                             {{ a.Role_name }}:
-                            {{ a.Start_Date }}
+                            {{ a.Start_Date | fmt_date }}
                             <span class="separator">→</span>
-                            {{ a.End_Date }}
+                            {{ a.End_Date | fmt_date }}
                         </div>
                         {% endfor %}
                     </div>
@@ -160,7 +160,7 @@
                 {% if staff_member.Person_birth_date %}
                 <div class="info-row">
                     <span class="info-label">Date of Birth</span>
-                    <span class="info-value">{{ staff_member.Person_birth_date }}</span>
+                    <span class="info-value">{{ staff_member.Person_birth_date | fmt_date }}</span>
                 </div>
                 {% endif %}
 
@@ -202,7 +202,7 @@
                 <div class="status-indicator deceased"></div>
                 <div class="status-info">
                     <strong>Deceased</strong>
-                    <p>{{ staff_member.Person_death_date }}</p>
+                    <p>{{ staff_member.Person_death_date | fmt_date }}</p>
                 </div>
                 {% elif staff_status == 'active_with_usma' %}
                 <div class="status-indicator active"></div>
@@ -256,9 +256,9 @@
             <div class="club-period">
                 <span>{{ club.Role_name }}:</span>
                 {% if club.End_Date %}
-                <span>{{ club.Start_Date }} → {{ club.End_Date }}</span>
+                <span>{{ club.Start_Date | fmt_date }} → {{ club.End_Date | fmt_date }}</span>
                 {% else %}
-                <span>From {{ club.Start_Date }}</span>
+                <span>From {{ club.Start_Date | fmt_date }}</span>
                 {% endif %}
             </div>
         </div>

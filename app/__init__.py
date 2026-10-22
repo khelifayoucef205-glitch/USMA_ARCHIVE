@@ -61,5 +61,7 @@ def create_app():
     app.register_blueprint(staff_assignment_season)
     app.register_blueprint(edit_staff_assignment)
 
-
+    @app.template_filter("fmt_date")
+    def fmt_date(value, empty="—"):
+        return value.strftime("%d/%m/%Y") if value else empty
     return app

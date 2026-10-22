@@ -13,6 +13,9 @@ def home():
     try:
         cursor.execute("SELECT COUNT(*) FROM Country")
         country_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM Player")
+        players_count = cursor.fetchone()[0]
     finally:
         cursor.close()
         connection.close()
@@ -20,5 +23,6 @@ def home():
     return render_template(
         "home.html",
         Title="Home",
-        country_count=country_count
+        country_count=country_count,
+        players_count=players_count
     )

@@ -105,7 +105,7 @@
                 <tr data-category="{{ player.Position_Category_id }}"
                     class="player-row category-{{ player.Position_Category_id }}">
                     <td>
-                        {% if player.Jersey_Number %}
+                        {% if player.Jersey_Number is not none %}
                         <span class="jersey-number">
                             {{ player.Jersey_Number }}
                         </span>
@@ -127,13 +127,13 @@
                     </td>
 
                     <td>
-                        <span class="nationality" title="{{ player.Country_Name }}">
+                        <span class="nationality" title="{{ player.Country_Name or '—' }}">
                             {{ player.Country_Name}}
                         </span>
                     </td>
 
                     <td>
-                        {{ player.Person_birth_date if player.Person_birth_date else '—' }}
+                        {{ player.Person_birth_date | fmt_date }}
                     </td>
 
                     <td class="age">
