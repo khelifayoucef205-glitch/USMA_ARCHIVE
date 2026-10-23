@@ -78,7 +78,7 @@
     outline: none;
     border-color: var(--primary-red);
     background-color: var(--neutral-white);
-    box-shadow: 0 0 0 4px rgba(220, 20, 60, 0.15);
+    box-shadow: 0 0 0 4px rgba(var(--primary-red-rgb), 0.15);
 }
 
 .form-group input::placeholder {
@@ -141,13 +141,13 @@
 .btn-primary {
     background: linear-gradient(135deg, var(--primary-red), #ff1744);
     color: var(--neutral-white);
-    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-red-rgb), 0.3);
 }
 
 .btn-primary:hover {
     background: linear-gradient(135deg, #ff1744, var(--primary-red));
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(220, 20, 60, 0.5);
+    box-shadow: 0 6px 16px rgba(var(--primary-red-rgb), 0.5);
 }
 
 .btn-primary:active {
@@ -168,12 +168,12 @@
 .btn-danger {
     background: linear-gradient(135deg, var(--primary-red), #ff1744);
     color: var(--neutral-white);
-    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-red-rgb), 0.3);
 }
 
 .btn-danger:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(220, 20, 60, 0.5);
+    box-shadow: 0 6px 16px rgba(var(--primary-red-rgb), 0.5);
 }
 
 .btn-success {
@@ -203,7 +203,7 @@
 .form-group input:user-invalid,
 .form-group select:user-invalid {
     border-color: var(--primary-red);
-    background: rgba(220, 20, 60, 0.05);
+    background: rgba(var(--primary-red-rgb), 0.05);
 }
 
 .error-message {

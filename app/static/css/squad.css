@@ -67,13 +67,13 @@
 
 .season-selector select:hover {
     border-color: var(--primary-red);
-    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--primary-red-rgb), 0.1);
 }
 
 .season-selector select:focus {
     outline: none;
     border-color: var(--primary-red);
-    box-shadow: 0 0 0 4px rgba(220, 20, 60, 0.15);
+    box-shadow: 0 0 0 4px rgba(var(--primary-red-rgb), 0.15);
 }
 
 /* ====== Table Container ====== */
@@ -178,7 +178,7 @@
     color: var(--neutral-white);
     font-weight: 700;
     font-size: 16px;
-    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.2);
+    box-shadow: 0 2px 8px rgba(var(--primary-red-rgb), 0.2);
 }
 
 .jersey-number.empty {
@@ -190,13 +190,15 @@
 /* ====== Position Code ====== */
 .position-code {
     display: inline-block;
-    font-weight: 700;
-    color: var(--primary-red);
-    padding: 4px 8px;
-    background: rgba(220, 20, 60, 0.1);
-    border-radius: 4px;
     min-width: 50px;
+    padding: 4px 8px;
+    background: rgba(var(--primary-red-rgb), 0.1);
+    color: var(--primary-red);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
     text-align: center;
+    margin-right: 4px;
 }
 
 /* ====== Player Name ====== */
@@ -263,7 +265,7 @@
 
 /* ====== Empty Squad State ====== */
 .empty-squad {
-    background: linear-gradient(135deg, rgba(220, 20, 60, 0.08), rgba(26, 26, 26, 0.04));
+    background: linear-gradient(135deg, rgba(var(--primary-red-rgb), 0.08), rgba(26, 26, 26, 0.04));
     padding: 60px 40px;
     border-radius: 12px;
     text-align: center;
@@ -468,11 +470,11 @@
 }
 
 .stats-row:hover {
-    background-color: rgba(220, 20, 60, 0.08);
+    background-color: rgba(var(--primary-red-rgb), 0.08);
 }
 
 .stats-total {
-    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1), rgba(0, 0, 0, 0.05));
+    background: linear-gradient(135deg, rgba(var(--primary-red-rgb), 0.1), rgba(0, 0, 0, 0.05));
     font-weight: 600;
     border-top: 2px solid var(--primary-red);
 }
@@ -527,7 +529,7 @@
 .season-titles {
     margin-bottom: 30px;
     padding: 20px 24px;
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.12), rgba(220, 20, 60, 0.05));
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.12), rgba(var(--primary-red-rgb), 0.05));
     border-radius: 12px;
     border: 2px solid #f0f0f0;
     border-left: 4px solid #FFC107;
@@ -554,7 +556,7 @@
     font-weight: 600;
     color: var(--neutral-white);
     background: linear-gradient(135deg, var(--primary-red), #ff1744);
-    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.2);
+    box-shadow: 0 2px 8px rgba(var(--primary-red-rgb), 0.2);
 }
 
 .title-badge.type-continental {
@@ -610,7 +612,7 @@
     border-radius: 12px;
     color: var(--neutral-white);
     background: linear-gradient(135deg, var(--primary-red), #ff1744);
-    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.2);
+    box-shadow: 0 2px 8px rgba(var(--primary-red-rgb), 0.2);
 }
 
 .titles-summary-card.type-continental {

@@ -95,7 +95,7 @@
 }
 
 .admin-table tbody tr:hover {
-    background-color: rgba(220, 20, 60, 0.08);
+    background-color: rgba(var(--primary-red-rgb), 0.08);
 
     box-shadow:
         inset 4px 0 0 var(--primary-red);
@@ -170,6 +170,7 @@
     color: #1F2937;
     border: 1px solid #1F2937;
 }
+
 .status-dissolved {
     background: var(--primary-black);
 
@@ -245,7 +246,7 @@
    ==================================== */
 
 .btn-edit {
-    background: rgba(220, 20, 60, 0.15);
+    background: rgba(var(--primary-red-rgb), 0.15);
 
     color: var(--primary-red);
 
@@ -287,7 +288,7 @@
    ==================================== */
 
 .btn-view {
-    background: rgba(220, 20, 60, 0.10);
+    background: rgba(var(--primary-red-rgb), 0.10);
 
     color: var(--primary-black);
 
@@ -614,7 +615,7 @@
 .admin-filters select:focus {
     outline: none;
     border-color: var(--primary-red);
-    box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--primary-red-rgb), 0.1);
 }
 
 .admin-filters input[type="text"]::placeholder {
@@ -726,7 +727,7 @@
 
 .btn-search:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-red-rgb), 0.3);
 }
 
 /* Small label used for positions and roles inside tables */

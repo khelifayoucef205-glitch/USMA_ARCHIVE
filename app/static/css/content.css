@@ -4,7 +4,6 @@
 
 /* ====== Main Content Container ====== */
 main,
-section,
 .page-content {
     max-width: 1200px;
     margin: 0 auto;
@@ -96,7 +95,7 @@ li {
 
 /* ====== Highlighted Sections ====== */
 .info-box {
-    background: linear-gradient(135deg, rgba(220, 20, 60, 0.08), rgba(26, 26, 26, 0.04));
+    background: linear-gradient(135deg, rgba(var(--primary-red-rgb), 0.08), rgba(26, 26, 26, 0.04));
     border-left: 4px solid var(--primary-red);
     padding: 20px;
     border-radius: 8px;

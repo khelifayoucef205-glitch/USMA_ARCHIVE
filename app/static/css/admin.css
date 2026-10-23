@@ -4,8 +4,6 @@
 
 :root {
     --admin-bg: #fafafa;
-    --admin-sidebar-bg: var(--primary-black);
-    --admin-sidebar-width: 250px;
     --admin-transition: all 0.3s ease;
 }
 
@@ -25,11 +23,13 @@ body.admin-page {
     padding: 0;
     margin: 0;
     border-bottom: 3px solid var(--primary-red);
-    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.2);
-
+    box-shadow: 0 4px 12px rgba(var(--primary-red-rgb), 0.2);
     display: flex;
     align-items: stretch;
     flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 
@@ -67,7 +67,7 @@ body.admin-page {
 
 .admin-nav-tabs>a:hover,
 .admin-nav-dropdown-toggle:hover {
-    background: rgba(220, 20, 60, 0.15);
+    background: rgba(var(--primary-red-rgb), 0.15);
     color: var(--primary-red);
     border-bottom-color: var(--primary-red);
 }
@@ -77,7 +77,7 @@ body.admin-page {
 
 .admin-nav-tabs>a.active,
 .admin-nav-dropdown.active>.admin-nav-dropdown-toggle {
-    background: rgba(220, 20, 60, 0.2);
+    background: rgba(var(--primary-red-rgb), 0.2);
     color: var(--primary-red);
     border-bottom-color: var(--primary-red);
 }
@@ -118,7 +118,7 @@ body.admin-page {
 
     background: var(--primary-black);
 
-    border: 1px solid rgba(220, 20, 60, 0.35);
+    border: 1px solid rgba(var(--primary-red-rgb), 0.35);
     border-top: 3px solid var(--primary-red);
 
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
@@ -166,13 +166,13 @@ body.admin-page {
 
 
 .admin-nav-dropdown-menu a:hover {
-    background: rgba(220, 20, 60, 0.15);
+    background: rgba(var(--primary-red-rgb), 0.15);
     color: var(--primary-red);
 }
 
 
 .admin-nav-dropdown-menu a.active {
-    background: rgba(220, 20, 60, 0.2);
+    background: rgba(var(--primary-red-rgb), 0.2);
     color: var(--primary-red);
 }
 
@@ -183,19 +183,32 @@ body.admin-page {
     margin-left: auto;
 }
 
-
-/* ===== Remove Old Divider System ===== */
-
-.admin-nav-tabs a+a::before {
-    display: none;
-}
-
-
 /* ====================================
    RESPONSIVE
    ==================================== */
 
+/* ====================================
+   RESPONSIVE
+==================================== */
+
 @media (max-width: 768px) {
+
+    /* Admin Layout */
+
+    .admin-container {
+        padding: 20px;
+    }
+
+    .admin-section {
+        padding: 20px;
+    }
+
+    .admin-header h1 {
+        font-size: 24px;
+    }
+
+
+    /* Admin Navigation */
 
     .admin-nav-tabs {
         flex-wrap: wrap;
@@ -207,6 +220,13 @@ body.admin-page {
         font-size: 12px;
     }
 
+    .admin-nav-site {
+        margin-left: 0;
+    }
+
+
+    /* Dropdown Menu */
+
     .admin-nav-dropdown-menu {
         min-width: 190px;
     }
@@ -216,9 +236,10 @@ body.admin-page {
         font-size: 12px;
     }
 
-    .admin-nav-site {
-        margin-left: 0;
+    .admin-nav-dropdown:focus-within .admin-nav-dropdown-menu {
+        display: block;
     }
+
 }
 
 /* ====== Admin Container ====== */
@@ -240,10 +261,6 @@ body.admin-page {
     color: var(--primary-black);
     margin: 0 0 10px 0;
     font-weight: 700;
-}
-
-.admin-header h1::before {
-    margin-right: 10px;
 }
 
 .admin-header p {
@@ -273,28 +290,4 @@ body.admin-page {
 
 .admin-section:first-child {
     margin-top: 0;
-}
-
-/* ====== Responsive ====== */
-@media (max-width: 768px) {
-    .admin-container {
-        padding: 20px;
-    }
-
-    .admin-section {
-        padding: 20px;
-    }
-
-    .admin-header h1 {
-        font-size: 24px;
-    }
-
-    .admin-nav-tabs {
-        flex-wrap: wrap;
-    }
-
-    .admin-nav-tabs a {
-        padding: 12px 15px;
-        font-size: 12px;
-    }
 }

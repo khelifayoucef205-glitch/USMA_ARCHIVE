@@ -3,6 +3,7 @@
     position: sticky;
     top: 0;
     z-index: 100;
+    top: var(--nav-height);
     background: var(--primary-black);
     padding: var(--spacing-md);
     border-bottom: 3px solid var(--primary-red);
@@ -184,7 +185,7 @@
 /* ====== USMA Section - Special ====== */
 .usma-section {
     border-top: 4px solid var(--primary-red);
-    background: linear-gradient(135deg, var(--neutral-white) 0%, rgba(164, 30, 52, 0.02) 100%);
+    background: linear-gradient(135deg, var(--neutral-white) 0%, rgba(var(--primary-red-rgb), 0.02) 100%);
 }
 
 .section-header {
@@ -292,7 +293,7 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
-    transition: var(--transition-normal);
+    transition: var(--transition);
 }
 
 .season-card:hover {
@@ -330,20 +331,11 @@
     text-align: right;
 }
 
-.position-code {
-    background: var(--primary-red);
-    color: var(--neutral-white);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-weight: 700;
-    font-size: 12px;
-    margin-right: 4px;
-}
-
 .position-name {
     font-size: 12px;
-    color: var(--color-text-secondary);
     margin-left: 4px;
+    font-weight: 700;
+    color: var(--primary-black);
 }
 
 /* ====== Positions ====== */
@@ -385,7 +377,7 @@
 }
 
 .position-item.main {
-    background: rgba(164, 30, 52, 0.08);
+    background: rgba(var(--primary-red-rgb), 0.08);
     border-left-color: var(--primary-red);
 }
 
@@ -410,11 +402,6 @@
 
 .position-details {
     flex: 1;
-}
-
-.position-name {
-    font-weight: 700;
-    color: var(--primary-black);
 }
 
 .position-name-ar {
@@ -633,6 +620,11 @@
 }
 
 @media (max-width: 480px) {
+
+    .player-status-bar {
+        position: static;
+    }
+
     .status-badge {
         flex-direction: column;
         gap: var(--spacing-xs);

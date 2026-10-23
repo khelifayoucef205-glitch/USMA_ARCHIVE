@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USMA Admin Panel</title>
+    <title>USMA Admin{% if Title %} - {{ Title }}{% endif %}</title>
 
     <!-- CSS Reset & Variables (MUST HAVE!) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/reset.css') }}">
