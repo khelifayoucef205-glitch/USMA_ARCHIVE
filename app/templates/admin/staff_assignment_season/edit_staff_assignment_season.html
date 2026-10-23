@@ -35,8 +35,7 @@
 
             <div class="form-group">
                 <label>Period (Read-Only)</label>
-                <input type="text"
-                    value="{{ link.Start_Date | fmt_date }} → {% if link.End_Date %}{{ link.End_Date | fmt_date }}{% else %}Current{% endif %}"
+                <input type="text" value="{{ link.Start_Date | fmt_date }} → {{ link.End_Date | fmt_date('Current') }}"
                     disabled style="background-color: #f0f0f0; cursor: not-allowed;">
                 <small style="color: #999; display: block; margin-top: 5px;">
                     Edit the period from the assignment page
@@ -77,22 +76,34 @@
     </form>
 </div>
 
-<!-- Delete -->
-<div class="admin-section" style="border-left: 4px solid var(--primary-red);">
-    <h2 style="color: var(--primary-red);">⚠️ Remove Link</h2>
 
-    <div style="background: rgba(220, 20, 60, 0.1); padding: 15px; border-radius: 8px;">
-        <p style="margin: 0 0 10px 0; color: var(--primary-black);">
-            Unlink {{ link.Person_Display_Name }} ({{ link.Role_name }}) from {{ link.Season_Name }}?
+<!-- Remove Link -->
+<div class="admin-section danger-section">
+
+    <h2>⚠️ Remove Link</h2>
+
+    <div class="danger-box">
+
+        <p>
+            Unlink {{ link.Person_Display_Name }} ({{ link.Role_name }})
+            from {{ link.Season_Name }}?
             The assignment itself is not deleted.
         </p>
 
-        <form method="POST"
-            action="{{ url_for('staff_assignment_season.delete_staff_assignment_season', assignment_id=link.Assignment_id, season_number=link.Season_Number) }}"
-            onsubmit="return confirm('Are you sure?');" style="display: inline;">
-            <button type="submit" class="btn-danger">🗑️ Remove Link</button>
+        <form method="POST" action="{{ url_for(
+                'staff_assignment_season.delete_staff_assignment_season',
+                assignment_id=link.Assignment_id,
+                season_number=link.Season_Number
+            ) }}" onsubmit="return confirm('Are you sure?');" style="display: inline;">
+
+            <button type="submit" class="btn-danger">
+                🗑️ Remove Link
+            </button>
+
         </form>
+
     </div>
+
 </div>
 
 {% endblock %}

@@ -128,8 +128,8 @@
 
                     <td>
                         <span class="nationality" title="{{ player.Country_Name or '—' }}">
-                            {{ player.Country_Name}}
-                        </span>
+                            {{ player.Country_Name or '—' }}
+                         </span>
                     </td>
 
                     <td>
@@ -224,13 +224,9 @@
                     <td>{{ member.Country_Name or '—' }}</td>
 
                     <td>
-                        {{ member.Start_Date.strftime('%d/%m/%Y') }}
+                        {{ member.Start_Date | fmt_date }}
                         <span class="separator">→</span>
-                        {% if member.End_Date %}
-                        {{ member.End_Date.strftime('%d/%m/%Y') }}
-                        {% else %}
-                        Present
-                        {% endif %}
+                        {{ member.End_Date | fmt_date('Present') }}
                     </td>
                 </tr>
                 {% endfor %}

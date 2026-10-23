@@ -107,7 +107,7 @@
                     Display Name
                 </label>
 
-                <input type="text" id="display_name" name="display_name" placeholder="e.g., Mohamed Ali">
+                <input type="text" id="display_name" name="display_name" placeholder="e.g., Mohamed Ali" required>
 
             </div>
 
@@ -313,48 +313,52 @@
 
 
 <script>
-
     const personSource = document.getElementById("person_source");
-
-    const existingPersonSection =
-        document.getElementById("existing-person-section");
-
-    const newPersonSection =
-        document.getElementById("new-person-section");
-
-    const existingPersonSelect =
-        document.getElementById("existing_person_id");
-
-
-    function updatePersonSource() {
-
-        if (personSource.value === "existing") {
-
-            existingPersonSection.style.display = "block";
-            newPersonSection.style.display = "none";
-
-            existingPersonSelect.required = true;
-
-        } else {
-
-            existingPersonSection.style.display = "none";
-            newPersonSection.style.display = "block";
-
-            existingPersonSelect.required = false;
-
-        }
-
-    }
-
-
-    personSource.addEventListener(
-        "change",
-        updatePersonSource
+    const existingPersonSection = document.getElementById(
+        "existing-person-section"
+    );
+    const newPersonSection = document.getElementById(
+        "new-person-section"
+    );
+    const existingPersonSelect = document.getElementById(
+        "existing_person_id"
     );
 
+    // Disable all form fields inside a section when it is inactive.
+    function setDisabled(container, disabled) {
+        container.querySelectorAll(
+            "input, select, textarea"
+        ).forEach(function (el) {
+            el.disabled = disabled;
+        });
+    }
 
+    function updatePersonSource() {
+        const useExisting = personSource.value === "existing";
+
+        // Show the selected section and hide the other one.
+        existingPersonSection.style.display = useExisting
+            ? "block"
+            : "none";
+
+        newPersonSection.style.display = useExisting
+            ? "none"
+            : "block";
+
+        // Enable fields in the active section only.
+        setDisabled(existingPersonSection, !useExisting);
+        setDisabled(newPersonSection, useExisting);
+
+        // Require an existing person only when that option is selected.
+        existingPersonSelect.required = useExisting;
+    }
+
+    // Update the form whenever the selection changes.
+    personSource.addEventListener("change", updatePersonSource);
+
+    // Apply the correct state when the page loads.
     updatePersonSource();
-
 </script>
+
 
 {% endblock %}

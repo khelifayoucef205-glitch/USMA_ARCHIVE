@@ -76,8 +76,8 @@
                     <tr>
                         <td class="table-id">{{ city.City_id }}</td>
                         <td class="table-name">{{ city.City_Name }}</td>
-                        <td>{{ city.City_Name_ar }}</td>
-                        <td>{{ city.Country_Name }}</td>
+                        <td>{{ city.City_Name_ar or '—' }}</td>
+                        <td>{{ city.Country_Name or '—' }}</td>
                         <td>
                             <div class="table-actions">
                                 <a href="{{ url_for('cities.edit_city_page', city_id=city.City_id) }}"

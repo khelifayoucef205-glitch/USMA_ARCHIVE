@@ -49,15 +49,13 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="start_date">Start Date</label>
-                <input type="text" id="start_date" name="start_date"
-                    value="{% if assignment.Start_Date %}{{ assignment.Start_Date.strftime('%d/%m/%Y') }}{% endif %}"
+                <input type="text" id="start_date" name="start_date" value="{{ assignment.Start_Date | fmt_date('') }}"
                     placeholder="DD/MM/YYYY" required>
             </div>
 
             <div class="form-group">
                 <label for="end_date" class="optional">End Date</label>
-                <input type="text" id="end_date" name="end_date"
-                    value="{% if assignment.End_Date %}{{ assignment.End_Date.strftime('%d/%m/%Y') }}{% endif %}"
+                <input type="text" id="end_date" name="end_date" value="{{ assignment.End_Date | fmt_date('') }}"
                     placeholder="DD/MM/YYYY">
                 <small style="color: #999; display: block; margin-top: 5px;">
                     Leave empty if the assignment is still ongoing
@@ -88,22 +86,29 @@
     </form>
 </div>
 
-<!-- Delete -->
-<div class="admin-section" style="border-left: 4px solid var(--primary-red);">
 
-    <h2 style="color: var(--primary-red);">⚠️ Delete Assignment</h2>
+<!-- Delete Assignment -->
+<div class="admin-section danger-section">
 
-    <div style="background: rgba(220, 20, 60, 0.1); padding: 15px; border-radius: 8px;">
+    <h2>⚠️ Delete Assignment</h2>
 
-        <p style="margin: 0 0 10px 0; color: var(--primary-black);">
-            Delete this assignment at {{ assignment.Club_Current_Name }}?
+    <div class="danger-box">
+
+        <p>
+            Delete this assignment at
+            {{ assignment.Club_Current_Name }}?
             Only this period is removed; the person and other assignments stay.
         </p>
 
-        <form method="POST"
-            action="{{ url_for('staff_assignment.delete_staff_assignment', assignment_id=assignment.Assignment_id) }}"
-            onsubmit="return confirm('Are you sure?');" style="display: inline;">
-            <button type="submit" class="btn-danger">🗑️ Delete Assignment</button>
+        <form method="POST" action="{{ url_for(
+                'staff_assignment.delete_staff_assignment',
+                assignment_id=assignment.Assignment_id
+            ) }}" onsubmit="return confirm('Are you sure?');" style="display: inline;">
+
+            <button type="submit" class="btn-danger">
+                🗑️ Delete Assignment
+            </button>
+
         </form>
 
     </div>

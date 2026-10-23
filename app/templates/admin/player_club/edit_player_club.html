@@ -58,7 +58,7 @@
                 <label for="join_date">Join Date</label>
 
                 <input type="text" id="join_date" name="join_date"
-                    value="{% if relationship.Join_Date %}{{ relationship.Join_Date.strftime('%d/%m/%Y') }}{% endif %}"
+                    value="{% if relationship.Join_Date %}{{ relationship.Join_Date | fmt_date }}{% endif %}"
                     placeholder="DD/MM/YYYY" required>
 
             </div>
@@ -72,7 +72,7 @@
                 </label>
 
                 <input type="text" id="leave_date" name="leave_date"
-                    value="{% if relationship.Leave_Date %}{{ relationship.Leave_Date.strftime('%d/%m/%Y') }}{% endif %}"
+                    value="{% if relationship.Leave_Date %}{{ relationship.Leave_Date | fmt_date }}{% endif %}"
                     placeholder="DD/MM/YYYY">
 
             </div>
@@ -115,36 +115,25 @@
 </div>
 
 
+
 <!-- Delete Relationship -->
-<div class="admin-section" style="border-left: 4px solid var(--primary-red);">
+<div class="admin-section danger-section">
 
-    <h2 style="color: var(--primary-red);">
-        ⚠️ Delete Relationship
-    </h2>
+    <h2>⚠️ Delete Relationship</h2>
 
-    <div style="
-        background: rgba(220, 20, 60, 0.1);
-        padding: 15px;
-        border-radius: 8px;
-    ">
+    <div class="danger-box">
 
-        <p style="
-            margin: 0 0 10px 0;
-            color: var(--primary-black);
-        ">
-
+        <p>
             Remove this player from
             {{ relationship.Club_Current_Name }}?
-
         </p>
 
-
         <form method="POST" action="{{ url_for(
-                  'player_club.delete_player_club',
-                  player_id=relationship.Player_id,
-                  club_id=relationship.Club_id,
-                  join_date=relationship.Join_Date
-              ) }}" onsubmit="return confirm('Are you sure?');" style="display: inline;">
+                'player_club.delete_player_club',
+                player_id=relationship.Player_id,
+                club_id=relationship.Club_id,
+                join_date=relationship.Join_Date
+            ) }}" onsubmit="return confirm('Are you sure?');" style="display: inline;">
 
             <button type="submit" class="btn-danger">
                 🗑️ Delete Relationship

@@ -77,7 +77,9 @@
         <div class="dashboard-card-title">Assignment Seasons</div>
         <div class="dashboard-card-value">{{ staff_assignment_seasons_count }}</div>
         <div class="dashboard-card-footer">
-            <a href="{{ url_for('staff_assignment_season.staff_assignment_season_page') }}">Manage →</a>
+            <a href="{{ url_for('staff_assignment_season.staff_assignment_season_page') }}">
+                Manage →
+            </a>
         </div>
     </div>
 
@@ -97,172 +99,121 @@
 <div class="admin-section">
     <h2>🚀 Quick Actions</h2>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-        <a href="{{ url_for('add_player.add_player_page') }}"
-            style="padding: 15px; background: rgba(220, 20, 60, 0.1); border-left: 4px solid var(--primary-red); text-decoration: none; color: var(--primary-black); font-weight: 600; border-radius: 6px; transition: all 0.3s ease;"
-            onmouseover="this.style.background='rgba(220, 20, 60, 0.2)'"
-            onmouseout="this.style.background='rgba(220, 20, 60, 0.1)'">
+    <div class="quick-actions">
+        <a href="{{ url_for('add_player.add_player_page') }}" class="quick-action">
             ➕ Add New Player
         </a>
 
-        <a href="{{ url_for('add_staff_member.add_staff_member_page') }}"
-            style="padding: 15px; background: rgba(220, 20, 60, 0.1); border-left: 4px solid var(--primary-red); text-decoration: none; color: var(--primary-black); font-weight: 600; border-radius: 6px; transition: all 0.3s ease;"
-            onmouseover="this.style.background='rgba(220, 20, 60, 0.2)'"
-            onmouseout="this.style.background='rgba(220, 20, 60, 0.1)'">
+        <a href="{{ url_for('add_staff_member.add_staff_member_page') }}" class="quick-action">
             ➕ Add New Staff Member
         </a>
 
-        <a href="{{ url_for('clubs.clubs_page') }}"
-            style="padding: 15px; background: rgba(220, 20, 60, 0.1); border-left: 4px solid var(--primary-red); text-decoration: none; color: var(--primary-black); font-weight: 600; border-radius: 6px; transition: all 0.3s ease;"
-            onmouseover="this.style.background='rgba(220, 20, 60, 0.2)'"
-            onmouseout="this.style.background='rgba(220, 20, 60, 0.1)'">
+        <a href="{{ url_for('clubs.clubs_page') }}" class="quick-action">
             ➕ Add New Club
         </a>
 
-        <a href="{{ url_for('cities.cities_page') }}"
-            style="padding: 15px; background: rgba(220, 20, 60, 0.1); border-left: 4px solid var(--primary-red); text-decoration: none; color: var(--primary-black); font-weight: 600; border-radius: 6px; transition: all 0.3s ease;"
-            onmouseover="this.style.background='rgba(220, 20, 60, 0.2)'"
-            onmouseout="this.style.background='rgba(220, 20, 60, 0.1)'">
+        <a href="{{ url_for('cities.cities_page') }}" class="quick-action">
             ➕ Add New City
         </a>
     </div>
 </div>
 
-<!-- System Information -->
+<!-- Statistics Section -->
 <div class="admin-section">
     <h2>📈 Statistics</h2>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+    <div class="stats-grid">
 
         <!-- Total Players -->
-        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Total Players</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ players_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <div class="stat-box">
+            <h3 class="stat-box-title">Total Players</h3>
+            <p class="stat-box-value">{{ players_count }}</p>
+            <p class="stat-box-detail">
                 🟢 {{ active_players_count }} active
             </p>
         </div>
 
         <!-- Total Staff Members -->
-        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Total Staff Members</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ staff_members_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <div class="stat-box">
+            <h3 class="stat-box-title">Total Staff Members</h3>
+            <p class="stat-box-value">{{ staff_members_count }}</p>
+            <p class="stat-box-detail">
                 👨‍💼 {{ active_staff_members_count }} active
             </p>
         </div>
 
         <!-- Total Clubs -->
-        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Total Clubs</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ clubs_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <div class="stat-box">
+            <h3 class="stat-box-title">Total Clubs</h3>
+            <p class="stat-box-value">{{ clubs_count }}</p>
+            <p class="stat-box-detail">
                 🟢 {{ active_clubs_count }} active
             </p>
         </div>
 
         <!-- Player Club Relations -->
-        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Player Club Relations</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ player_clubs_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <div class="stat-box">
+            <h3 class="stat-box-title">Player Club Relations</h3>
+            <p class="stat-box-value">{{ player_clubs_count }}</p>
+            <p class="stat-box-detail">
                 🔗 {{ current_player_clubs_count }} current
             </p>
         </div>
 
         <!-- Staff Assignments -->
-        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Staff Assignments</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ staff_assignments_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <div class="stat-box">
+            <h3 class="stat-box-title">Staff Assignments</h3>
+            <p class="stat-box-value">{{ staff_assignments_count }}</p>
+            <p class="stat-box-detail">
                 🔗 {{ current_staff_assignments_count }} ongoing
             </p>
         </div>
 
         <!-- Player Seasons -->
-        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Player Seasons</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ player_seasons_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <div class="stat-box">
+            <h3 class="stat-box-title">Player Seasons</h3>
+            <p class="stat-box-value">{{ player_seasons_count }}</p>
+            <p class="stat-box-detail">
                 📅 Historical records
             </p>
         </div>
 
         <!-- Assignment Seasons -->
-        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Assignment Seasons</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ staff_assignment_seasons_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <div class="stat-box">
+            <h3 class="stat-box-title">Assignment Seasons</h3>
+            <p class="stat-box-value">{{ staff_assignment_seasons_count }}</p>
+            <p class="stat-box-detail">
                 📅 Historical records
             </p>
         </div>
 
         <!-- Cities -->
-        <div style="padding: 20px; background: #f9f9fc; border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">Cities</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ cities_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <div class="stat-box">
+            <h3 class="stat-box-title">Cities</h3>
+            <p class="stat-box-value">{{ cities_count }}</p>
+            <p class="stat-box-detail">
                 🏙️ Registered cities
             </p>
         </div>
 
-        <!-- USMA Player Squad -->
-        <div
-            style="padding: 20px; background: linear-gradient(135deg, rgba(196, 30, 58, 0.1), rgba(220, 20, 60, 0.05)); border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">USMA Current Squad</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ usma_squad_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <!-- USMA Current Squad -->
+        <div class="stat-box stat-box-highlight">
+            <h3 class="stat-box-title">USMA Current Squad</h3>
+            <p class="stat-box-value">{{ usma_squad_count }}</p>
+            <p class="stat-box-detail">
                 ⚽ Latest season
             </p>
         </div>
 
-        <!-- USMA Staff -->
-        <div
-            style="padding: 20px; background: linear-gradient(135deg, rgba(196, 30, 58, 0.1), rgba(220, 20, 60, 0.05)); border-left: 4px solid var(--primary-red); border-radius: 6px;">
-            <h3 style="color: var(--primary-red); font-size: 14px; margin: 0 0 8px 0;">USMA Current Staff</h3>
-            <p style="font-size: 28px; color: var(--primary-black); font-weight: 700; margin: 0;">
-                {{ usma_staff_count }}
-            </p>
-            <p style="font-size: 12px; color: #666; margin: 5px 0 0 0;">
+        <!-- USMA Current Staff -->
+        <div class="stat-box stat-box-highlight">
+            <h3 class="stat-box-title">USMA Current Staff</h3>
+            <p class="stat-box-value">{{ usma_staff_count }}</p>
+            <p class="stat-box-detail">
                 👨‍💼 Latest season
             </p>
         </div>
 
-    </div>
-</div>
-
-<!-- Database Status -->
-<div class="admin-section">
-    <h2>🔌 Database Status</h2>
-
-    <div
-        style="padding: 20px; background: linear-gradient(135deg, rgba(0, 0, 0, 0.05), rgba(196, 30, 58, 0.05)); border-radius: 6px; border: 1px solid #e0e0e0;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 24px;">🟢</span>
-            <div>
-                <h3 style="color: var(--primary-black); font-weight: 600; margin: 0;">Connected & Healthy</h3>
-                <p style="color: #666; font-size: 12px; margin: 5px 0 0 0;">Database connection is active and all
-                    operations are running smoothly.</p>
-            </div>
-        </div>
     </div>
 </div>
 

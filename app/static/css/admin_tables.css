@@ -728,3 +728,12 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
 }
+
+/* Small label used for positions and roles inside tables */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    background: var(--primary-red-soft);
+}

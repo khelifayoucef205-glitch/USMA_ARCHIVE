@@ -86,7 +86,7 @@
                 </label>
 
                 <input type="text" id="birth_date" name="birth_date"
-                    value="{% if staff_member.Person_birth_date %}{{ staff_member.Person_birth_date.strftime('%d/%m/%Y') }}{% endif %}"
+                    value="{{ staff_member.Person_birth_date | fmt_date('') }}"
                     placeholder="DD/MM/YYYY">
 
             </div>
@@ -98,7 +98,7 @@
                 </label>
 
                 <input type="text" id="death_date" name="death_date"
-                    value="{% if staff_member.Person_death_date %}{{ staff_member.Person_death_date.strftime('%d/%m/%Y') }}{% endif %}"
+                    value="{{ staff_member.Person_death_date | fmt_date('') }}"
                     placeholder="DD/MM/YYYY">
 
             </div>
@@ -317,17 +317,16 @@
                         <td class="table-name">{{ a.Club_Current_Name }}</td>
 
                         <td>
-                            <span
-                                style="background: rgba(220, 20, 60, 0.1); padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                            <span class="badge">
                                 {{ a.Role_name }}
                             </span>
                         </td>
 
-                        <td>{{ a.Start_Date.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ a.Start_Date | fmt_date }}</td>
 
                         <td>
                             {% if a.End_Date %}
-                            {{ a.End_Date.strftime('%d/%m/%Y') }}
+                            {{ a.End_Date | fmt_date }}
                             {% else %}
                             <span style="color: var(--primary-red); font-weight: 600;">Current</span>
                             {% endif %}

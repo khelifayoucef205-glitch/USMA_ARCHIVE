@@ -143,7 +143,7 @@
                 <div class="info-row">
                     <span class="info-label">Full Name</span>
                     <span class="info-value">
-                        {{ staff_member.Person_First_Name }} {{ staff_member.Person_Last_Name }}
+                        {{ staff_member.Person_First_Name or '' }} {{ staff_member.Person_Last_Name or '' }} 
                     </span>
                 </div>
                 {% endif %}
@@ -152,7 +152,7 @@
                 <div class="info-row">
                     <span class="info-label">Arabic Name</span>
                     <span class="info-value">
-                        {{ staff_member.Person_First_Name_ar }} {{ staff_member.Person_Last_Name_ar }}
+                        {{ staff_member.Person_First_Name_ar or '' }} {{ staff_member.Person_Last_Name_ar or '' }}
                     </span>
                 </div>
                 {% endif %}

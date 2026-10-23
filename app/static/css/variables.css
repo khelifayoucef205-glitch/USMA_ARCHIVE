@@ -1,12 +1,13 @@
 :root {
-    /* ====== الألوان الأساسية ====== */
+    /* ====== Primary Colors ====== */
     --primary-red: #B71C1C;
     --primary-black: #1a1a1a;
+    --primary-red-soft: rgba(220, 20, 60, 0.1);
     --neutral-white: #ffffff;
     --light-gray: #f8f8f8;
     --dark-gray: #333333;
 
-    /* ====== الألوان الإضافية ====== */
+    /* ====== Additional Colors ====== */
     --border-color: #d5d5d5;
     --hover-light: #fff7f8;
     --color-text-secondary: #888888;

@@ -40,13 +40,13 @@
                     <td>{{ a.Club_Current_Name }}</td>
 
                     <td>
-                        {{ a.Start_Date.strftime('%d/%m/%Y') }}
-                        <span class="separator">→</span>
-                        {% if a.End_Date %}
-                        {{ a.End_Date.strftime('%d/%m/%Y') }}
-                        {% else %}
-                        Present
-                        {% endif %}
+                    <td>{{ a.Start_Date | fmt_date }}</td>
+                    <span class="separator">→</span>
+                    {% if a.End_Date %}
+                    {{ a.End_Date | fmt_date }}
+                    {% else %}
+                    Present
+                    {% endif %}
                     </td>
 
                     <td>{{ a.Seasons or '—' }}</td>

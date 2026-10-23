@@ -115,10 +115,9 @@
                 </label>
 
                 <input type="text" id="club_founding_date" name="club_founding_date" placeholder="DD/MM/YYYY"
-                    value="{% if club.Club_Founding_Date %}{{ club.Club_Founding_Date.strftime('%d/%m/%Y') }}{% endif %}">
+                    value="{{ club.Club_Founding_Date | fmt_date('') }}">
 
             </div>
-
 
             <!-- Dissolution Date -->
 
@@ -129,7 +128,7 @@
                 </label>
 
                 <input type="text" id="dissolution_date" name="dissolution_date" placeholder="DD/MM/YYYY"
-                    value="{% if club.Dissolution_Date %}{{ club.Dissolution_Date.strftime('%d/%m/%Y') }}{% endif %}">
+                    value="{{ club.Dissolution_Date | fmt_date('') }}">
 
             </div>
 
@@ -153,39 +152,25 @@
 </div>
 
 
+
 <!-- Danger Zone - Delete Club -->
+<div class="admin-section danger-section">
 
-<div class="admin-section" style="border-left: 4px solid var(--primary-red);">
+    <h2>⚠️ Danger Zone</h2>
 
-    <h2 style="color: var(--primary-red);">
-        ⚠️ Danger Zone
-    </h2>
+    <div class="danger-box">
 
-    <div style="
-        background: rgba(220, 20, 60, 0.1);
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    ">
-
-        <p style="
-            margin: 0 0 10px 0;
-            color: var(--primary-black);
-        ">
-
+        <p>
             <strong>Delete Club</strong><br>
-
             Deleting this club is permanent and cannot be undone.
-
         </p>
 
-
         <form method="POST" action="{{ url_for(
-                  'edit_clubs.delete_club',
-                  club_id=club.Club_id
-              ) }}" onsubmit="return confirm(
-                  'Are you absolutely sure? This action cannot be undone.'
-              );" style="display: inline;">
+                'edit_clubs.delete_club',
+                club_id=club.Club_id
+            ) }}" onsubmit="return confirm(
+                'Are you absolutely sure? This action cannot be undone.'
+            );" style="display: inline;">
 
             <button type="submit" class="btn-danger">
                 🗑️ Delete Club Permanently

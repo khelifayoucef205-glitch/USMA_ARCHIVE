@@ -206,10 +206,6 @@
     background: rgba(220, 20, 60, 0.05);
 }
 
-.form-group input:valid {
-    border-color: var(--primary-black);
-}
-
 .error-message {
     color: var(--primary-red);
     font-size: 12px;
@@ -239,4 +235,24 @@
     .form-actions button {
         width: 100%;
     }
+}
+
+/* Danger zone (delete sections in edit pages) */
+.danger-section {
+    border-left: 4px solid var(--primary-red);
+}
+
+.danger-section h2 {
+    color: var(--primary-red);
+}
+
+.danger-box {
+    background: var(--primary-red-soft);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.danger-box p {
+    margin: 0 0 10px 0;
+    color: var(--primary-black);
 }
